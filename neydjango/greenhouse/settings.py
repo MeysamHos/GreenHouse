@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+import dj_database_url
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -123,16 +125,21 @@ SIMPLE_JWT = {
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'greenhouse',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres123',
-        'HOST': '127.0.0.1',   # Using 127.0.0.1 bypasses the IPv6 (::1) confusion completely
-        'PORT': '5432',
-    }
+    'default': dj_database_url.config(
+        default=DATABASE_URL,
+        conn_max_age=600,
+    )
 }
+
+# Ensure SSL is strictly enforced for Neon
+if DATABASES.get('default'):
+    DATABASES['default']['OPTIONS'] = {
+        'sslmode': 'require',
+    }
+
 
 
 # Password validation

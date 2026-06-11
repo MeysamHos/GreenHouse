@@ -1,0 +1,207 @@
+{% extends "greenhouse_app/base.html" %}
+
+{% block title %}My Profile — Greenhouse OS{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="breadcrumb">
+      <a href="{% url 'greenhouse_app:greenhouse_list' %}">Greenhouses</a>
+      <span class="breadcrumb-sep">›</span>
+      <span>My Profile</span>
+    </div>
+    <div class="page-title">My Profile</div>
+    <div class="page-subtitle">Manage your account information</div>
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start;">
+
+  <!-- ── Left: Avatar + Identity ──────────────────────────────────── -->
+  <div style="display: flex; flex-direction: column; gap: 16px;">
+
+    <div class="card animate-in">
+      <div class="card-body" style="text-align: center; padding: 28px 20px;">
+
+        <!-- Avatar circle -->
+        <div style="width: 72px; height: 72px;
+                    background: var(--green-dim);
+                    border: 2px solid var(--green);
+                    border-radius: 50%;
+                    display: flex; align-items: center; justify-content: center;
+                    margin: 0 auto 14px;
+                    font-family: var(--display);
+                    font-size: 26px;
+                    font-weight: 700;
+                    color: var(--green);">
+          {{ user.username|slice:":2"|upper }}
+        </div>
+
+        <div style="font-family: var(--display); font-size: 18px;
+                    font-weight: 700; color: #e6edf3;">
+          {{ user.get_full_name|default:user.username }}
+        </div>
+        <div class="text-muted" style="font-size: 12px; margin-top: 4px;">
+          @{{ user.username }}
+        </div>
+
+        {% if user.email %}
+        <div class="text-dim" style="font-size: 12px; margin-top: 6px;">
+          {{ user.email }}
+        </div>
+        {% endif %}
+
+        <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
+          <div style="font-size: 11px; color: var(--text-dim); text-transform: uppercase;
+                      letter-spacing: .08em; margin-bottom: 6px;">Highest Role</div>
+          <span class="badge {% if user_role == 'owner' %}badge-green
+                              {% elif user_role == 'manager' %}badge-blue
+                              {% elif user_role == 'operator' %}badge-amber
+                              {% else %}badge-muted{% endif %}">
+            {{ user_role|default:"—" }}
+          </span>
+        </div>
+
+        <div style="margin-top: 12px;">
+          <div class="text-dim" style="font-size: 11px;">
+            Member since {{ user.date_joined|date:"M d, Y" }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Greenhouse memberships summary -->
+    <div class="card animate-in">
+      <div class="card-header">
+        <span class="card-title">My Greenhouses</span>
+        <span class="badge badge-muted">{{ memberships|length }}</span>
+      </div>
+      <div style="padding: 8px 0;">
+        {% for m in memberships %}
+        <a href="{% url 'greenhouse_app:greenhouse_detail' m.greenhouse.id %}"
+           style="display: flex; align-items: center; justify-content: space-between;
+                  padding: 10px 16px; text-decoration: none;
+                  border-bottom: 1px solid var(--border); transition: background .15s;"
+           onmouseover="this.style.background='var(--surface-2)'"
+           onmouseout="this.style.background='transparent'">
+          <span style="font-size: 13px; color: var(--text);">{{ m.greenhouse.name }}</span>
+          <span class="badge {% if m.role == 'owner' %}badge-green
+                              {% elif m.role == 'manager' %}badge-blue
+                              {% elif m.role == 'operator' %}badge-amber
+                              {% else %}badge-muted{% endif %}">
+            {{ m.role }}
+          </span>
+        </a>
+        {% empty %}
+        <div style="padding: 16px; color: var(--text-dim); font-size: 12px; text-align: center;">
+          No greenhouse memberships yet.
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Right: Edit Form ──────────────────────────────────────────── -->
+  <div style="display: flex; flex-direction: column; gap: 16px;">
+
+    <!-- Personal info -->
+    <div class="card animate-in">
+      <div class="card-header">
+        <span class="card-title">Personal Information</span>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="form_type" value="profile">
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="id_first_name">First Name</label>
+              <input type="text" name="first_name" id="id_first_name"
+                     value="{{ user.first_name }}">
+            </div>
+            <div class="form-group">
+              <label for="id_last_name">Last Name</label>
+              <input type="text" name="last_name" id="id_last_name"
+                     value="{{ user.last_name }}">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="id_email">Email</label>
+            <input type="email" name="email" id="id_email"
+                   value="{{ user.email }}">
+          </div>
+
+          <div class="form-group">
+            <label for="id_phone">Phone Number</label>
+            <input type="text" name="phone" id="id_phone"
+                   value="{{ user.phone|default:'' }}"
+                   placeholder="e.g. 09123456789">
+          </div>
+
+          <div class="form-group">
+            <label for="id_locale">Language</label>
+            <select name="locale" id="id_locale">
+              <option value="fa" {% if user.locale == 'fa' %}selected{% endif %}>Persian (فارسی)</option>
+              <option value="en" {% if user.locale == 'en' %}selected{% endif %}>English</option>
+            </select>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                   width="13" height="13"><polyline points="20 6 9 17 4 12"/></svg>
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Change password -->
+    <div class="card animate-in">
+      <div class="card-header">
+        <span class="card-title">Change Password</span>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="form_type" value="password">
+
+          {% if password_error %}
+            <div class="alert alert-error">{{ password_error }}</div>
+          {% endif %}
+
+          <div class="form-group">
+            <label for="id_old_password">Current Password</label>
+            <input type="password" name="old_password" id="id_old_password"
+                   autocomplete="current-password">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="id_new_password1">New Password</label>
+              <input type="password" name="new_password1" id="id_new_password1"
+                     autocomplete="new-password">
+            </div>
+            <div class="form-group">
+              <label for="id_new_password2">Confirm New Password</label>
+              <input type="password" name="new_password2" id="id_new_password2"
+                     autocomplete="new-password">
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Update Password</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

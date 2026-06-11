@@ -1,0 +1,208 @@
+{% extends "greenhouse_app/base.html" %}
+
+{% block title %}New Diagnosis — {{ greenhouse.name }} — Greenhouse OS{% endblock %}
+
+{% block sidebar_greenhouse_links %}
+<div class="sidebar-divider"></div>
+<span class="sidebar-label">{{ greenhouse.name|truncatechars:20 }}</span>
+<a href="{% url 'greenhouse_app:greenhouse_detail' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+  </svg>
+  Overview
+</a>
+<a href="{% url 'operations:operation_list' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+    <rect x="9" y="3" width="6" height="4" rx="1"/>
+  </svg>
+  Operations
+</a>
+<a href="{% url 'inventory:inventory_list' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
+    <path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/>
+  </svg>
+  Inventory
+</a>
+<a href="{% url 'financials:dashboard' greenhouse.id %}" class="sidebar-link">
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+    <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.050zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73z"/>
+  </svg>
+  Financials / P&L
+</a>
+<a href="{% url 'diagnosis:diagnosis_list' greenhouse.id %}" class="sidebar-link active">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    <path d="M11 8v6M8 11h6"/>
+  </svg>
+  Disease Detection
+</a>
+<a href="{% url 'reports:index' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+    <polyline points="14 2 14 8 20 8"/>
+    <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+    <polyline points="10 9 9 9 8 9"/>
+  </svg>
+  Reports
+</a>
+<a href="{% url 'greenhouse_app:member_list' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/>
+  </svg>
+  Members
+</a>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="breadcrumb">
+      {% for crumb in breadcrumbs %}
+        {% if crumb.url %}<a href="{{ crumb.url }}">{{ crumb.label }}</a><span class="breadcrumb-sep">›</span>
+        {% else %}<span>{{ crumb.label }}</span>{% endif %}
+      {% endfor %}
+    </div>
+    <div class="page-title">New Diagnosis</div>
+    <div class="page-subtitle">Upload plant photos to detect diseases</div>
+  </div>
+</div>
+
+<div style="max-width:640px;">
+  <div class="card animate-in">
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- ── Images ──────────────────────────────────────────────── -->
+        <div style="margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border);">
+          <div style="font-size:11px; text-transform:uppercase; letter-spacing:.08em;
+                      color:var(--text-dim); margin-bottom:12px;">Plant Photos (required)</div>
+
+          <div class="form-group">
+            <label>
+              Upload Images <span style="color:var(--red);">*</span>
+            </label>
+            <input type="file" name="images" multiple accept="image/jpeg,image/png,image/webp"
+                   id="id_images" style="display:none;">
+            <div id="drop-zone"
+                 onclick="document.getElementById('id_images').click()"
+                 style="border:2px dashed var(--border); border-radius:var(--radius-lg);
+                        padding:32px 20px; text-align:center; cursor:pointer;
+                        transition:border-color .15s, background .15s;"
+                 onmouseover="this.style.borderColor='var(--green)'; this.style.background='var(--green-dim)'"
+                 onmouseout="this.style.borderColor='var(--border)'; this.style.background=''">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" stroke-width="1.5"
+                   width="36" height="36" style="margin-bottom:8px;">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+              <div style="font-size:13px; color:var(--text-muted); margin-bottom:4px;">
+                Click to select or drag & drop
+              </div>
+              <div style="font-size:11px; color:var(--text-dim);">
+                JPEG or PNG · Up to 5 images · Leaf, stem or fruit photos
+              </div>
+            </div>
+            <div id="preview-grid" style="display:none; margin-top:12px;
+                                          display:grid; grid-template-columns:repeat(5, 1fr); gap:8px;"></div>
+            <span class="form-hint">Take close-up photos showing the affected area clearly.</span>
+          </div>
+
+          <div class="form-group">
+            <label for="id_plant_part">What part of the plant?</label>
+            <select name="plant_part" id="id_plant_part">
+              {% for val, label in plant_part_choices %}
+                <option value="{{ val }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <!-- ── Location (optional) ────────────────────────────────── -->
+        <div style="margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border);">
+          <div style="font-size:11px; text-transform:uppercase; letter-spacing:.08em;
+                      color:var(--text-dim); margin-bottom:12px;">Location (optional)</div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="id_bed_id">Bed</label>
+              <select name="bed_id" id="id_bed_id">
+                <option value="">— Select bed —</option>
+                {% for bed in beds %}
+                  <option value="{{ bed.id }}">{{ bed.house.name }} / {{ bed.code }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="id_crop_id">Crop</label>
+              <select name="crop_id" id="id_crop_id">
+                <option value="">— Select crop —</option>
+                {% for crop in active_crops %}
+                  <option value="{{ crop.id }}">{{ crop.crop_type }} — {{ crop.variety }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Notes ──────────────────────────────────────────────── -->
+        <div class="form-group">
+          <label for="id_notes">Observations</label>
+          <textarea name="notes" id="id_notes" rows="3"
+                    placeholder="Describe what you see — yellowing, spots, wilting, etc."></textarea>
+          <span class="form-hint">Optional but helps improve diagnosis accuracy.</span>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="submit-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" width="14" height="14">
+              <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+              <path d="M11 8v6M8 11h6"/>
+            </svg>
+            Run Diagnosis
+          </button>
+          <a href="{% url 'diagnosis:diagnosis_list' greenhouse.id %}" class="btn btn-outline">Cancel</a>
+          <span id="loading-msg" style="display:none; font-size:12px; color:var(--text-muted); margin-left:8px;">
+            Analysing images… this may take 10-20 seconds.
+          </span>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// Image preview
+document.getElementById('id_images').addEventListener('change', function() {
+  const grid = document.getElementById('preview-grid');
+  grid.innerHTML = '';
+  grid.style.display = 'grid';
+  Array.from(this.files).slice(0, 5).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const div = document.createElement('div');
+      div.style.cssText = 'border:1px solid var(--border); border-radius:var(--radius); overflow:hidden;';
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      img.style.cssText = 'width:100%; height:80px; object-fit:cover; display:block;';
+      div.appendChild(img);
+      grid.appendChild(div);
+    };
+    reader.readAsDataURL(file);
+  });
+});
+
+// Show loading message on submit
+document.querySelector('form').addEventListener('submit', function() {
+  document.getElementById('submit-btn').disabled = true;
+  document.getElementById('submit-btn').textContent = 'Analysing…';
+  document.getElementById('loading-msg').style.display = 'inline';
+});
+</script>
+
+{% endblock %}

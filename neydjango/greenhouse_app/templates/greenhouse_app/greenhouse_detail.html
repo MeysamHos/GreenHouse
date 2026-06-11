@@ -1,0 +1,209 @@
+{% extends "greenhouse_app/base.html" %}
+
+{% block title %}{{ greenhouse.name }} — Greenhouse OS{% endblock %}
+
+{% block sidebar_greenhouse_links %}
+<div class="sidebar-divider"></div>
+<span class="sidebar-label">{{ greenhouse.name|truncatechars:20 }}</span>
+
+<a href="{% url 'greenhouse_app:greenhouse_detail' greenhouse.id %}" class="sidebar-link active">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+  </svg>
+  Overview
+</a>
+<a href="{% url 'operations:operation_list' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+    <rect x="9" y="3" width="6" height="4" rx="1"/>
+    <path d="M9 12h6M9 16h4"/>
+  </svg>
+  Operations
+</a>
+<a href="{% url 'inventory:inventory_list' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
+    <path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/>
+  </svg>
+  Inventory
+</a>
+<a href="{% url 'financials:dashboard' greenhouse.id %}" class="sidebar-link">
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-dollar" viewBox="0 0 16 16">
+  <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73z"/>
+</svg>
+  Financials / P&L
+</a>
+<a href="{% url 'diagnosis:diagnosis_list' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    <path d="M11 8v6M8 11h6"/>
+  </svg>
+  Disease Detection
+</a>
+<a href="{% url 'reports:index' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+    <polyline points="14 2 14 8 20 8"/>
+    <line x1="16" y1="13" x2="8" y2="13"/>
+    <line x1="16" y1="17" x2="8" y2="17"/>
+  </svg>
+  Reports
+</a>
+<a href="{% url 'greenhouse_app:member_list' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/>
+    <path d="M16 3.13a4 4 0 010 7.75M21 21v-2a4 4 0 00-3-3.87"/>
+  </svg>
+  Members
+</a>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="breadcrumb">
+      <a href="{% url 'greenhouse_app:greenhouse_list' %}">Greenhouses</a>
+      <span class="breadcrumb-sep">›</span>
+      <span>{{ greenhouse.name }}</span>
+    </div>
+    <div class="page-title">{{ greenhouse.name }}</div>
+    <div class="page-subtitle">
+      {{ greenhouse.address|default:"No address" }}
+      {% if greenhouse.timezone %} · {{ greenhouse.timezone }}{% endif %}
+    </div>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <a href="{% url 'greenhouse_app:house_create' greenhouse.id %}" class="btn btn-primary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+      Add House
+    </a>
+    <a href="{% url 'greenhouse_app:greenhouse_edit' greenhouse.id %}" class="btn btn-outline">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+      </svg>
+      Edit
+    </a>
+  </div>
+</div>
+
+<!-- ── Stats Row ───────────────────────────────────────────────────── -->
+<div class="stat-grid stagger">
+  <div class="stat-card animate-in">
+    <div class="stat-label">Houses (Salons)</div>
+    <div class="stat-value">{{ houses|length }}</div>
+    <div class="stat-sub">physical sections</div>
+  </div>
+  <div class="stat-card animate-in">
+    <div class="stat-label">Total Beds</div>
+    <div class="stat-value">{{ total_beds|default:"0" }}</div>
+    <div class="stat-sub">cultivation rows</div>
+  </div>
+  <div class="stat-card animate-in">
+    <div class="stat-label">Active Crops</div>
+    <div class="stat-value text-green">{{ active_crops|default:"0" }}</div>
+    <div class="stat-sub">currently growing</div>
+  </div>
+  <div class="stat-card animate-in">
+    <div class="stat-label">Total Area</div>
+    <div class="stat-value">{{ total_area|default:"—" }}</div>
+    <div class="stat-sub">m²</div>
+  </div>
+</div>
+
+<!-- ── Houses Grid ─────────────────────────────────────────────────── -->
+<div class="card animate-in">
+  <div class="card-header">
+    <span class="card-title">Houses &amp; Beds</span>
+    <a href="{% url 'greenhouse_app:house_create' greenhouse.id %}" class="btn btn-outline btn-sm">
+      + Add House
+    </a>
+  </div>
+
+  {% if houses %}
+    <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+      {% for house in houses %}
+      <div style="border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;">
+
+        <!-- House header -->
+        <div style="padding: 12px 16px; background: var(--surface-2);
+                    display: flex; align-items: center; justify-content: space-between;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                 stroke="var(--green)" stroke-width="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+            </svg>
+            <a href="{% url 'greenhouse_app:house_detail' greenhouse.id house.id %}"
+               style="font-family:var(--display); font-weight:600; color:#e6edf3;
+                      text-decoration:none; font-size:14px;">
+              {{ house.name }}
+            </a>
+            {% if house.area_m2 %}
+              <span class="badge badge-muted">{{ house.area_m2 }} m²</span>
+            {% endif %}
+          </div>
+          <div style="display:flex; gap:6px; align-items:center;">
+            <span class="text-dim" style="font-size:11px;">{{ house.beds.count }} beds</span>
+            <a href="{% url 'greenhouse_app:bed_create' greenhouse.id house.id %}"
+               class="btn btn-outline btn-sm">+ Bed</a>
+            <a href="{% url 'greenhouse_app:house_detail' greenhouse.id house.id %}"
+               class="btn btn-outline btn-sm">View</a>
+          </div>
+        </div>
+
+        <!-- Beds strip -->
+        {% if house.beds.all %}
+        <div style="padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 8px;">
+          {% for bed in house.beds.all %}
+            {% with active_crop=bed.crops.all|dictsort:"planted_at"|last %}
+            <a href="{% url 'greenhouse_app:bed_detail' greenhouse.id house.id bed.id %}"
+               style="display:flex; flex-direction:column; gap:2px;
+                      padding: 8px 12px;
+                      background: var(--bg);
+                      border: 1px solid {% if active_crop %}var(--green-dim){% else %}var(--border){% endif %};
+                      border-radius: var(--radius);
+                      text-decoration: none;
+                      min-width: 80px;
+                      transition: border-color .15s;"
+               onmouseover="this.style.borderColor='var(--border-2)'"
+               onmouseout="this.style.borderColor='{% if active_crop %}var(--green-dim){% else %}var(--border){% endif %}'">
+              <span style="font-size:12px; font-weight:600; color:#e6edf3;">{{ bed.code }}</span>
+              {% if active_crop and active_crop.status == 'growing' %}
+                <span style="font-size:10px; color:var(--green);">{{ active_crop.crop_type }}</span>
+              {% else %}
+                <span style="font-size:10px; color:var(--text-dim);">empty</span>
+              {% endif %}
+            </a>
+            {% endwith %}
+          {% endfor %}
+        </div>
+        {% else %}
+        <div style="padding: 16px; color: var(--text-dim); font-size:12px;">
+          No beds in this house.
+          <a href="{% url 'greenhouse_app:bed_create' greenhouse.id house.id %}"
+             style="color:var(--green);">Add the first bed →</a>
+        </div>
+        {% endif %}
+
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      <h3>No houses yet</h3>
+      <p>Add your first house (سالن) to start defining beds.</p>
+      <div style="margin-top:16px;">
+        <a href="{% url 'greenhouse_app:house_create' greenhouse.id %}" class="btn btn-primary">
+          Add First House
+        </a>
+      </div>
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}

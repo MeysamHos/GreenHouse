@@ -1,0 +1,213 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign In — Greenhouse OS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d1117; --surface: #161b22; --border: #2a3441;
+      --text: #cdd9e5; --text-muted: #768390; --text-dim: #444e5c;
+      --green: #3fb950; --green-dim: #1a3a20; --green-glow: rgba(63,185,80,.15);
+      --red: #f85149; --red-dim: #3a1010;
+      --radius: 6px; --radius-lg: 12px;
+      --mono: 'DM Mono', monospace; --display: 'Syne', sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 14px;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    /* Subtle grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 40px 40px;
+      opacity: .3;
+      pointer-events: none;
+    }
+
+    .login-wrap {
+      width: 100%;
+      max-width: 400px;
+      position: relative;
+      z-index: 1;
+      animation: fadeUp .4s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-brand {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .brand-icon {
+      width: 52px; height: 52px;
+      background: var(--green-dim);
+      border: 1px solid var(--green);
+      border-radius: var(--radius-lg);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 14px;
+      box-shadow: 0 0 24px var(--green-glow);
+    }
+
+    .brand-icon svg { width: 26px; height: 26px; color: var(--green); }
+
+    .brand-name {
+      font-family: var(--display);
+      font-size: 26px;
+      font-weight: 800;
+      color: #e6edf3;
+      letter-spacing: -1px;
+    }
+
+    .brand-sub {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 4px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+
+    label { font-size: 12px; color: var(--text-muted); letter-spacing: .04em; }
+
+    input[type="text"], input[type="password"] {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 13px;
+      padding: 10px 12px;
+      width: 100%;
+      transition: border-color .15s, box-shadow .15s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px var(--green-glow);
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 11px;
+      background: var(--green);
+      color: #0d1117;
+      border: none;
+      border-radius: var(--radius);
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background .15s;
+    }
+    .btn-submit:hover { background: #4fc660; }
+
+    .alert {
+      padding: 10px 14px;
+      border-radius: var(--radius);
+      font-size: 12px;
+      margin-bottom: 16px;
+      border-left: 3px solid var(--red);
+      background: var(--red-dim);
+      color: var(--red);
+    }
+
+    .register-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+    .register-link a { color: var(--green); text-decoration: none; }
+    .register-link a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="login-wrap">
+
+    <div class="login-brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="M12 8v8M8 12h8"/>
+        </svg>
+      </div>
+      <div class="brand-name">Greenhouse OS</div>
+      <div class="brand-sub">Smart Greenhouse Platform</div>
+    </div>
+
+    <div class="card">
+
+      {% if form.errors %}
+        <div class="alert">
+          Invalid username or password. Please try again.
+        </div>
+      {% endif %}
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+
+      <form method="post" action="{% url 'greenhouse_app:login' %}">
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label for="id_username">Username</label>
+          <input type="text" name="username" id="id_username"
+                 autofocus autocomplete="username"
+                 value="{{ form.username.value|default:'' }}">
+        </div>
+
+        <div class="form-group">
+          <label for="id_password">Password</label>
+          <input type="password" name="password" id="id_password"
+                 autocomplete="current-password">
+        </div>
+
+        <input type="hidden" name="next" value="{{ next }}">
+
+        <button type="submit" class="btn-submit">Sign In</button>
+      </form>
+    </div>
+
+    <div class="register-link">
+      Don't have an account?
+      <a href="{% url 'greenhouse_app:register' %}">Create one</a>
+    </div>
+
+  </div>
+</body>
+</html>

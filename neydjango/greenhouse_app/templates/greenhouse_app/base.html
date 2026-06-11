@@ -1,0 +1,579 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Greenhouse OS{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ── Reset & Tokens ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #0d1117;
+      --surface:    #161b22;
+      --surface-2:  #1c2330;
+      --border:     #2a3441;
+      --border-2:   #384150;
+      --text:       #cdd9e5;
+      --text-muted: #768390;
+      --text-dim:   #444e5c;
+      --green:      #3fb950;
+      --green-dim:  #1a3a20;
+      --green-glow: rgba(63,185,80,0.15);
+      --amber:      #d29922;
+      --amber-dim:  #3a2c0a;
+      --red:        #f85149;
+      --red-dim:    #3a1010;
+      --blue:       #58a6ff;
+      --blue-dim:   #0d2145;
+      --radius:     6px;
+      --radius-lg:  12px;
+      --mono:       'DM Mono', monospace;
+      --display:    'Syne', sans-serif;
+      --sidebar-w:  240px;
+      --topbar-h:   56px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Top Bar ────────────────────────────────────────────────────── */
+    .topbar {
+      height: var(--topbar-h);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 16px;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+    }
+
+    .topbar-brand {
+      font-family: var(--display);
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--green);
+      letter-spacing: -0.5px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .topbar-brand svg { width: 22px; height: 22px; }
+
+    .topbar-sep { flex: 1; }
+
+    .topbar-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .topbar-avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--green-dim);
+      border: 1px solid var(--green);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--green);
+      font-family: var(--display);
+    }
+
+    .topbar-logout {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 12px;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: all .15s;
+    }
+    .topbar-logout:hover { border-color: var(--red); color: var(--red); }
+
+    /* ── Layout ─────────────────────────────────────────────────────── */
+    .layout {
+      display: flex;
+      margin-top: var(--topbar-h);
+      min-height: calc(100vh - var(--topbar-h));
+    }
+
+    /* ── Sidebar ────────────────────────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 20px 0;
+      position: fixed;
+      top: var(--topbar-h);
+      left: 0;
+      bottom: 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .sidebar-label {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      padding: 12px 20px 4px;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 20px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      border-left: 2px solid transparent;
+      transition: all .15s;
+    }
+
+    .sidebar-link svg { width: 15px; height: 15px; flex-shrink: 0; }
+    .sidebar-link:hover { color: var(--text); background: var(--surface-2); }
+    .sidebar-link.active {
+      color: var(--green);
+      border-left-color: var(--green);
+      background: var(--green-glow);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 8px 16px;
+    }
+
+    /* ── Main Content ───────────────────────────────────────────────── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      padding: 32px 36px;
+      max-width: 1100px;
+    }
+
+    /* ── Page Header ────────────────────────────────────────────────── */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      gap: 16px;
+    }
+
+    .page-header-left { display: flex; flex-direction: column; gap: 4px; }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 4px;
+    }
+
+    .breadcrumb a { color: var(--text-muted); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--text); }
+    .breadcrumb-sep { color: var(--text-dim); }
+
+    .page-title {
+      font-family: var(--display);
+      font-size: 26px;
+      font-weight: 700;
+      color: #e6edf3;
+      letter-spacing: -0.5px;
+    }
+
+    .page-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* ── Buttons ────────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: var(--radius);
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      border: 1px solid transparent;
+      transition: all .15s;
+      white-space: nowrap;
+    }
+
+    .btn svg { width: 13px; height: 13px; }
+
+    .btn-primary {
+      background: var(--green);
+      color: #0d1117;
+      border-color: var(--green);
+    }
+    .btn-primary:hover { background: #4fc660; border-color: #4fc660; }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text-muted);
+      border-color: var(--border);
+    }
+    .btn-outline:hover { border-color: var(--border-2); color: var(--text); }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--red);
+      border-color: var(--red-dim);
+    }
+    .btn-danger:hover { background: var(--red-dim); }
+
+    .btn-sm { padding: 4px 10px; font-size: 11px; }
+
+    /* ── Cards ──────────────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-title {
+      font-family: var(--display);
+      font-size: 14px;
+      font-weight: 600;
+      color: #e6edf3;
+    }
+
+    .card-body { padding: 20px; }
+
+    /* ── Badges ─────────────────────────────────────────────────────── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .badge-green  { color: var(--green); background: var(--green-dim); }
+    .badge-amber  { color: var(--amber); background: var(--amber-dim); }
+    .badge-red    { color: var(--red);   background: var(--red-dim);   }
+    .badge-blue   { color: var(--blue);  background: var(--blue-dim);  }
+    .badge-muted  { color: var(--text-muted); background: var(--surface-2); }
+    .badge-muted::before { display: none; }
+
+    /* ── Table ──────────────────────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th {
+      text-align: left;
+      padding: 10px 16px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface-2); }
+
+    /* ── Forms ──────────────────────────────────────────────────────── */
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+
+    label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: .04em;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    input[type="email"],
+    select,
+    textarea {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 13px;
+      padding: 8px 12px;
+      width: 100%;
+      transition: border-color .15s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px var(--green-glow);
+    }
+
+    textarea { resize: vertical; min-height: 80px; }
+    select option { background: var(--surface); }
+
+    .form-hint { font-size: 11px; color: var(--text-dim); }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+      margin-top: 8px;
+    }
+
+    /* ── Alerts / Messages ──────────────────────────────────────────── */
+    .alert {
+      padding: 10px 16px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      margin-bottom: 20px;
+      border-left: 3px solid;
+    }
+
+    .alert-success { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+    .alert-error   { background: var(--red-dim);   border-color: var(--red);   color: var(--red);   }
+    .alert-warning { background: var(--amber-dim); border-color: var(--amber); color: var(--amber); }
+
+    /* ── Empty State ────────────────────────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+
+    .empty-state svg {
+      width: 40px; height: 40px;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+    }
+
+    .empty-state h3 {
+      font-family: var(--display);
+      font-size: 16px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .empty-state p { font-size: 12px; color: var(--text-dim); }
+
+    /* ── Stat Grid ──────────────────────────────────────────────────── */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px 18px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-family: var(--display);
+      font-size: 28px;
+      font-weight: 700;
+      color: #e6edf3;
+      line-height: 1;
+    }
+
+    .stat-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ── Grid Layouts ───────────────────────────────────────────────── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+    /* ── Utility ────────────────────────────────────────────────────── */
+    .text-muted  { color: var(--text-muted); }
+    .text-dim    { color: var(--text-dim); }
+    .text-green  { color: var(--green); }
+    .text-red    { color: var(--red); }
+    .text-amber  { color: var(--amber); }
+    .mt-4  { margin-top: 4px; }
+    .mt-8  { margin-top: 8px; }
+    .mt-16 { margin-top: 16px; }
+    .mt-24 { margin-top: 24px; }
+    .gap-8 { gap: 8px; }
+    .flex  { display: flex; }
+    .items-center { align-items: center; }
+
+    /* ── Animations ─────────────────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-in {
+      animation: fadeUp .3s ease forwards;
+    }
+
+    /* stagger children */
+    .stagger > *:nth-child(1) { animation-delay: .05s; }
+    .stagger > *:nth-child(2) { animation-delay: .10s; }
+    .stagger > *:nth-child(3) { animation-delay: .15s; }
+    .stagger > *:nth-child(4) { animation-delay: .20s; }
+    .stagger > *:nth-child(5) { animation-delay: .25s; }
+    .stagger > *:nth-child(6) { animation-delay: .30s; }
+
+    /* ── Responsive ─────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main    { margin-left: 0; padding: 20px 16px; }
+      .form-row { grid-template-columns: 1fr; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <!-- ── Top Bar ──────────────────────────────────────────────────── -->
+  <header class="topbar">
+    <a href="{% url 'greenhouse_app:greenhouse_list' %}" class="topbar-brand">
+      <!-- Leaf icon -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <path d="M12 8v8M8 12h8"/>
+      </svg>
+      Greenhouse OS
+    </a>
+
+    <span class="topbar-sep"></span>
+
+    {% if user.is_authenticated %}
+    <div class="topbar-user">
+      <div class="topbar-avatar">{{ user.username|slice:":2"|upper }}</div>
+      <span>{{ user.get_full_name|default:user.username }}</span>
+      <a href="{% url 'greenhouse_app:logout' %}" class="topbar-logout">Sign out</a>
+    </div>
+    {% endif %}
+  </header>
+
+  <div class="layout">
+
+    <!-- ── Sidebar ──────────────────────────────────────────────────── -->
+    <nav class="sidebar">
+      <span class="sidebar-label">Platform</span>
+
+      <a href="{% url 'greenhouse_app:greenhouse_list' %}"
+         class="sidebar-link {% block nav_dashboard %}{% endblock %}">
+        <!-- Grid icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+        </svg>
+        My Greenhouses
+      </a>
+
+      {% block sidebar_greenhouse_links %}{% endblock %}
+
+      <div class="sidebar-divider"></div>
+      <span class="sidebar-label">Account</span>
+
+      <a href="{% url 'greenhouse_app:profile' %}" class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="8" r="4"/>
+          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+        </svg>
+        Profile
+      </a>
+
+      <a href="{% url 'greenhouse_app:logout' %}" class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
+        </svg>
+        Sign Out
+      </a>
+    </nav>
+
+    <!-- ── Page Content ──────────────────────────────────────────────── -->
+    <main class="main animate-in">
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+
+      {% block content %}{% endblock %}
+
+    </main>
+  </div>
+
+</body>
+</html>

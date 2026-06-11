@@ -1,0 +1,4 @@
+# .vercelignore
+ml_service/
+.git/
+media/

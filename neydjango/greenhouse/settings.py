@@ -145,6 +145,11 @@ if DATABASES.get('default'):
     }
 
 
+# ─────────────────────────────────────────────
+# OpenAI — Disease Knowledge Generation
+# ─────────────────────────────────────────────
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -177,7 +182,7 @@ CORS_ALLOWED_ORIGINS = [
 # ─────────────────────────────────────────────
 # ML Service — Disease Detection
 # ─────────────────────────────────────────────
-ML_SERVICE_URL = 'http://localhost:8001'
+ML_SERVICE_URL = 'http://127.0.0.1:8001'
 
 # ─────────────────────────────────────────────
 # Media files (user avatars, crop images)

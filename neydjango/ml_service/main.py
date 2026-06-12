@@ -9,6 +9,12 @@ Endpoints:
   GET  /health          — liveness check
   GET  /ready           — readiness check (model loaded?)
   POST /predict         — run inference on one or more images
+
+Changelog:
+  - Added `disease_label` field to DiagnosisResult response.
+    This is the raw PlantVillage label (e.g. "Tomato___Early_blight") which
+    Django needs to look up / generate knowledge base entries.
+    `disease` remains the human-readable English name.
 """
 
 import logging
@@ -54,8 +60,9 @@ class PesticideRecommendation(BaseModel):
 
 
 class DiagnosisResult(BaseModel):
-    disease: str
-    disease_fa: str
+    disease_label: str   # Raw PlantVillage label — e.g. "Tomato___Early_blight"
+    disease: str         # Human-readable English name
+    disease_fa: str      # Human-readable Farsi name
     confidence: float
     cause: str
     remedies: list[str]
@@ -82,7 +89,10 @@ def ready():
         load_model()
         return {"status": "ready", "model": MODEL_VERSION}
     except Exception as e:
-        return JSONResponse(status_code=503, content={"status": "not_ready", "error": str(e)})
+        return JSONResponse(
+            status_code=503,
+            content={"status": "not_ready", "error": str(e)}
+        )
 
 
 @app.post("/predict", response_model=PredictResponse)
@@ -132,13 +142,14 @@ async def predict(images: list[UploadFile] = File(...)):
     # Sort by confidence, take top 3 unique diagnoses
     top_diagnoses = sorted(seen.items(), key=lambda x: x[1], reverse=True)[:3]
 
-    # Build response with knowledge base enrichment
+    # Build response — disease_label is the raw label, disease is the enriched name
     diagnoses: list[DiagnosisResult] = []
     for label, confidence in top_diagnoses:
         info = get_disease_info(label)
         diagnoses.append(DiagnosisResult(
-            disease=info["name_en"],
-            disease_fa=info["name_fa"],
+            disease_label=label,                  # raw: "Tomato___Leaf_Mold"
+            disease=info["name_en"],              # human: "Tomato Leaf Mold"
+            disease_fa=info["name_fa"],           # farsi: "کپک برگ گوجه‌فرنگی"
             confidence=confidence,
             cause=info["cause"],
             remedies=info["remedies"],

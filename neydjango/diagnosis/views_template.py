@@ -2,18 +2,24 @@
 diagnosis/views_template.py
 
 HTML template views for the Disease Detection feature.
-Separate from views.py (DRF/JSON) — same pattern as other apps.
 
-Three pages:
-  1. diagnosis_list  — past diagnoses for a greenhouse
-  2. diagnosis_new   — upload form (submits to the DRF API view, then redirects to result)
-  3. diagnosis_detail — shows one completed diagnosis with results
+Changes from previous version:
+  - Saves disease_label (raw) and disease_name (human-readable) separately
+  - Calls get_or_create_knowledge() at diagnosis time for each result
+  - Stores knowledge snapshot in DiagnosisResult for immutability
+  - Calls update_feedback_counts() when farmer submits feedback
 """
 
 import time
 import logging
 
 import requests
+
+
+import os
+os.environ['NO_PROXY'] = '127.0.0.1,localhost'
+
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -23,6 +29,8 @@ from greenhouse_app.models import Greenhouse, Bed, Crop
 from accounts.models import GreenhouseMembership
 
 from .models import DiagnosisRequest, DiagnosisImage, DiagnosisResult
+from .knowledge import get_or_create_knowledge, update_feedback_counts
+from io import BytesIO
 
 logger = logging.getLogger(__name__)
 ML_SERVICE_URL = getattr(settings, 'ML_SERVICE_URL', 'http://localhost:8001')
@@ -39,6 +47,43 @@ def _get_greenhouse(request, greenhouse_id):
     )
 
 
+def _save_results(diag_request, ml_diagnoses):
+    """
+    Save ML results to DB, enriching each with knowledge base data.
+    Called after a successful ML service response.
+
+    For each diagnosis:
+      1. Get or create a DiseaseKnowledge entry (DB cache → OpenAI fallback)
+      2. Create DiagnosisResult with both raw ML data and knowledge snapshot
+    """
+    for diagnosis in ml_diagnoses:
+        # Raw ML output — now correctly separated
+        raw_label = diagnosis.get('disease_label', '')   # e.g. "Tomato___Leaf_Mold"
+        name_en   = diagnosis.get('disease', '')          # e.g. "Tomato Leaf Mold"
+        name_fa   = diagnosis.get('disease_fa', '')
+        confidence = diagnosis.get('confidence', 0.0)
+
+        # Get or generate knowledge (DB cache → OpenAI → fallback stub)
+        knowledge = get_or_create_knowledge(
+            label=raw_label,
+            name_en=name_en,
+            name_fa=name_fa,
+        )
+
+        # Create result with knowledge snapshot (immutable copy at time of diagnosis)
+        DiagnosisResult.objects.create(
+            request=diag_request,
+            knowledge=knowledge,
+            disease_label=raw_label,
+            disease_name=knowledge.name_en,       # use knowledge name (may be better than ML)
+            disease_name_fa=knowledge.name_fa,
+            confidence=confidence,
+            cause=knowledge.cause,
+            remedies=knowledge.remedies,
+            recommended_pesticides=knowledge.recommended_pesticides,
+        )
+
+
 # ── List ──────────────────────────────────────────────────────────────────────
 
 @login_required
@@ -49,7 +94,6 @@ def diagnosis_list(request, greenhouse_id):
         greenhouse=greenhouse,
     ).prefetch_related('images', 'results').order_by('-created_at')
 
-    # Simple filters
     status_filter = request.GET.get('status', '')
     if status_filter:
         diagnoses = diagnoses.filter(status=status_filter)
@@ -73,7 +117,6 @@ def diagnosis_list(request, greenhouse_id):
 def diagnosis_new(request, greenhouse_id):
     greenhouse = _get_greenhouse(request, greenhouse_id)
 
-    # Dropdowns for the form
     beds = Bed.objects.filter(
         house__greenhouse=greenhouse,
     ).select_related('house').order_by('house__name', 'code')
@@ -86,7 +129,6 @@ def diagnosis_new(request, greenhouse_id):
     if request.method == 'POST':
         images = request.FILES.getlist('images')
 
-        # Client-side validation replicated server-side
         if not images:
             messages.error(request, 'Please upload at least one image.')
             return render(request, 'diagnosis/diagnosis_new.html', {
@@ -94,31 +136,25 @@ def diagnosis_new(request, greenhouse_id):
                 'beds': beds,
                 'active_crops': active_crops,
                 'plant_part_choices': DiagnosisImage.PlantPart.choices,
-                'breadcrumbs': [
-                    {'label': 'Greenhouses', 'url': '/greenhouse_app/greenhouses/'},
-                    {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
-                    {'label': 'Disease Detection', 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/diagnosis/'},
-                    {'label': 'New Diagnosis', 'url': None},
-                ],
+                'breadcrumbs': _new_breadcrumbs(greenhouse),
             })
 
         if len(images) > 5:
             messages.error(request, 'Maximum 5 images per diagnosis.')
             return redirect('diagnosis:diagnosis_new', greenhouse_id=greenhouse.id)
 
-        # Validate file types
         allowed_types = {'image/jpeg', 'image/png', 'image/webp', 'image/jpg'}
         for img in images:
             if img.content_type not in allowed_types:
                 messages.error(request, f'Unsupported file type: {img.content_type}. Use JPEG or PNG.')
                 return redirect('diagnosis:diagnosis_new', greenhouse_id=greenhouse.id)
 
-        bed_id = request.POST.get('bed_id') or None
-        crop_id = request.POST.get('crop_id') or None
+        bed_id   = request.POST.get('bed_id') or None
+        crop_id  = request.POST.get('crop_id') or None
         plant_part = request.POST.get('plant_part', 'leaf')
-        notes = request.POST.get('notes', '')
+        notes    = request.POST.get('notes', '')
 
-        bed = get_object_or_404(Bed, id=bed_id, house__greenhouse=greenhouse) if bed_id else None
+        bed  = get_object_or_404(Bed, id=bed_id, house__greenhouse=greenhouse) if bed_id else None
         crop = get_object_or_404(Crop, id=crop_id, bed__house__greenhouse=greenhouse) if crop_id else None
 
         # Create request record
@@ -131,7 +167,7 @@ def diagnosis_new(request, greenhouse_id):
             status=DiagnosisRequest.Status.PROCESSING,
         )
 
-        # Save images
+        # Save images to disk
         for img_file in images:
             DiagnosisImage.objects.create(
                 request=diag_request,
@@ -144,8 +180,13 @@ def diagnosis_new(request, greenhouse_id):
         image_files = []
         for diag_image in diag_request.images.all():
             try:
-                f = diag_image.image.open('rb')
-                image_files.append(('images', (diag_image.image.name, f, 'image/jpeg')))
+                diag_image.image.open('rb')
+                image_bytes = diag_image.image.read()
+                diag_image.image.close()
+                image_files.append((
+                    'images',
+                    (diag_image.image.name, BytesIO(image_bytes), 'image/jpeg')
+                ))
             except Exception as e:
                 logger.error(f'Cannot open saved image: {e}')
 
@@ -154,6 +195,7 @@ def diagnosis_new(request, greenhouse_id):
                 f'{ML_SERVICE_URL}/predict',
                 files=image_files,
                 timeout=30,
+                proxies={'http': None, 'https': None},  # bypass proxy for ML service
             )
             ml_response.raise_for_status()
             ml_data = ml_response.json()
@@ -173,6 +215,8 @@ def diagnosis_new(request, greenhouse_id):
             return redirect('diagnosis:diagnosis_list', greenhouse_id=greenhouse.id)
 
         except Exception as e:
+            import traceback
+            logger.error(f'Full error: {traceback.format_exc()}')
             diag_request.status = DiagnosisRequest.Status.FAILED
             diag_request.ml_error = str(e)
             diag_request.save()
@@ -180,26 +224,16 @@ def diagnosis_new(request, greenhouse_id):
             return redirect('diagnosis:diagnosis_list', greenhouse_id=greenhouse.id)
 
         finally:
-            for _, (_, f, _) in image_files:
+            for _, (_, file_obj, _) in image_files:
                 try:
-                    f.close()
+                    file_obj.close()
                 except Exception:
                     pass
 
         elapsed_ms = int(time.time() * 1000) - start_ms
 
-        # Save results
-        for diagnosis in ml_data.get('diagnoses', []):
-            DiagnosisResult.objects.create(
-                request=diag_request,
-                disease_label=diagnosis.get('disease', ''),
-                disease_name=diagnosis.get('disease', ''),
-                disease_name_fa=diagnosis.get('disease_fa', ''),
-                confidence=diagnosis.get('confidence', 0.0),
-                cause=diagnosis.get('cause', ''),
-                remedies=diagnosis.get('remedies', []),
-                recommended_pesticides=diagnosis.get('recommended_pesticides', []),
-            )
+        # Save results with knowledge enrichment
+        _save_results(diag_request, ml_data.get('diagnoses', []))
 
         diag_request.status = DiagnosisRequest.Status.COMPLETED
         diag_request.model_version = ml_data.get('model_version', '')
@@ -214,12 +248,7 @@ def diagnosis_new(request, greenhouse_id):
         'beds': beds,
         'active_crops': active_crops,
         'plant_part_choices': DiagnosisImage.PlantPart.choices,
-        'breadcrumbs': [
-            {'label': 'Greenhouses', 'url': '/greenhouse_app/greenhouses/'},
-            {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
-            {'label': 'Disease Detection', 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/diagnosis/'},
-            {'label': 'New Diagnosis', 'url': None},
-        ],
+        'breadcrumbs': _new_breadcrumbs(greenhouse),
     })
 
 
@@ -234,18 +263,27 @@ def diagnosis_detail(request, greenhouse_id, pk):
         greenhouse=greenhouse,
     )
 
-    # Handle farmer feedback POST
     if request.method == 'POST':
-        result_id = request.POST.get('result_id')
-        feedback = request.POST.get('farmer_feedback')
+        result_id    = request.POST.get('result_id')
+        feedback     = request.POST.get('farmer_feedback')
         farmer_notes = request.POST.get('farmer_notes', '')
 
         if result_id and feedback:
             result = get_object_or_404(DiagnosisResult, id=result_id, request=diag_request)
+            was_pending = result.farmer_feedback == DiagnosisResult.FarmerFeedback.PENDING
+
             result.farmer_feedback = feedback
             result.farmer_notes = farmer_notes
             result.save()
-            messages.success(request, 'Feedback saved.')
+
+            # Update knowledge base accuracy counters
+            if was_pending and result.disease_label:
+                update_feedback_counts(
+                    label=result.disease_label,
+                    confirmed=(feedback == 'confirmed'),
+                )
+
+            messages.success(request, 'Feedback saved — thank you for improving the system.')
 
         return redirect('diagnosis:diagnosis_detail', greenhouse_id=greenhouse.id, pk=pk)
 
@@ -261,3 +299,16 @@ def diagnosis_detail(request, greenhouse_id, pk):
             {'label': f'Diagnosis #{diag_request.id}', 'url': None},
         ],
     })
+
+
+# ── Breadcrumb helpers ────────────────────────────────────────────────────────
+
+def _new_breadcrumbs(greenhouse):
+    return [
+        {'label': 'Greenhouses', 'url': '/greenhouse_app/greenhouses/'},
+        {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
+        {'label': 'Disease Detection', 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/diagnosis/'},
+        {'label': 'New Diagnosis', 'url': None},
+    ]
+
+

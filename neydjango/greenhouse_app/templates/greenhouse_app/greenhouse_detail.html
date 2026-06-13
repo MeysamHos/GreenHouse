@@ -156,24 +156,26 @@
         {% if house.beds.all %}
         <div style="padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 8px;">
           {% for bed in house.beds.all %}
-            {% with active_crop=bed.crops.all|dictsort:"planted_at"|last %}
+            {% with active_crop=bed.crops.all|first %}
             <a href="{% url 'greenhouse_app:bed_detail' greenhouse.id house.id bed.id %}"
-               style="display:flex; flex-direction:column; gap:2px;
+              style="display:flex; flex-direction:column; gap:2px;
                       padding: 8px 12px;
                       background: var(--bg);
-                      border: 1px solid {% if active_crop %}var(--green-dim){% else %}var(--border){% endif %};
+                      border: 1px solid var(--border);
                       border-radius: var(--radius);
                       text-decoration: none;
                       min-width: 80px;
                       transition: border-color .15s;"
-               onmouseover="this.style.borderColor='var(--border-2)'"
-               onmouseout="this.style.borderColor='{% if active_crop %}var(--green-dim){% else %}var(--border){% endif %}'">
+              onmouseover="this.style.borderColor='var(--border-2)'"
+              onmouseout="this.style.borderColor='var(--border)'">
               <span style="font-size:12px; font-weight:600; color:#e6edf3;">{{ bed.code }}</span>
-              {% if active_crop and active_crop.status == 'growing' %}
-                <span style="font-size:10px; color:var(--green);">{{ active_crop.crop_type }}</span>
-              {% else %}
-                <span style="font-size:10px; color:var(--text-dim);">empty</span>
-              {% endif %}
+              {% with crop_count=bed.crops.all|length %}
+                {% if crop_count > 0 %}
+                  <span style="font-size:10px; color:var(--green);">{{ crop_count }} crop{{ crop_count|pluralize }}</span>
+                {% else %}
+                  <span style="font-size:10px; color:var(--text-dim);">empty</span>
+                {% endif %}
+              {% endwith %}
             </a>
             {% endwith %}
           {% endfor %}

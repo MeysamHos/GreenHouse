@@ -1,35 +1,44 @@
 {% extends "greenhouse_app/base.html" %}
 
-{% block title %}{{ operation.get_operation_type_display }} — Greenhouse OS{% endblock %}
+{% block title %}{{ operation.get_operation_type_display }} — سیستم گلخانه{% endblock %}
 
 {% block sidebar_greenhouse_links %}
 <div class="sidebar-divider"></div>
-<span class="sidebar-label">{{ greenhouse.name|truncatechars:20 }}</span>
+<span class="sidebar-label">{{ greenhouse.name|truncatechars:22 }}</span>
 <a href="{% url 'greenhouse_app:greenhouse_detail' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
   </svg>
-  Overview
+  نمای کلی
 </a>
 <a href="{% url 'operations:operation_list' greenhouse.id %}" class="sidebar-link active">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
     <rect x="9" y="3" width="6" height="4" rx="1"/>
+    <path d="M9 12h6M9 16h4"/>
   </svg>
-  Operations
+  عملیات
 </a>
 <a href="{% url 'inventory:inventory_list' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
     <path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/>
   </svg>
-  Inventory
+  انبار و موجودی
 </a>
 <a href="{% url 'financials:dashboard' greenhouse.id %}" class="sidebar-link">
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-dollar" viewBox="0 0 16 16">
-  <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73z"/>
-</svg>
-  Financials / P&L
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <line x1="12" y1="1" x2="12" y2="23"/>
+    <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+  </svg>
+  مالی و سود/زیان
+</a>
+<a href="{% url 'diagnosis:diagnosis_list' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="11" cy="11" r="8"/>
+    <path d="M21 21l-4.35-4.35M11 8v6M8 11h6"/>
+  </svg>
+  تشخیص بیماری
 </a>
 <a href="{% url 'reports:index' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -38,13 +47,14 @@
     <line x1="16" y1="13" x2="8" y2="13"/>
     <line x1="16" y1="17" x2="8" y2="17"/>
   </svg>
-  Reports
+  گزارش‌ها
 </a>
 <a href="{% url 'greenhouse_app:member_list' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/>
+    <circle cx="9" cy="7" r="4"/>
+    <path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/>
   </svg>
-  Members
+  اعضا
 </a>
 {% endblock %}
 
@@ -53,113 +63,119 @@
 <div class="page-header">
   <div class="page-header-left">
     <div class="breadcrumb">
-      <a href="{% url 'greenhouse_app:greenhouse_list' %}">Greenhouses</a>
+      <a href="{% url 'greenhouse_app:greenhouse_list' %}">گلخانه‌ها</a>
       <span class="breadcrumb-sep">›</span>
       <a href="{% url 'greenhouse_app:greenhouse_detail' greenhouse.id %}">{{ greenhouse.name }}</a>
       <span class="breadcrumb-sep">›</span>
-      <a href="{% url 'operations:operation_list' greenhouse.id %}">Operations</a>
+      <a href="{% url 'operations:operation_list' greenhouse.id %}">عملیات</a>
       <span class="breadcrumb-sep">›</span>
       <span>{{ operation.get_operation_type_display }}</span>
     </div>
     <div class="page-title">{{ operation.get_operation_type_display }}</div>
     <div class="page-subtitle">
-      {{ operation.performed_at|date:"M d, Y" }}
+      {{ operation.performed_at|date:"Y/m/d" }}
       · {{ operation.bed.house.name }} / {{ operation.bed.code }}
     </div>
   </div>
-  <div style="display:flex;gap:8px;">
+  <div style="display: flex; gap: 8px; flex-wrap: wrap;">
     <a href="{% url 'operations:operation_edit' greenhouse.id operation.id %}"
-       class="btn btn-outline">Edit</a>
+       class="btn btn-outline">ویرایش</a>
     <form method="post"
           action="{% url 'operations:operation_delete' greenhouse.id operation.id %}">
       {% csrf_token %}
       <button type="submit" class="btn btn-danger"
-              onclick="return confirm('Delete this operation? This cannot be undone.')">
-        Delete
+              onclick="return confirm('آیا این عملیات حذف شود؟ این عملیات قابل بازگشت نیست.')">
+        حذف
       </button>
     </form>
   </div>
 </div>
 
-<div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+<div class="grid-2">
 
-  <!-- ── Left: Core Details ──────────────────────────────────────── -->
-  <div style="display:flex; flex-direction:column; gap:16px;">
+  <!-- ── جزئیات اصلی ────────────────────────────────────────────── -->
+  <div style="display: flex; flex-direction: column; gap: 16px;">
 
     <div class="card animate-in">
       <div class="card-header">
-        <span class="card-title">Operation Details</span>
+        <span class="card-title">جزئیات عملیات</span>
         {% if operation.operation_type == 'irrigation' %}
-          <span class="badge badge-blue">{{ operation.get_operation_type_display }}</span>
+          <span class="badge badge-blue">آبیاری</span>
         {% elif operation.operation_type == 'fertilizing' %}
-          <span class="badge badge-amber">{{ operation.get_operation_type_display }}</span>
+          <span class="badge badge-amber">کوددهی</span>
         {% elif operation.operation_type == 'spraying' %}
-          <span class="badge badge-red">{{ operation.get_operation_type_display }}</span>
+          <span class="badge badge-red">سم‌پاشی</span>
         {% elif operation.operation_type == 'harvesting' %}
-          <span class="badge badge-green">{{ operation.get_operation_type_display }}</span>
+          <span class="badge badge-green">برداشت</span>
+        {% elif operation.operation_type == 'pruning' %}
+          <span class="badge badge-muted">هرس</span>
+        {% elif operation.operation_type == 'transplant' %}
+          <span class="badge badge-muted">نشاء</span>
+        {% elif operation.operation_type == 'inspection' %}
+          <span class="badge badge-blue">بازدید</span>
         {% else %}
           <span class="badge badge-muted">{{ operation.get_operation_type_display }}</span>
         {% endif %}
       </div>
       <div class="card-body">
-        <table style="width:100%;">
+        <table style="width: 100%;">
           <tr>
-            <td style="padding:8px 0; color:var(--text-dim); font-size:12px; width:40%;">Date</td>
-            <td style="padding:8px 0; font-size:13px;">{{ operation.performed_at|date:"F d, Y" }}</td>
+            <td style="padding: 8px 0; color: var(--text-dim); font-size: 12px; width: 40%;">تاریخ</td>
+            <td style="padding: 8px 0; font-size: 13px;">{{ operation.performed_at|date:"Y/m/d" }}</td>
           </tr>
           <tr>
-            <td style="padding:8px 0; color:var(--text-dim); font-size:12px;">Bed</td>
-            <td style="padding:8px 0; font-size:13px;">
+            <td style="padding: 8px 0; color: var(--text-dim); font-size: 12px;">بستر</td>
+            <td style="padding: 8px 0; font-size: 13px;">
               <a href="{% url 'greenhouse_app:bed_detail' greenhouse.id operation.bed.house.id operation.bed.id %}"
-                 style="color:var(--blue); text-decoration:none;">
+                 style="color: var(--blue); text-decoration: none;">
                 {{ operation.bed.house.name }} / {{ operation.bed.code }}
               </a>
             </td>
           </tr>
           {% if operation.crop %}
           <tr>
-            <td style="padding:8px 0; color:var(--text-dim); font-size:12px;">Crop</td>
-            <td style="padding:8px 0; font-size:13px;">
+            <td style="padding: 8px 0; color: var(--text-dim); font-size: 12px;">محصول</td>
+            <td style="padding: 8px 0; font-size: 13px;">
               {{ operation.crop.crop_type }}
-              {% if operation.crop.variety %}· {{ operation.crop.variety }}{% endif %}
+              {% if operation.crop.variety %} · {{ operation.crop.variety }}{% endif %}
             </td>
           </tr>
           {% endif %}
           {% if operation.quantity %}
           <tr>
-            <td style="padding:8px 0; color:var(--text-dim); font-size:12px;">Quantity</td>
-            <td style="padding:8px 0; font-size:13px;">
+            <td style="padding: 8px 0; color: var(--text-dim); font-size: 12px;">مقدار</td>
+            <td style="padding: 8px 0; font-size: 13px;">
               {{ operation.quantity }} {{ operation.get_unit_display }}
             </td>
           </tr>
           {% endif %}
           {% if operation.product_name %}
           <tr>
-            <td style="padding:8px 0; color:var(--text-dim); font-size:12px;">Product</td>
-            <td style="padding:8px 0; font-size:13px;">{{ operation.product_name }}</td>
+            <td style="padding: 8px 0; color: var(--text-dim); font-size: 12px;">ماده / محصول</td>
+            <td style="padding: 8px 0; font-size: 13px;">{{ operation.product_name }}</td>
           </tr>
           {% endif %}
           {% if operation.product_batch %}
           <tr>
-            <td style="padding:8px 0; color:var(--text-dim); font-size:12px;">Batch #</td>
-            <td style="padding:8px 0; font-size:13px; color:var(--text-muted);">
+            <td style="padding: 8px 0; color: var(--text-dim); font-size: 12px;">شماره بچ</td>
+            <td style="padding: 8px 0; font-size: 13px; color: var(--text-muted);">
               {{ operation.product_batch }}
             </td>
           </tr>
           {% endif %}
           {% if operation.cost %}
           <tr>
-            <td style="padding:8px 0; color:var(--text-dim); font-size:12px;">Cost</td>
-            <td style="padding:8px 0; font-size:13px; color:var(--amber);">
-              {{ operation.cost|floatformat:0 }}
+            <td style="padding: 8px 0; color: var(--text-dim); font-size: 12px;">هزینه</td>
+            <td style="padding: 8px 0; font-size: 13px; color: var(--amber);">
+              {{ operation.cost|floatformat:0 }} ریال
             </td>
           </tr>
           {% endif %}
           {% if operation.harvest_weight_kg %}
           <tr>
-            <td style="padding:8px 0; color:var(--text-dim); font-size:12px;">Harvest Weight</td>
-            <td style="padding:8px 0; font-size:13px; color:var(--green);">
-              {{ operation.harvest_weight_kg }} kg
+            <td style="padding: 8px 0; color: var(--text-dim); font-size: 12px;">وزن برداشت</td>
+            <td style="padding: 8px 0; font-size: 13px; color: var(--green);">
+              {{ operation.harvest_weight_kg }} کیلوگرم
               {% if operation.harvest_quality %}
                 · {{ operation.get_harvest_quality_display }}
               {% endif %}
@@ -167,21 +183,21 @@
           </tr>
           {% endif %}
           <tr>
-            <td style="padding:8px 0; color:var(--text-dim); font-size:12px;">Performed by</td>
-            <td style="padding:8px 0; font-size:13px;">
+            <td style="padding: 8px 0; color: var(--text-dim); font-size: 12px;">انجام دهنده</td>
+            <td style="padding: 8px 0; font-size: 13px;">
               {{ operation.performed_by.get_full_name|default:operation.performed_by.username|default:"—" }}
             </td>
           </tr>
           <tr>
-            <td style="padding:8px 0; color:var(--text-dim); font-size:12px;">Logged by</td>
-            <td style="padding:8px 0; font-size:13px; color:var(--text-muted);">
+            <td style="padding: 8px 0; color: var(--text-dim); font-size: 12px;">ثبت کننده</td>
+            <td style="padding: 8px 0; font-size: 13px; color: var(--text-muted);">
               {{ operation.logged_by.get_full_name|default:operation.logged_by.username|default:"—" }}
             </td>
           </tr>
           <tr>
-            <td style="padding:8px 0; color:var(--text-dim); font-size:12px;">Recorded at</td>
-            <td style="padding:8px 0; font-size:12px; color:var(--text-muted);">
-              {{ operation.created_at|date:"M d, Y H:i" }}
+            <td style="padding: 8px 0; color: var(--text-dim); font-size: 12px;">زمان ثبت</td>
+            <td style="padding: 8px 0; font-size: 12px; color: var(--text-muted);">
+              {{ operation.created_at|date:"Y/m/d H:i" }}
             </td>
           </tr>
         </table>
@@ -190,9 +206,9 @@
 
     {% if operation.notes %}
     <div class="card animate-in">
-      <div class="card-header"><span class="card-title">Notes</span></div>
+      <div class="card-header"><span class="card-title">یادداشت‌ها</span></div>
       <div class="card-body">
-        <p style="font-size:13px; color:var(--text); line-height:1.7; white-space:pre-wrap;">
+        <p style="font-size: 13px; color: var(--text); line-height: 1.8; white-space: pre-wrap;">
           {{ operation.notes }}
         </p>
       </div>
@@ -201,25 +217,25 @@
 
   </div>
 
-  <!-- ── Right: Photos ──────────────────────────────────────────── -->
+  <!-- ── تصاویر ─────────────────────────────────────────────────── -->
   <div>
     <div class="card animate-in">
       <div class="card-header">
-        <span class="card-title">Photos</span>
+        <span class="card-title">تصاویر</span>
         <span class="badge badge-muted">{{ photos|length }}</span>
       </div>
       <div class="card-body">
         {% if photos %}
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             {% for photo in photos %}
-            <div style="border:1px solid var(--border); border-radius:var(--radius); overflow:hidden;">
+            <div style="border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;">
               <a href="{{ photo.image.url }}" target="_blank">
                 <img src="{{ photo.image.url }}"
                      alt="{{ photo.caption }}"
-                     style="width:100%; height:140px; object-fit:cover; display:block;">
+                     style="width: 100%; height: 140px; object-fit: cover; display: block;">
               </a>
               {% if photo.caption %}
-                <div style="padding:6px 8px; font-size:11px; color:var(--text-muted);">
+                <div style="padding: 6px 8px; font-size: 11px; color: var(--text-muted);">
                   {{ photo.caption }}
                 </div>
               {% endif %}
@@ -227,8 +243,8 @@
             {% endfor %}
           </div>
         {% else %}
-          <div style="text-align:center; padding:30px; color:var(--text-dim); font-size:12px;">
-            No photos attached to this operation.
+          <div style="text-align: center; padding: 30px; color: var(--text-dim); font-size: 12px;">
+            هیچ تصویری به این عملیات پیوست نشده است.
           </div>
         {% endif %}
       </div>

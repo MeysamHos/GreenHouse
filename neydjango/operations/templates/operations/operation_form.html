@@ -1,35 +1,36 @@
 {% extends "greenhouse_app/base.html" %}
 
-{% block title %}{{ form_title }} — Greenhouse OS{% endblock %}
+{% block title %}{{ form_title }} — سیستم گلخانه{% endblock %}
 
 {% block sidebar_greenhouse_links %}
 <div class="sidebar-divider"></div>
-<span class="sidebar-label">{{ greenhouse.name|truncatechars:20 }}</span>
+<span class="sidebar-label">{{ greenhouse.name|truncatechars:22 }}</span>
 <a href="{% url 'greenhouse_app:greenhouse_detail' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
   </svg>
-  Overview
+  نمای کلی
 </a>
 <a href="{% url 'operations:operation_list' greenhouse.id %}" class="sidebar-link active">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
     <rect x="9" y="3" width="6" height="4" rx="1"/>
   </svg>
-  Operations
+  عملیات
 </a>
 <a href="{% url 'inventory:inventory_list' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
     <path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/>
   </svg>
-  Inventory
+  انبار و موجودی
 </a>
 <a href="{% url 'financials:dashboard' greenhouse.id %}" class="sidebar-link">
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-dollar" viewBox="0 0 16 16">
-  <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73z"/>
-</svg>
-  Financials / P&L
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <line x1="12" y1="1" x2="12" y2="23"/>
+    <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+  </svg>
+  مالی و سود/زیان
 </a>
 <a href="{% url 'reports:index' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -38,13 +39,14 @@
     <line x1="16" y1="13" x2="8" y2="13"/>
     <line x1="16" y1="17" x2="8" y2="17"/>
   </svg>
-  Reports
+  گزارش‌ها
 </a>
 <a href="{% url 'greenhouse_app:member_list' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/>
+    <circle cx="9" cy="7" r="4"/>
+    <path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/>
   </svg>
-  Members
+  اعضا
 </a>
 {% endblock %}
 
@@ -78,132 +80,131 @@
           </div>
         {% endif %}
 
-        <!-- Section: What & When -->
-        <div style="margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border);">
-          <div style="font-size:11px; text-transform:uppercase; letter-spacing:.08em;
-                      color:var(--text-dim); margin-bottom:12px;">What & When</div>
+        <!-- بخش: چه و چه وقت -->
+        <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border);">
+          <div style="font-size: 11px; text-transform: uppercase; letter-spacing: .08em;
+                      color: var(--text-dim); margin-bottom: 12px;">چه عملیاتی و چه زمانی</div>
           <div class="form-row">
             <div class="form-group">
               <label for="{{ form.operation_type.id_for_label }}">
-                Operation Type <span style="color:var(--red);">*</span>
+                نوع عملیات <span style="color: var(--red);">*</span>
               </label>
               {{ form.operation_type }}
               {% for error in form.operation_type.errors %}
-                <span style="font-size:11px;color:var(--red);">{{ error }}</span>
+                <span style="font-size: 11px; color: var(--red);">{{ error }}</span>
               {% endfor %}
             </div>
             <div class="form-group">
               <label for="{{ form.performed_at.id_for_label }}">
-                Date <span style="color:var(--red);">*</span>
+                تاریخ <span style="color: var(--red);">*</span>
               </label>
               {{ form.performed_at }}
               {% for error in form.performed_at.errors %}
-                <span style="font-size:11px;color:var(--red);">{{ error }}</span>
+                <span style="font-size: 11px; color: var(--red);">{{ error }}</span>
               {% endfor %}
             </div>
           </div>
         </div>
 
-        <!-- Section: Where -->
-        <div style="margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border);">
-          <div style="font-size:11px; text-transform:uppercase; letter-spacing:.08em;
-                      color:var(--text-dim); margin-bottom:12px;">Where</div>
+        <!-- بخش: کجا -->
+        <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border);">
+          <div style="font-size: 11px; text-transform: uppercase; letter-spacing: .08em;
+                      color: var(--text-dim); margin-bottom: 12px;">محل انجام</div>
           <div class="form-row">
             <div class="form-group">
               <label for="{{ form.bed.id_for_label }}">
-                Bed <span style="color:var(--red);">*</span>
+                بستر <span style="color: var(--red);">*</span>
               </label>
               {{ form.bed }}
               {% for error in form.bed.errors %}
-                <span style="font-size:11px;color:var(--red);">{{ error }}</span>
+                <span style="font-size: 11px; color: var(--red);">{{ error }}</span>
               {% endfor %}
             </div>
             <div class="form-group">
-              <label for="{{ form.crop.id_for_label }}">Crop (optional)</label>
+              <label for="{{ form.crop.id_for_label }}">محصول (اختیاری)</label>
               {{ form.crop }}
-              <span class="form-hint">Active crop in the selected bed</span>
+              <span class="form-hint">محصول فعال در بستر انتخاب شده</span>
             </div>
           </div>
         </div>
 
-        <!-- Section: Product & Quantity -->
-        <div style="margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border);">
-          <div style="font-size:11px; text-transform:uppercase; letter-spacing:.08em;
-                      color:var(--text-dim); margin-bottom:12px;">Product & Quantity</div>
+        <!-- بخش: ماده و مقدار -->
+        <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border);">
+          <div style="font-size: 11px; text-transform: uppercase; letter-spacing: .08em;
+                      color: var(--text-dim); margin-bottom: 12px;">ماده مصرفی و مقدار</div>
           <div class="form-row">
             <div class="form-group">
-              <label for="{{ form.inventory_item.id_for_label }}">
-                Select from Inventory
-              </label>
+              <label for="{{ form.inventory_item.id_for_label }}">انتخاب از انبار</label>
               {{ form.inventory_item }}
               <span class="form-hint">
-                Selecting an item will auto-fill the product name and record stock consumption automatically.
+                انتخاب آیتم، نام محصول را تکمیل می‌کند و مصرف انبار ثبت می‌شود.
               </span>
             </div>
             <div class="form-group">
-              <label for="{{ form.product_name.id_for_label }}">Product / Material</label>
+              <label for="{{ form.product_name.id_for_label }}">نام ماده / محصول</label>
               {{ form.product_name }}
             </div>
             <div class="form-group">
-              <label for="{{ form.product_batch.id_for_label }}">Batch Number</label>
+              <label for="{{ form.product_batch.id_for_label }}">شماره بچ</label>
               {{ form.product_batch }}
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label for="{{ form.quantity.id_for_label }}">Quantity</label>
+              <label for="{{ form.quantity.id_for_label }}">مقدار</label>
               {{ form.quantity }}
             </div>
             <div class="form-group">
-              <label for="{{ form.unit.id_for_label }}">Unit</label>
+              <label for="{{ form.unit.id_for_label }}">واحد</label>
               {{ form.unit }}
             </div>
           </div>
         </div>
 
-        <!-- Section: Financials & Harvest -->
-        <div style="margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border);">
-          <div style="font-size:11px; text-transform:uppercase; letter-spacing:.08em;
-                      color:var(--text-dim); margin-bottom:12px;">Financials & Harvest</div>
+        <!-- بخش: مالی و برداشت -->
+        <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border);">
+          <div style="font-size: 11px; text-transform: uppercase; letter-spacing: .08em;
+                      color: var(--text-dim); margin-bottom: 12px;">مالی و برداشت</div>
           <div class="form-row">
             <div class="form-group">
-              <label for="{{ form.cost.id_for_label }}">Cost (local currency)</label>
+              <label for="{{ form.cost.id_for_label }}">هزینه (ریال)</label>
               {{ form.cost }}
             </div>
             <div class="form-group">
-              <label for="{{ form.performed_by.id_for_label }}">Performed by</label>
+              <label for="{{ form.performed_by.id_for_label }}">انجام دهنده</label>
               {{ form.performed_by }}
             </div>
           </div>
           <div class="form-row" id="harvest-fields">
             <div class="form-group">
-              <label for="{{ form.harvest_weight_kg.id_for_label }}">Harvest Weight (kg)</label>
+              <label for="{{ form.harvest_weight_kg.id_for_label }}">وزن برداشت (کیلوگرم)</label>
               {{ form.harvest_weight_kg }}
-              <span class="form-hint">Only for harvesting operations</span>
+              <span class="form-hint">فقط برای عملیات برداشت</span>
             </div>
             <div class="form-group">
-              <label for="{{ form.harvest_quality.id_for_label }}">Harvest Quality</label>
+              <label for="{{ form.harvest_quality.id_for_label }}">کیفیت برداشت</label>
               {{ form.harvest_quality }}
             </div>
           </div>
         </div>
 
-        <!-- Section: Notes & Photos -->
-        <div style="margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border);">
-          <div style="font-size:11px; text-transform:uppercase; letter-spacing:.08em;
-                      color:var(--text-dim); margin-bottom:12px;">Notes & Photos</div>
+        <!-- بخش: یادداشت و تصاویر -->
+        <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border);">
+          <div style="font-size: 11px; text-transform: uppercase; letter-spacing: .08em;
+                      color: var(--text-dim); margin-bottom: 12px;">یادداشت و تصاویر</div>
           <div class="form-group">
-            <label for="{{ form.notes.id_for_label }}">Notes / Observations</label>
+            <label for="{{ form.notes.id_for_label }}">یادداشت / مشاهدات</label>
             {{ form.notes }}
           </div>
           <div class="form-group">
-            <label>Photos (optional)</label>
+            <label>تصاویر (اختیاری)</label>
             <input type="file" name="photos" multiple accept="image/*"
-                   style="background:var(--bg); border:1px solid var(--border);
-                          border-radius:var(--radius); color:var(--text);
-                          font-family:var(--mono); font-size:13px; padding:8px 12px; width:100%;">
+                   style="background: var(--bg); border: 1px solid var(--border);
+                          border-radius: var(--radius); color: var(--text);
+                          font-family: 'Vazirmatn', sans-serif; font-size: 13px;
+                          padding: 8px 12px; width: 100%;">
             <span class="form-hint">
-              Upload photos of the bed or crop. Used for disease detection.
+              تصویر از بستر یا محصول آپلود کنید — برای تشخیص بیماری استفاده می‌شود.
             </span>
           </div>
         </div>
@@ -214,9 +215,9 @@
                  stroke-width="2.5" width="13" height="13">
               <polyline points="20 6 9 17 4 12"/>
             </svg>
-            {{ submit_label|default:"Save" }}
+            {{ submit_label|default:"ذخیره" }}
           </button>
-          <a href="{{ cancel_url }}" class="btn btn-outline">Cancel</a>
+          <a href="{{ cancel_url }}" class="btn btn-outline">انصراف</a>
         </div>
 
       </form>
@@ -224,17 +225,16 @@
   </div>
 </div>
 
-
 <script>
-  const greenhouseId    = {{ greenhouse.id }};
-  const bedSelect       = document.getElementById('id_bed');
-  const cropSelect      = document.getElementById('id_crop');
-  const opTypeSelect    = document.getElementById('id_operation_type');
-  const inventorySelect = document.getElementById('id_inventory_item');
+  const greenhouseId     = {{ greenhouse.id }};
+  const bedSelect        = document.getElementById('id_bed');
+  const cropSelect       = document.getElementById('id_crop');
+  const opTypeSelect     = document.getElementById('id_operation_type');
+  const inventorySelect  = document.getElementById('id_inventory_item');
   const productNameInput = document.getElementById('id_product_name');
-  const currentCropId   = "{{ form.instance.crop_id|default:'' }}";
+  const currentCropId    = "{{ form.instance.crop_id|default:'' }}";
 
-  // ── Crop filter (by bed) ─────────────────────────────────────────
+  // ── بارگذاری محصولات بر اساس بستر ──────────────────────────────
   async function updateCrops(bedId) {
     cropSelect.innerHTML = '<option value="">---------</option>';
     if (!bedId) return;
@@ -248,13 +248,13 @@
         if (String(crop.id) === String(currentCropId)) opt.selected = true;
         cropSelect.appendChild(opt);
       });
-    } catch (e) { console.error('Failed to load crops:', e); }
+    } catch (e) { console.error('خطا در بارگذاری محصولات:', e); }
   }
 
   bedSelect.addEventListener('change', () => updateCrops(bedSelect.value));
   if (bedSelect.value) updateCrops(bedSelect.value);
 
-  // ── Inventory filter (by operation type) ────────────────────────
+  // ── بارگذاری آیتم‌های انبار بر اساس نوع عملیات ─────────────────
   async function updateInventoryItems(opType) {
     inventorySelect.innerHTML = '<option value="">---------</option>';
     if (!opType) return;
@@ -267,15 +267,16 @@
         opt.textContent = `${item.name} (${item.unit})`;
         inventorySelect.appendChild(opt);
       });
-    } catch(e) { console.error('Failed to load inventory items:', e); }
+    } catch (e) { console.error('خطا در بارگذاری انبار:', e); }
   }
 
-  inventorySelect.addEventListener('change', function() {
+  // تکمیل خودکار نام محصول از انبار
+  inventorySelect.addEventListener('change', function () {
     const selected = this.options[this.selectedIndex];
     if (selected.value) productNameInput.value = selected.text.split(' (')[0].trim();
   });
 
-  opTypeSelect.addEventListener('change', function() { updateInventoryItems(this.value); });
+  opTypeSelect.addEventListener('change', function () { updateInventoryItems(this.value); });
   if (opTypeSelect.value) updateInventoryItems(opTypeSelect.value);
 </script>
 

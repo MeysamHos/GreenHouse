@@ -2,3 +2,4 @@
 ml_service/
 .git/
 media/
+node_modules/

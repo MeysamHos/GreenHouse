@@ -1,42 +1,44 @@
 {% extends "greenhouse_app/base.html" %}
 
-{% block title %}Members — {{ greenhouse.name }} — Greenhouse OS{% endblock %}
+{% block title %}اعضا — {{ greenhouse.name }} — سیستم گلخانه{% endblock %}
 
 {% block sidebar_greenhouse_links %}
 <div class="sidebar-divider"></div>
-<span class="sidebar-label">{{ greenhouse.name|truncatechars:20 }}</span>
+<span class="sidebar-label">{{ greenhouse.name|truncatechars:22 }}</span>
+
 <a href="{% url 'greenhouse_app:greenhouse_detail' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
   </svg>
-  Overview
+  نمای کلی
 </a>
 <a href="{% url 'operations:operation_list' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
     <rect x="9" y="3" width="6" height="4" rx="1"/>
   </svg>
-  Operations
+  عملیات
 </a>
 <a href="{% url 'inventory:inventory_list' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
     <path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/>
   </svg>
-  Inventory
+  انبار و موجودی
 </a>
 <a href="{% url 'financials:dashboard' greenhouse.id %}" class="sidebar-link">
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-dollar" viewBox="0 0 16 16">
-  <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73z"/>
-</svg>
-  Financials / P&L
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <line x1="12" y1="1" x2="12" y2="23"/>
+    <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+  </svg>
+  مالی و سود/زیان
 </a>
 <a href="{% url 'diagnosis:diagnosis_list' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
-    <path d="M11 8v6M8 11h6"/>
+    <circle cx="11" cy="11" r="8"/>
+    <path d="M21 21l-4.35-4.35M11 8v6M8 11h6"/>
   </svg>
-  Disease Detection
+  تشخیص بیماری
 </a>
 <a href="{% url 'reports:index' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -45,14 +47,15 @@
     <line x1="16" y1="13" x2="8" y2="13"/>
     <line x1="16" y1="17" x2="8" y2="17"/>
   </svg>
-  Reports
+  گزارش‌ها
 </a>
 <a href="{% url 'greenhouse_app:member_list' greenhouse.id %}" class="sidebar-link active">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/>
+    <circle cx="9" cy="7" r="4"/>
+    <path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/>
     <path d="M16 3.13a4 4 0 010 7.75M21 21v-2a4 4 0 00-3-3.87"/>
   </svg>
-  Members
+  اعضا
 </a>
 {% endblock %}
 
@@ -61,49 +64,51 @@
 <div class="page-header">
   <div class="page-header-left">
     <div class="breadcrumb">
-      <a href="{% url 'greenhouse_app:greenhouse_list' %}">Greenhouses</a>
+      <a href="{% url 'greenhouse_app:greenhouse_list' %}">گلخانه‌ها</a>
       <span class="breadcrumb-sep">›</span>
       <a href="{% url 'greenhouse_app:greenhouse_detail' greenhouse.id %}">{{ greenhouse.name }}</a>
       <span class="breadcrumb-sep">›</span>
-      <span>Members</span>
+      <span>اعضا</span>
     </div>
-    <div class="page-title">Team Members</div>
-    <div class="page-subtitle">People with access to {{ greenhouse.name }}</div>
+    <div class="page-title">اعضای تیم</div>
+    <div class="page-subtitle">افرادی که به {{ greenhouse.name }} دسترسی دارند</div>
   </div>
   {% if can_manage %}
   <a href="{% url 'greenhouse_app:member_add' greenhouse.id %}" class="btn btn-primary">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-    Add Member
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <path d="M12 5v14M5 12h14"/>
+    </svg>
+    افزودن عضو
   </a>
   {% endif %}
 </div>
 
-<!-- ── Role Legend ─────────────────────────────────────────────────── -->
+<!-- ── راهنمای نقش‌ها ─────────────────────────────────────────────── -->
 <div class="card animate-in" style="margin-bottom: 20px;">
-  <div class="card-body" style="padding: 14px 20px;">
-    <div style="display:flex; gap:20px; flex-wrap:wrap; align-items:center;">
-      <span style="font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.08em;">
-        Roles:
+  <div class="card-body" style="padding: 12px 18px;">
+    <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center;">
+      <span style="font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .08em;">
+        نقش‌ها:
       </span>
-      <span class="badge badge-green">owner</span>
-      <span style="font-size:11px; color:var(--text-dim);">Full access, billing, members</span>
-      <span class="badge badge-blue">manager</span>
-      <span style="font-size:11px; color:var(--text-dim);">Manage ops, not billing</span>
-      <span class="badge badge-amber">operator</span>
-      <span style="font-size:11px; color:var(--text-dim);">Log operations only</span>
-      <span class="badge" style="color:var(--text-muted);background:var(--surface-2);">consultant</span>
-      <span style="font-size:11px; color:var(--text-dim);">Read + recommendations</span>
-      <span class="badge badge-muted">guest</span>
-      <span style="font-size:11px; color:var(--text-dim);">Read-only</span>
+      <span class="badge badge-green">مالک</span>
+      <span style="font-size: 11px; color: var(--text-dim);">دسترسی کامل، صورتحساب، اعضا</span>
+      <span class="badge badge-blue">مدیر</span>
+      <span style="font-size: 11px; color: var(--text-dim);">مدیریت عملیات</span>
+      <span class="badge badge-amber">اپراتور</span>
+      <span style="font-size: 11px; color: var(--text-dim);">فقط ثبت عملیات</span>
+      <span class="badge badge-muted">مشاور</span>
+      <span style="font-size: 11px; color: var(--text-dim);">مطالعه + توصیه</span>
+      <span class="badge badge-muted">مهمان</span>
+      <span style="font-size: 11px; color: var(--text-dim);">فقط مطالعه</span>
     </div>
   </div>
 </div>
 
-<!-- ── Members Table ───────────────────────────────────────────────── -->
+<!-- ── جدول اعضا ──────────────────────────────────────────────────── -->
 <div class="card animate-in">
   <div class="card-header">
-    <span class="card-title">Active Members</span>
-    <span class="badge badge-muted">{{ members|length }} members</span>
+    <span class="card-title">اعضای فعال</span>
+    <span class="badge badge-muted">{{ members|length }} عضو</span>
   </div>
 
   {% if members %}
@@ -111,69 +116,67 @@
     <table>
       <thead>
         <tr>
-          <th>User</th>
-          <th>Role</th>
-          <th>Joined</th>
-          <th>Status</th>
-          {% if can_manage %}<th>Actions</th>{% endif %}
+          <th>کاربر</th>
+          <th>نقش</th>
+          <th>تاریخ عضویت</th>
+          <th>وضعیت</th>
+          {% if can_manage %}<th>اقدام</th>{% endif %}
         </tr>
       </thead>
       <tbody>
         {% for member in members %}
         <tr>
           <td>
-            <div style="display:flex; align-items:center; gap:10px;">
-              <div class="topbar-avatar" style="width:32px;height:32px;font-size:11px;flex-shrink:0;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div class="topbar-avatar" style="width: 32px; height: 32px; font-size: 11px; flex-shrink: 0;">
                 {{ member.user.username|slice:":2"|upper }}
               </div>
               <div>
-                <div style="font-weight:500; font-size:13px;">
+                <div style="font-weight: 600; font-size: 13px;">
                   {{ member.user.get_full_name|default:member.user.username }}
                 </div>
-                <div class="text-dim" style="font-size:11px;">{{ member.user.email }}</div>
+                <div class="text-dim" style="font-size: 11px;">{{ member.user.email }}</div>
               </div>
             </div>
           </td>
           <td>
             {% if member.role == 'owner' %}
-              <span class="badge badge-green">{{ member.role }}</span>
+              <span class="badge badge-green">مالک</span>
             {% elif member.role == 'manager' %}
-              <span class="badge badge-blue">{{ member.role }}</span>
+              <span class="badge badge-blue">مدیر</span>
             {% elif member.role == 'operator' %}
-              <span class="badge badge-amber">{{ member.role }}</span>
+              <span class="badge badge-amber">اپراتور</span>
             {% elif member.role == 'consultant' %}
-              <span class="badge" style="color:var(--text-muted);background:var(--surface-2);">
-                {{ member.role }}
-              </span>
+              <span class="badge badge-muted">مشاور</span>
             {% else %}
-              <span class="badge badge-muted">{{ member.role }}</span>
+              <span class="badge badge-muted">مهمان</span>
             {% endif %}
           </td>
-          <td class="text-muted" style="font-size:12px;">
-            {{ member.joined_at|date:"M d, Y" }}
+          <td class="text-muted" style="font-size: 12px;">
+            {{ member.joined_at|date:"Y/m/d" }}
           </td>
           <td>
-              <span class="badge badge-green">Active</span>
+            <span class="badge badge-green">فعال</span>
           </td>
           {% if can_manage %}
           <td>
             {% if member.role != 'owner' %}
-            <div style="display:flex;gap:6px;">
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
               <a href="{% url 'greenhouse_app:member_edit' greenhouse.id member.id %}"
-                 class="btn btn-outline btn-sm">Change Role</a>
+                 class="btn btn-outline btn-sm">تغییر نقش</a>
               <form method="post"
                     action="{% url 'greenhouse_app:member_remove' greenhouse.id member.id %}"
-                    style="display:inline;">
+                    style="display: inline;">
                 {% csrf_token %}
                 <button type="submit"
                         class="btn btn-danger btn-sm"
-                        onclick="return confirm('Remove {{ member.user.username }} from this greenhouse?')">
-                  Remove
+                        onclick="return confirm('آیا مطمئنید که {{ member.user.username }} را از این گلخانه حذف کنید؟')">
+                  حذف
                 </button>
               </form>
             </div>
             {% else %}
-              <span class="text-dim" style="font-size:11px;">—</span>
+              <span class="text-dim" style="font-size: 11px;">—</span>
             {% endif %}
           </td>
           {% endif %}
@@ -185,10 +188,11 @@
   {% else %}
   <div class="empty-state">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-      <circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/>
+      <circle cx="9" cy="7" r="4"/>
+      <path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/>
     </svg>
-    <h3>No members yet</h3>
-    <p>Add team members to collaborate on this greenhouse.</p>
+    <h3>هنوز عضوی اضافه نشده</h3>
+    <p>اعضای تیم را اضافه کنید تا در مدیریت گلخانه همکاری کنند.</p>
   </div>
   {% endif %}
 </div>

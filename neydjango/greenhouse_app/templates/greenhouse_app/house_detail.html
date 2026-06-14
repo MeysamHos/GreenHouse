@@ -1,15 +1,16 @@
 {% extends "greenhouse_app/base.html" %}
 
-{% block title %}{{ house.name }} — {{ greenhouse.name }} — Greenhouse OS{% endblock %}
+{% block title %}{{ house.name }} — {{ greenhouse.name }} — سیستم گلخانه{% endblock %}
 
 {% block sidebar_greenhouse_links %}
 <div class="sidebar-divider"></div>
-<span class="sidebar-label">{{ greenhouse.name|truncatechars:20 }}</span>
+<span class="sidebar-label">{{ greenhouse.name|truncatechars:22 }}</span>
+
 <a href="{% url 'greenhouse_app:greenhouse_detail' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
   </svg>
-  Overview
+  نمای کلی
 </a>
 <a href="{% url 'operations:operation_list' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -17,28 +18,28 @@
     <rect x="9" y="3" width="6" height="4" rx="1"/>
     <path d="M9 12h6M9 16h4"/>
   </svg>
-  Operations
+  عملیات
 </a>
 <a href="{% url 'inventory:inventory_list' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
-    <rect x="9" y="3" width="6" height="4" rx="1"/>
-    <path d="M9 12h6M9 16h4"/>
+    <path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
+    <path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/>
   </svg>
-  Inventory
+  انبار و موجودی
 </a>
 <a href="{% url 'financials:dashboard' greenhouse.id %}" class="sidebar-link">
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-dollar" viewBox="0 0 16 16">
-  <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73z"/>
-</svg>
-  Financials / P&L
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <line x1="12" y1="1" x2="12" y2="23"/>
+    <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+  </svg>
+  مالی و سود/زیان
 </a>
 <a href="{% url 'diagnosis:diagnosis_list' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
-    <path d="M11 8v6M8 11h6"/>
+    <circle cx="11" cy="11" r="8"/>
+    <path d="M21 21l-4.35-4.35M11 8v6M8 11h6"/>
   </svg>
-  Disease Detection
+  تشخیص بیماری
 </a>
 <a href="{% url 'reports:index' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -47,13 +48,14 @@
     <line x1="16" y1="13" x2="8" y2="13"/>
     <line x1="16" y1="17" x2="8" y2="17"/>
   </svg>
-  Reports
+  گزارش‌ها
 </a>
 <a href="{% url 'greenhouse_app:member_list' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/>
+    <circle cx="9" cy="7" r="4"/>
+    <path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/>
   </svg>
-  Members
+  اعضا
 </a>
 {% endblock %}
 
@@ -62,7 +64,7 @@
 <div class="page-header">
   <div class="page-header-left">
     <div class="breadcrumb">
-      <a href="{% url 'greenhouse_app:greenhouse_list' %}">Greenhouses</a>
+      <a href="{% url 'greenhouse_app:greenhouse_list' %}">گلخانه‌ها</a>
       <span class="breadcrumb-sep">›</span>
       <a href="{% url 'greenhouse_app:greenhouse_detail' greenhouse.id %}">{{ greenhouse.name }}</a>
       <span class="breadcrumb-sep">›</span>
@@ -70,24 +72,28 @@
     </div>
     <div class="page-title">{{ house.name }}</div>
     <div class="page-subtitle">
-      {% if house.area_m2 %}{{ house.area_m2 }} m²{% endif %}
-      {{ beds|length }} bed{{ beds|length|pluralize }}
+      {% if house.area_m2 %}{{ house.area_m2 }} متر مربع · {% endif %}
+      {{ beds|length }} بستر
     </div>
   </div>
-  <div style="display:flex;gap:8px;">
+  <div style="display: flex; gap: 8px; flex-wrap: wrap;">
     <a href="{% url 'greenhouse_app:bed_create' greenhouse.id house.id %}" class="btn btn-primary">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-      Add Bed
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>
+      افزودن بستر
     </a>
-    <a href="{% url 'greenhouse_app:house_edit' greenhouse.id house.id %}" class="btn btn-outline">Edit</a>
+    <a href="{% url 'greenhouse_app:house_edit' greenhouse.id house.id %}" class="btn btn-outline">
+      ویرایش
+    </a>
   </div>
 </div>
 
-<!-- ── Beds Table ──────────────────────────────────────────────────── -->
+<!-- ── جدول بسترها ────────────────────────────────────────────────── -->
 <div class="card animate-in">
   <div class="card-header">
-    <span class="card-title">Beds in {{ house.name }}</span>
-    <span class="badge badge-muted">{{ beds|length }} total</span>
+    <span class="card-title">بسترهای {{ house.name }}</span>
+    <span class="badge badge-muted">{{ beds|length }} بستر</span>
   </div>
 
   {% if beds %}
@@ -95,12 +101,12 @@
     <table>
       <thead>
         <tr>
-          <th>Bed Code</th>
-          <th>Area (m²)</th>
-          <th>Capacity</th>
-          <th>Active Crop</th>
-          <th>Status</th>
-          <th>Actions</th>
+          <th>کد بستر</th>
+          <th>مساحت (م²)</th>
+          <th>ظرفیت</th>
+          <th>محصول فعال</th>
+          <th>وضعیت</th>
+          <th>عملیات</th>
         </tr>
       </thead>
       <tbody>
@@ -109,7 +115,7 @@
         <tr>
           <td>
             <a href="{% url 'greenhouse_app:bed_detail' greenhouse.id house.id bed.id %}"
-               style="color:var(--blue); text-decoration:none; font-weight:500;">
+               style="color: var(--blue); text-decoration: none; font-weight: 600;">
               {{ bed.code }}
             </a>
           </td>
@@ -117,9 +123,9 @@
           <td class="text-muted">{{ bed.capacity|default:"—" }}</td>
           <td>
             {% if active and active.status == 'growing' %}
-              <div style="font-size:13px;">{{ active.crop_type }}</div>
+              <div style="font-size: 13px; font-weight: 500;">{{ active.crop_type }}</div>
               {% if active.variety %}
-                <div class="text-dim" style="font-size:11px;">{{ active.variety }}</div>
+                <div class="text-dim" style="font-size: 11px;">{{ active.variety }}</div>
               {% endif %}
             {% else %}
               <span class="text-dim">—</span>
@@ -128,24 +134,24 @@
           <td>
             {% if active %}
               {% if active.status == 'growing' %}
-                <span class="badge badge-green">Growing</span>
+                <span class="badge badge-green">در حال رشد</span>
               {% elif active.status == 'harvested' %}
-                <span class="badge badge-blue">Harvested</span>
+                <span class="badge badge-blue">برداشت شده</span>
               {% elif active.status == 'failed' %}
-                <span class="badge badge-red">Failed</span>
+                <span class="badge badge-red">شکست خورده</span>
               {% else %}
-                <span class="badge badge-amber">Planned</span>
+                <span class="badge badge-amber">برنامه‌ریزی شده</span>
               {% endif %}
             {% else %}
-              <span class="badge badge-muted">Empty</span>
+              <span class="badge badge-muted">خالی</span>
             {% endif %}
           </td>
           <td>
-            <div style="display:flex; gap:6px;">
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
               <a href="{% url 'greenhouse_app:bed_detail' greenhouse.id house.id bed.id %}"
-                 class="btn btn-outline btn-sm">View</a>
+                 class="btn btn-outline btn-sm">مشاهده</a>
               <a href="{% url 'greenhouse_app:crop_create' greenhouse.id house.id bed.id %}"
-                 class="btn btn-outline btn-sm text-green">+ Crop</a>
+                 class="btn btn-outline btn-sm text-green">+ محصول</a>
             </div>
           </td>
         </tr>
@@ -156,16 +162,17 @@
   </div>
   {% else %}
   <div class="empty-state">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
       <rect x="2" y="7" width="20" height="14" rx="2"/>
       <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>
-      <line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/>
+      <line x1="12" y1="12" x2="12" y2="16"/>
+      <line x1="10" y1="14" x2="14" y2="14"/>
     </svg>
-    <h3>No beds yet</h3>
-    <p>Add cultivation beds to start tracking crops.</p>
-    <div style="margin-top:16px;">
+    <h3>هنوز بستری تعریف نشده</h3>
+    <p>بسترهای کشت را اضافه کنید تا ردیابی محصولات شروع شود.</p>
+    <div style="margin-top: 16px;">
       <a href="{% url 'greenhouse_app:bed_create' greenhouse.id house.id %}" class="btn btn-primary">
-        Add First Bed
+        افزودن اولین بستر
       </a>
     </div>
   </div>

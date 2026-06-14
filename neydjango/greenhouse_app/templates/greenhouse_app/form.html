@@ -1,16 +1,47 @@
 {% extends "greenhouse_app/base.html" %}
 
-{% block title %}{{ form_title }} — Greenhouse OS{% endblock %}
+{% block title %}{{ form_title }} — سیستم گلخانه{% endblock %}
 
 {% block sidebar_greenhouse_links %}
 {% if greenhouse %}
 <div class="sidebar-divider"></div>
-<span class="sidebar-label">{{ greenhouse.name|truncatechars:20 }}</span>
+<span class="sidebar-label">{{ greenhouse.name|truncatechars:22 }}</span>
 <a href="{% url 'greenhouse_app:greenhouse_detail' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
   </svg>
-  Overview
+  نمای کلی
+</a>
+<a href="{% url 'operations:operation_list' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+    <rect x="9" y="3" width="6" height="4" rx="1"/>
+    <path d="M9 12h6M9 16h4"/>
+  </svg>
+  عملیات
+</a>
+<a href="{% url 'inventory:inventory_list' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
+    <path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/>
+  </svg>
+  انبار و موجودی
+</a>
+<a href="{% url 'financials:dashboard' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <line x1="12" y1="1" x2="12" y2="23"/>
+    <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+  </svg>
+  مالی و سود/زیان
+</a>
+<a href="{% url 'reports:index' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+    <polyline points="14 2 14 8 20 8"/>
+    <line x1="16" y1="13" x2="8" y2="13"/>
+    <line x1="16" y1="17" x2="8" y2="17"/>
+  </svg>
+  گزارش‌ها
 </a>
 {% endif %}
 {% endblock %}
@@ -53,7 +84,7 @@
             <label for="{{ field.id_for_label }}">
               {{ field.label }}
               {% if field.field.required %}
-                <span style="color:var(--red);">*</span>
+                <span style="color: var(--red);">*</span>
               {% endif %}
             </label>
 
@@ -65,7 +96,7 @@
 
             {% if field.errors %}
               {% for error in field.errors %}
-                <span style="font-size:12px; color:var(--red);">{{ error }}</span>
+                <span style="font-size: 12px; color: var(--red);">{{ error }}</span>
               {% endfor %}
             {% endif %}
           </div>
@@ -76,21 +107,21 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13">
               <polyline points="20 6 9 17 4 12"/>
             </svg>
-            {{ submit_label|default:"Save" }}
+            {{ submit_label|default:"ذخیره" }}
           </button>
-          <a href="{{ cancel_url }}" class="btn btn-outline">Cancel</a>
+          <a href="{{ cancel_url }}" class="btn btn-outline">انصراف</a>
 
           {% if delete_url %}
-            <div style="flex:1;"></div>
+            <div style="flex: 1;"></div>
             <a href="{{ delete_url }}"
                class="btn btn-danger"
-               onclick="return confirm('Are you sure you want to delete this? This cannot be undone.')">
+               onclick="return confirm('آیا مطمئن هستید؟ این عملیات قابل بازگشت نیست.')">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
                 <polyline points="3 6 5 6 21 6"/>
                 <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
                 <path d="M10 11v6M14 11v6"/>
               </svg>
-              Delete
+              حذف
             </a>
           {% endif %}
         </div>

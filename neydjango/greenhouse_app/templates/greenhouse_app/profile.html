@@ -1,51 +1,49 @@
 {% extends "greenhouse_app/base.html" %}
 
-{% block title %}My Profile — Greenhouse OS{% endblock %}
+{% block title %}پروفایل من — سیستم گلخانه{% endblock %}
 
 {% block content %}
 
 <div class="page-header">
   <div class="page-header-left">
     <div class="breadcrumb">
-      <a href="{% url 'greenhouse_app:greenhouse_list' %}">Greenhouses</a>
+      <a href="{% url 'greenhouse_app:greenhouse_list' %}">گلخانه‌ها</a>
       <span class="breadcrumb-sep">›</span>
-      <span>My Profile</span>
+      <span>پروفایل من</span>
     </div>
-    <div class="page-title">My Profile</div>
-    <div class="page-subtitle">Manage your account information</div>
+    <div class="page-title">پروفایل من</div>
+    <div class="page-subtitle">مدیریت اطلاعات حساب کاربری</div>
   </div>
 </div>
 
-<div style="display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start;">
+<!-- stacks to single column on mobile, two columns on desktop -->
+<div style="display: grid; grid-template-columns: 280px 1fr; gap: 20px; align-items: start;">
 
-  <!-- ── Left: Avatar + Identity ──────────────────────────────────── -->
+  <!-- ── ستون چپ: آواتار + هویت ──────────────────────────────────── -->
   <div style="display: flex; flex-direction: column; gap: 16px;">
 
     <div class="card animate-in">
       <div class="card-body" style="text-align: center; padding: 28px 20px;">
 
-        <!-- Avatar circle -->
+        <!-- آواتار -->
         <div style="width: 72px; height: 72px;
                     background: var(--green-dim);
                     border: 2px solid var(--green);
                     border-radius: 50%;
                     display: flex; align-items: center; justify-content: center;
                     margin: 0 auto 14px;
-                    font-family: var(--display);
                     font-size: 26px;
-                    font-weight: 700;
+                    font-weight: 800;
                     color: var(--green);">
           {{ user.username|slice:":2"|upper }}
         </div>
 
-        <div style="font-family: var(--display); font-size: 18px;
-                    font-weight: 700; color: #e6edf3;">
+        <div style="font-size: 18px; font-weight: 800; color: #e6edf3;">
           {{ user.get_full_name|default:user.username }}
         </div>
         <div class="text-muted" style="font-size: 12px; margin-top: 4px;">
           @{{ user.username }}
         </div>
-
         {% if user.email %}
         <div class="text-dim" style="font-size: 12px; margin-top: 6px;">
           {{ user.email }}
@@ -54,30 +52,35 @@
 
         <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
           <div style="font-size: 11px; color: var(--text-dim); text-transform: uppercase;
-                      letter-spacing: .08em; margin-bottom: 6px;">Highest Role</div>
-          <span class="badge {% if user_role == 'owner' %}badge-green
-                              {% elif user_role == 'manager' %}badge-blue
-                              {% elif user_role == 'operator' %}badge-amber
-                              {% else %}badge-muted{% endif %}">
-            {{ user_role|default:"—" }}
+                      letter-spacing: .08em; margin-bottom: 6px;">بالاترین نقش</div>
+          <span class="badge
+            {% if user_role == 'owner' %}badge-green
+            {% elif user_role == 'manager' %}badge-blue
+            {% elif user_role == 'operator' %}badge-amber
+            {% else %}badge-muted{% endif %}">
+            {% if user_role == 'owner' %}مالک
+            {% elif user_role == 'manager' %}مدیر
+            {% elif user_role == 'operator' %}اپراتور
+            {% elif user_role == 'consultant' %}مشاور
+            {% else %}مهمان{% endif %}
           </span>
         </div>
 
         <div style="margin-top: 12px;">
           <div class="text-dim" style="font-size: 11px;">
-            Member since {{ user.date_joined|date:"M d, Y" }}
+            عضو از {{ user.date_joined|date:"Y/m/d" }}
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Greenhouse memberships summary -->
+    <!-- خلاصه گلخانه‌ها -->
     <div class="card animate-in">
       <div class="card-header">
-        <span class="card-title">My Greenhouses</span>
+        <span class="card-title">گلخانه‌های من</span>
         <span class="badge badge-muted">{{ memberships|length }}</span>
       </div>
-      <div style="padding: 8px 0;">
+      <div style="padding: 6px 0;">
         {% for m in memberships %}
         <a href="{% url 'greenhouse_app:greenhouse_detail' m.greenhouse.id %}"
            style="display: flex; align-items: center; justify-content: space-between;
@@ -86,16 +89,21 @@
            onmouseover="this.style.background='var(--surface-2)'"
            onmouseout="this.style.background='transparent'">
           <span style="font-size: 13px; color: var(--text);">{{ m.greenhouse.name }}</span>
-          <span class="badge {% if m.role == 'owner' %}badge-green
-                              {% elif m.role == 'manager' %}badge-blue
-                              {% elif m.role == 'operator' %}badge-amber
-                              {% else %}badge-muted{% endif %}">
-            {{ m.role }}
+          <span class="badge
+            {% if m.role == 'owner' %}badge-green
+            {% elif m.role == 'manager' %}badge-blue
+            {% elif m.role == 'operator' %}badge-amber
+            {% else %}badge-muted{% endif %}">
+            {% if m.role == 'owner' %}مالک
+            {% elif m.role == 'manager' %}مدیر
+            {% elif m.role == 'operator' %}اپراتور
+            {% elif m.role == 'consultant' %}مشاور
+            {% else %}مهمان{% endif %}
           </span>
         </a>
         {% empty %}
         <div style="padding: 16px; color: var(--text-dim); font-size: 12px; text-align: center;">
-          No greenhouse memberships yet.
+          هنوز عضو هیچ گلخانه‌ای نیستید.
         </div>
         {% endfor %}
       </div>
@@ -103,13 +111,13 @@
 
   </div>
 
-  <!-- ── Right: Edit Form ──────────────────────────────────────────── -->
+  <!-- ── ستون راست: فرم‌های ویرایش ───────────────────────────────── -->
   <div style="display: flex; flex-direction: column; gap: 16px;">
 
-    <!-- Personal info -->
+    <!-- اطلاعات شخصی -->
     <div class="card animate-in">
       <div class="card-header">
-        <span class="card-title">Personal Information</span>
+        <span class="card-title">اطلاعات شخصی</span>
       </div>
       <div class="card-body">
         <form method="post">
@@ -118,34 +126,34 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label for="id_first_name">First Name</label>
+              <label for="id_first_name">نام</label>
               <input type="text" name="first_name" id="id_first_name"
                      value="{{ user.first_name }}">
             </div>
             <div class="form-group">
-              <label for="id_last_name">Last Name</label>
+              <label for="id_last_name">نام خانوادگی</label>
               <input type="text" name="last_name" id="id_last_name"
                      value="{{ user.last_name }}">
             </div>
           </div>
 
           <div class="form-group">
-            <label for="id_email">Email</label>
+            <label for="id_email">ایمیل</label>
             <input type="email" name="email" id="id_email"
                    value="{{ user.email }}">
           </div>
 
           <div class="form-group">
-            <label for="id_phone">Phone Number</label>
+            <label for="id_phone">شماره موبایل</label>
             <input type="text" name="phone" id="id_phone"
                    value="{{ user.phone|default:'' }}"
-                   placeholder="e.g. 09123456789">
+                   placeholder="مثال: ۰۹۱۲۳۴۵۶۷۸۹">
           </div>
 
           <div class="form-group">
-            <label for="id_locale">Language</label>
+            <label for="id_locale">زبان رابط کاربری</label>
             <select name="locale" id="id_locale">
-              <option value="fa" {% if user.locale == 'fa' %}selected{% endif %}>Persian (فارسی)</option>
+              <option value="fa" {% if user.locale == 'fa' %}selected{% endif %}>فارسی</option>
               <option value="en" {% if user.locale == 'en' %}selected{% endif %}>English</option>
             </select>
           </div>
@@ -154,17 +162,17 @@
             <button type="submit" class="btn btn-primary">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                    width="13" height="13"><polyline points="20 6 9 17 4 12"/></svg>
-              Save Changes
+              ذخیره تغییرات
             </button>
           </div>
         </form>
       </div>
     </div>
 
-    <!-- Change password -->
+    <!-- تغییر رمز عبور -->
     <div class="card animate-in">
       <div class="card-header">
-        <span class="card-title">Change Password</span>
+        <span class="card-title">تغییر رمز عبور</span>
       </div>
       <div class="card-body">
         <form method="post">
@@ -176,26 +184,26 @@
           {% endif %}
 
           <div class="form-group">
-            <label for="id_old_password">Current Password</label>
+            <label for="id_old_password">رمز عبور فعلی</label>
             <input type="password" name="old_password" id="id_old_password"
                    autocomplete="current-password">
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="id_new_password1">New Password</label>
+              <label for="id_new_password1">رمز عبور جدید</label>
               <input type="password" name="new_password1" id="id_new_password1"
                      autocomplete="new-password">
             </div>
             <div class="form-group">
-              <label for="id_new_password2">Confirm New Password</label>
+              <label for="id_new_password2">تکرار رمز عبور جدید</label>
               <input type="password" name="new_password2" id="id_new_password2"
                      autocomplete="new-password">
             </div>
           </div>
 
           <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Update Password</button>
+            <button type="submit" class="btn btn-primary">بروزرسانی رمز عبور</button>
           </div>
         </form>
       </div>
@@ -204,4 +212,13 @@
   </div>
 </div>
 
+{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* profile 2-col collapses to 1-col on mobile */
+  @media (max-width: 768px) {
+    .profile-grid { grid-template-columns: 1fr !important; }
+  }
+</style>
 {% endblock %}

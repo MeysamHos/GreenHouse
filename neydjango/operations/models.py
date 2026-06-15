@@ -41,30 +41,30 @@ from django.utils.translation import gettext_lazy as _
 class Operation(models.Model):
 
     class Type(models.TextChoices):
-        IRRIGATION  = 'irrigation',  _('Irrigation')       # آبیاری
-        FERTILIZING = 'fertilizing', _('Fertilizing')      # کود‌دهی
-        SPRAYING    = 'spraying',    _('Spraying')          # سم‌پاشی
-        HARVESTING  = 'harvesting',  _('Harvesting')        # برداشت
-        PRUNING     = 'pruning',     _('Pruning')           # هرس
-        TRANSPLANT  = 'transplant',  _('Transplanting')     # نشاء
-        INSPECTION  = 'inspection',  _('Inspection')        # بازدید
-        OTHER       = 'other',       _('Other')             # سایر
+        IRRIGATION  = 'irrigation',  _('آبیاری')       # آبیاری
+        FERTILIZING = 'fertilizing', _('کود‌دهی')      # کود‌دهی
+        SPRAYING    = 'spraying',    _('سم‌پاشی')          # سم‌پاشی
+        HARVESTING  = 'harvesting',  _('برداشت')        # برداشت
+        PRUNING     = 'pruning',     _('هرس')           # هرس
+        TRANSPLANT  = 'transplant',  _('نشاء')     # نشاء
+        INSPECTION  = 'inspection',  _('بازدید')        # بازدید
+        OTHER       = 'other',       _('سایر')             # سایر
 
     class Unit(models.TextChoices):
-        LITRE      = 'litre',      _('Litre (L)')
-        KILOGRAM   = 'kilogram',   _('Kilogram (kg)')
-        GRAM       = 'gram',       _('Gram (g)')
-        PIECE      = 'piece',      _('Piece / Unit')
-        HOUR       = 'hour',       _('Hour')
-        SQUARE_M   = 'square_m',   _('Square Metre (m²)')
-        OTHER      = 'other',      _('Other')
+        LITRE      = 'litre',      _('لیتر (L)')
+        KILOGRAM   = 'kilogram',   _('کیلوگرم (kg)')
+        GRAM       = 'gram',       _('گرم (g)')
+        PIECE      = 'piece',      _('قطعه / واحد')
+        HOUR       = 'hour',       _('ساعت')
+        SQUARE_M   = 'square_m',   _('متر مربع (m²)')
+        OTHER      = 'other',      _('سایر')
 
     # ── Core relations ───────────────────────────────────────────────
     bed = models.ForeignKey(
         'greenhouse_app.Bed',
         on_delete=models.CASCADE,
         related_name='operations',
-        help_text=_('Which bed this operation was performed on'),
+        help_text=_('این عمل روی کدام بستر انجام شده است'),
     )
     crop = models.ForeignKey(
         'greenhouse_app.Crop',
@@ -72,21 +72,21 @@ class Operation(models.Model):
         null=True,
         blank=True,
         related_name='operations',
-        help_text=_('Active crop at the time — auto-linked or manually selected'),
+        help_text=_('محصول فعال در آن زمان - لینک خودکار یا انتخاب دستی'),
     )
     performed_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
         related_name='operations_performed',
-        help_text=_('Operator who carried out the work'),
+        help_text=_('اپراتوری که کار را انجام داده است'),
     )
     logged_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
         related_name='operations_logged',
-        help_text=_('User who entered this record (may differ from performer)'),
+        help_text=_('کاربری که این رکورد را وارد کرده است (ممکن است با اجراکننده متفاوت باشد)'),
     )
 
     # ── What was done ────────────────────────────────────────────────
@@ -96,7 +96,7 @@ class Operation(models.Model):
         db_index=True,
     )
     performed_at = models.DateField(
-        help_text=_('Date the operation actually happened'),
+        help_text=_('تاریخ انجام عملیات'),
         db_index=True,
     )
 
@@ -106,7 +106,7 @@ class Operation(models.Model):
         decimal_places=3,
         null=True,
         blank=True,
-        help_text=_('Amount used, e.g. 5.0 litres of fertilizer'),
+        help_text=_('مقدار مصرف شده، مثلاً ۵.۰ لیتر کود'),
     )
     unit = models.CharField(
         max_length=20,
@@ -120,13 +120,13 @@ class Operation(models.Model):
         max_length=200,
         blank=True,
         default='',
-        help_text=_('Name of fertilizer, pesticide, or seed used'),
+        help_text=_('نام کود، آفت‌کش یا بذر مورد استفاده'),
     )
     product_batch = models.CharField(
         max_length=100,
         blank=True,
         default='',
-        help_text=_('Batch or lot number for traceability'),
+        help_text=_('شماره بچ یا لات برای ردیابی'),
     )
 
     # ── Financials ───────────────────────────────────────────────────
@@ -135,7 +135,7 @@ class Operation(models.Model):
         decimal_places=2,
         null=True,
         blank=True,
-        help_text=_('Direct cost of this operation in local currency'),
+        help_text=_('هزینه مستقیم این عملیات به پول محلی'),
     )
 
     # ── Harvest specific ─────────────────────────────────────────────
@@ -144,26 +144,26 @@ class Operation(models.Model):
         decimal_places=3,
         null=True,
         blank=True,
-        help_text=_('Weight harvested in kg — only for HARVESTING operations'),
+        help_text=_('وزن برداشت شده به کیلوگرم — فقط برای عملیات برداشت'),
     )
     harvest_quality = models.CharField(
         max_length=20,
         blank=True,
         default='',
         choices=[
-            ('grade_a', _('Grade A')),
-            ('grade_b', _('Grade B')),
-            ('grade_c', _('Grade C')),
-            ('rejected', _('Rejected')),
+            ('grade_a', _('درجه یک')),
+            ('grade_b', _('درجه دو')),
+            ('grade_c', _('درجه سه')),
+            ('rejected', _('رد شده')),
         ],
-        help_text=_('Quality grade of harvested produce'),
+        help_text=_('درجه کیفی محصولات برداشت شده'),
     )
 
     # ── Notes ────────────────────────────────────────────────────────
     notes = models.TextField(
         blank=True,
         default='',
-        help_text=_('Observations, issues, or free-form notes'),
+        help_text=_('مشاهدات، مسائل یا یادداشت‌های آزاد'),
     )
 
     # ── Timestamps ───────────────────────────────────────────────────

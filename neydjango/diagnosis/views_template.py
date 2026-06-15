@@ -104,9 +104,9 @@ def diagnosis_list(request, greenhouse_id):
         'status_filter': status_filter,
         'status_choices': DiagnosisRequest.Status.choices,
         'breadcrumbs': [
-            {'label': 'Greenhouses', 'url': '/greenhouse_app/greenhouses/'},
+            {'label': 'گلخانه‌ها', 'url': '/greenhouse_app/greenhouses/'},
             {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
-            {'label': 'Disease Detection', 'url': None},
+            {'label': 'تشخیص بیماری', 'url': None},
         ],
     })
 
@@ -130,7 +130,7 @@ def diagnosis_new(request, greenhouse_id):
         images = request.FILES.getlist('images')
 
         if not images:
-            messages.error(request, 'Please upload at least one image.')
+            messages.error(request, 'لطفاً حداقل یک تصویر بارگذاری کنید.')
             return render(request, 'diagnosis/diagnosis_new.html', {
                 'greenhouse': greenhouse,
                 'beds': beds,
@@ -140,13 +140,13 @@ def diagnosis_new(request, greenhouse_id):
             })
 
         if len(images) > 5:
-            messages.error(request, 'Maximum 5 images per diagnosis.')
+            messages.error(request, 'حداکثر ۵ تصویر برای هر تشخیص.')
             return redirect('diagnosis:diagnosis_new', greenhouse_id=greenhouse.id)
 
         allowed_types = {'image/jpeg', 'image/png', 'image/webp', 'image/jpg'}
         for img in images:
             if img.content_type not in allowed_types:
-                messages.error(request, f'Unsupported file type: {img.content_type}. Use JPEG or PNG.')
+                messages.error(request, f'نوع فایل پشتیبانی نمی‌شود: {img.content_type}. از JPEG یا PNG استفاده کنید.')
                 return redirect('diagnosis:diagnosis_new', greenhouse_id=greenhouse.id)
 
         bed_id   = request.POST.get('bed_id') or None
@@ -293,10 +293,10 @@ def diagnosis_detail(request, greenhouse_id, pk):
         'results': diag_request.results.order_by('-confidence'),
         'images': diag_request.images.all(),
         'breadcrumbs': [
-            {'label': 'Greenhouses', 'url': '/greenhouse_app/greenhouses/'},
+            {'label': 'گلخانه‌ها', 'url': '/greenhouse_app/greenhouses/'},
             {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
-            {'label': 'Disease Detection', 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/diagnosis/'},
-            {'label': f'Diagnosis #{diag_request.id}', 'url': None},
+            {'label': 'تشخیص بیماری', 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/diagnosis/'},
+            {'label': f'تشخیص #{diag_request.id}', 'url': None},
         ],
     })
 
@@ -305,10 +305,10 @@ def diagnosis_detail(request, greenhouse_id, pk):
 
 def _new_breadcrumbs(greenhouse):
     return [
-        {'label': 'Greenhouses', 'url': '/greenhouse_app/greenhouses/'},
+        {'label': 'گلخانه‌ها', 'url': '/greenhouse_app/greenhouses/'},
         {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
-        {'label': 'Disease Detection', 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/diagnosis/'},
-        {'label': 'New Diagnosis', 'url': None},
+        {'label': 'تشخیص بیماری', 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/diagnosis/'},
+        {'label': 'تشخیص جدید', 'url': None},
     ]
 
 

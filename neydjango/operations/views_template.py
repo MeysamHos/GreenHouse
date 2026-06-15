@@ -242,14 +242,14 @@ def operation_create(request, greenhouse_id):
     return render(request, 'operations/operation_form.html', {
         'greenhouse': greenhouse,
         'form':       form,
-        'form_title': 'Log New Operation',
-        'submit_label': 'Save Operation',
+        'form_title': 'ثبت عملیات جدید',
+        'submit_label': 'ذخیره عملیات',
         'cancel_url': f'/greenhouse_app/greenhouses/{greenhouse.id}/operations/',
         'breadcrumbs': [
-            {'label': 'Greenhouses', 'url': '/greenhouse_app/greenhouses/'},
+            {'label': 'گلخانه‌ها', 'url': '/greenhouse_app/greenhouses/'},
             {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
-            {'label': 'Operations', 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/operations/'},
-            {'label': 'New Operation', 'url': None},
+            {'label': 'عملیات', 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/operations/'},
+            {'label': 'عملیات جدید', 'url': None},
         ],
     })
 
@@ -282,13 +282,13 @@ def operation_edit(request, greenhouse_id, operation_id):
         'greenhouse':   greenhouse,
         'form':         form,
         'operation':    operation,
-        'form_title':   f'Edit: {operation.get_operation_type_display()}',
-        'submit_label': 'Save Changes',
+        'form_title':   f'ویرایش: {operation.get_operation_type_display()}',
+        'submit_label': 'ذخیره تغییرات',
         'cancel_url':   f'/greenhouse_app/greenhouses/{greenhouse.id}/operations/{operation.id}/',
         'breadcrumbs': [
             {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
-            {'label': 'Operations', 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/operations/'},
-            {'label': 'Edit', 'url': None},
+            {'label': 'عملیات‌ها', 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/operations/'},
+            {'label': 'ویرایش', 'url': None},
         ],
     })
 

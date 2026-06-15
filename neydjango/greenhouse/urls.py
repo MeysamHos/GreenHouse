@@ -23,10 +23,11 @@ urlpatterns = [
     path('api/v1/auth/',    include('accounts.urls')),
     path('api/v1/',         include('greenhouse_app.api_urls')),  # ← add this
     path('api/v1/',         include('financials.api_urls')),
-    path('api/v1/',         include('reports.urls')),             # reports has both
+    path('api/v1/',         include('reports.api_urls')),             # reports has both
     path('api/v1/',         include('diagnosis.urls')),
     path('',                include('operations.urls')),
     path('',                include('inventory.urls')),
+    path('',                include('reports.urls')),
     path('polls/',          include('polls.urls')),
     path('greenhouse_app/', include('greenhouse_app.urls')),
     path('financials/',     include('financials.urls')),

@@ -170,7 +170,7 @@ def financials_dashboard(request, greenhouse_id):
         'active_crops': active_crops,
         'breadcrumbs': [
             {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
-            {'label': 'Financials', 'url': None},
+            {'label': 'مالی', 'url': None},
         ],
     })
 
@@ -216,8 +216,8 @@ def sale_list(request, greenhouse_id):
         'payment_status_choices': Sale.PaymentStatus.choices,
         'breadcrumbs': [
             {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
-            {'label': 'Financials', 'url': f'/financials/{greenhouse.id}/'},
-            {'label': 'Sales', 'url': None},
+            {'label': 'مالی', 'url': f'/financials/{greenhouse.id}/'},
+            {'label': 'فروش', 'url': None},
         ],
     })
 
@@ -245,14 +245,14 @@ def sale_create(request, greenhouse_id):
     return render(request, 'financials/form.html', {
         'form': form,
         'greenhouse': greenhouse,
-        'form_title': 'Record Sale',
-        'form_subtitle': 'Log produce sold to a buyer',
-        'submit_label': 'Save Sale',
+        'form_title': 'ثبت فروش',
+        'form_subtitle': 'ثبت محصول فروخته شده به خریدار',
+        'submit_label': 'ذخیره فروش',
         'cancel_url': f'/financials/{greenhouse.id}/sales/',
         'breadcrumbs': [
             {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
-            {'label': 'Sales', 'url': f'/financials/{greenhouse.id}/sales/'},
-            {'label': 'New Sale', 'url': None},
+            {'label': 'فروش', 'url': f'/financials/{greenhouse.id}/sales/'},
+            {'label': 'فروش جدید', 'url': None},
         ],
     })
 
@@ -274,14 +274,14 @@ def sale_edit(request, greenhouse_id, sale_id):
     return render(request, 'financials/form.html', {
         'form': form,
         'greenhouse': greenhouse,
-        'form_title': f'Edit Sale #{sale.id}',
-        'submit_label': 'Save Changes',
+        'form_title': f'ویرایش فروش #{sale.id}',
+        'submit_label': 'ذخیره تغییرات',
         'delete_url': f'/financials/{greenhouse.id}/sales/{sale.id}/delete/',
         'cancel_url': f'/financials/{greenhouse.id}/sales/',
         'breadcrumbs': [
             {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
-            {'label': 'Sales', 'url': f'/financials/{greenhouse.id}/sales/'},
-            {'label': f'Edit #{sale.id}', 'url': None},
+            {'label': 'فروش', 'url': f'/financials/{greenhouse.id}/sales/'},
+            {'label': f'ویرایش #{sale.id}', 'url': None},
         ],
     })
 
@@ -333,8 +333,8 @@ def expense_list(request, greenhouse_id):
         'category_choices': Expense.Category.choices,
         'breadcrumbs': [
             {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
-            {'label': 'Financials', 'url': f'/financials/{greenhouse.id}/'},
-            {'label': 'Expenses', 'url': None},
+            {'label': 'مالی', 'url': f'/financials/{greenhouse.id}/'},
+            {'label': 'هزینه‌ها', 'url': None},
         ],
     })
 
@@ -358,14 +358,14 @@ def expense_create(request, greenhouse_id):
     return render(request, 'financials/form.html', {
         'form': form,
         'greenhouse': greenhouse,
-        'form_title': 'Record Expense',
-        'form_subtitle': 'Log an overhead or operational cost',
-        'submit_label': 'Save Expense',
+        'form_title': 'ثبت هزینه',
+        'form_subtitle': 'ثبت هزینه سربار یا عملیات',
+        'submit_label': 'ذخیره هزینه',
         'cancel_url': f'/financials/{greenhouse.id}/expenses/',
         'breadcrumbs': [
             {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
-            {'label': 'Expenses', 'url': f'/financials/{greenhouse.id}/expenses/'},
-            {'label': 'New Expense', 'url': None},
+            {'label': 'هزینه‌ها', 'url': f'/financials/{greenhouse.id}/expenses/'},
+            {'label': 'هزینه جدید', 'url': None},
         ],
     })
 
@@ -387,14 +387,14 @@ def expense_edit(request, greenhouse_id, expense_id):
     return render(request, 'financials/form.html', {
         'form': form,
         'greenhouse': greenhouse,
-        'form_title': f'Edit Expense',
-        'submit_label': 'Save Changes',
+        'form_title': f'ویرایش هزینه',
+        'submit_label': 'ذخیره تغییرات',
         'delete_url': f'/financials/{greenhouse.id}/expenses/{expense.id}/delete/',
         'cancel_url': f'/financials/{greenhouse.id}/expenses/',
         'breadcrumbs': [
             {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
-            {'label': 'Expenses', 'url': f'/financials/{greenhouse.id}/expenses/'},
-            {'label': 'Edit', 'url': None},
+            {'label': 'هزینه', 'url': f'/financials/{greenhouse.id}/expenses/'},
+            {'label': 'ویرایش', 'url': None},
         ],
     })
 

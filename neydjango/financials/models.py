@@ -34,11 +34,11 @@ class Sale(models.Model):
     """
 
     class PaymentStatus(models.TextChoices):
-        PENDING  = 'pending',  _('Pending')
-        PAID     = 'paid',     _('Paid')
-        PARTIAL  = 'partial',  _('Partially Paid')
-        OVERDUE  = 'overdue',  _('Overdue')
-        CANCELLED = 'cancelled', _('Cancelled')
+        PENDING  = 'pending',  _('در انتظار')
+        PAID     = 'paid',     _('پرداخت شده')
+        PARTIAL  = 'partial',  _('تا حدی پرداخت شده')
+        OVERDUE  = 'overdue',  _('معوقه')
+        CANCELLED = 'cancelled', _('لغو شده')
 
     greenhouse = models.ForeignKey(
         'greenhouse_app.Greenhouse',
@@ -51,30 +51,35 @@ class Sale(models.Model):
         null=True,
         blank=True,
         related_name='sales',
-        help_text=_('Crop cycle this sale came from'),
+        help_text=_('چرخه زراعی این فروش'),
+        verbose_name="محصول"
     )
 
     # Buyer
     buyer_name = models.CharField(
         max_length=200,
-        help_text=_('Name of buyer / company / market'),
+        help_text=_('نام خریدار / شرکت / بازار'),
+        verbose_name="خریدار"
     )
-    buyer_phone = models.CharField(max_length=20, blank=True, default='')
+    buyer_phone = models.CharField(max_length=20, blank=True, default='', verbose_name="شماره تماس خریدار")
 
     # What was sold
     product_name = models.CharField(
         max_length=200,
-        help_text=_('e.g. Cherry Tomato Grade A'),
+        help_text=_('مانند گوجه فرنگی درجه یک'),
+        verbose_name="نام محصول"
     )
     quantity_kg = models.DecimalField(
         max_digits=10,
         decimal_places=3,
-        help_text=_('Weight sold in kilograms'),
+        help_text=_('وزن فروخته شده به کیلوگرم'),
+        verbose_name="مقدار کیلوگرم"
     )
     price_per_kg = models.DecimalField(
         max_digits=10,
         decimal_places=2,
-        help_text=_('Sale price per kg in local currency'),
+        help_text=_('قیمت فروش هر کیلوگرم از محصول'),
+        verbose_name="قیمت هر کیلو"
     )
 
     @property
@@ -87,29 +92,33 @@ class Sale(models.Model):
         choices=PaymentStatus.choices,
         default=PaymentStatus.PENDING,
         db_index=True,
+        verbose_name="وضعیت پرداخت"
     )
     amount_paid = models.DecimalField(
         max_digits=12,
         decimal_places=2,
         default=0,
-        help_text=_('Amount actually received so far'),
+        help_text=_('مبلغی که تا کنون دریافت شده است'),
+        verbose_name="مقدار پرداخت‌شده"
     )
-    invoice_number = models.CharField(max_length=100, blank=True, default='')
+    invoice_number = models.CharField(max_length=100, blank=True, default='', verbose_name="شماره فاکتور")
 
     sold_at = models.DateField(
-        help_text=_('Date of sale / delivery'),
+        help_text=_('تاریخ فروش / ارسال'),
         db_index=True,
+        verbose_name="زمان فروش"
     )
-    notes = models.TextField(blank=True, default='')
+    notes = models.TextField(blank=True, default='', verbose_name="یادداشت")
 
     recorded_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
         related_name='sales_recorded',
+        verbose_name="ثبت شده توسط"
     )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="زمان ایجاد")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="زمان بروزرسانی")
 
     class Meta:
         db_table = 'sales'
@@ -149,15 +158,15 @@ class Expense(models.Model):
     """
 
     class Category(models.TextChoices):
-        RENT        = 'rent',        _('Rent / Land')
-        UTILITIES   = 'utilities',   _('Utilities (Water, Electricity, Gas)')
-        LABOUR      = 'labour',      _('Labour / Wages')
-        EQUIPMENT   = 'equipment',   _('Equipment & Maintenance')
-        TRANSPORT   = 'transport',   _('Transport & Logistics')
-        INSURANCE   = 'insurance',   _('Insurance')
-        MARKETING   = 'marketing',   _('Marketing & Sales')
-        ADMIN       = 'admin',       _('Administrative & Office')
-        OTHER       = 'other',       _('Other')
+        RENT        = 'rent',        _('اجاره / زمین')
+        UTILITIES   = 'utilities',   _('خدمات (آب، برق، گاز)')
+        LABOUR      = 'labour',      _('کار / دستمزد')
+        EQUIPMENT   = 'equipment',   _('تجهیزات و نگهداری')
+        TRANSPORT   = 'transport',   _('حمل و نقل و لجستیک')
+        INSURANCE   = 'insurance',   _('بیمه')
+        MARKETING   = 'marketing',   _('بازاریابی و فروش')
+        ADMIN       = 'admin',       _('اداری و دفتری')
+        OTHER       = 'other',       _('متفرقه')
 
     greenhouse = models.ForeignKey(
         'greenhouse_app.Greenhouse',
@@ -169,15 +178,18 @@ class Expense(models.Model):
         max_length=20,
         choices=Category.choices,
         db_index=True,
+        verbose_name="دسته‌بندی"
     )
     description = models.CharField(
         max_length=300,
-        help_text=_('What this expense was for'),
+        help_text=_('این هزینه برای چه بوده است.'),
+        verbose_name="توضیح"
     )
     amount = models.DecimalField(
         max_digits=12,
         decimal_places=2,
-        help_text=_('Total amount in local currency'),
+        help_text=_('مبلغ کل به پول محلی'),
+        verbose_name="مبلغ کل"
     )
 
     # Optional: link to a specific house or crop for per-unit cost tracking
@@ -187,13 +199,14 @@ class Expense(models.Model):
         null=True,
         blank=True,
         related_name='expenses',
-        help_text=_('Optionally attribute this expense to a specific hall/section'),
+        help_text=_('اختصاص این هزینه به یک سالن/بخش خاص (اختیاری).'),
+        verbose_name="سالن"
     )
 
-    expense_date = models.DateField(db_index=True)
-    invoice_number = models.CharField(max_length=100, blank=True, default='')
-    vendor_name = models.CharField(max_length=200, blank=True, default='')
-    notes = models.TextField(blank=True, default='')
+    expense_date = models.DateField(db_index=True, verbose_name="تاریخ هزینه")
+    invoice_number = models.CharField(max_length=100, blank=True, default='', verbose_name="شماره فاکتور")
+    vendor_name = models.CharField(max_length=200, blank=True, default='', verbose_name="نام فروشنده")
+    notes = models.TextField(blank=True, default='', verbose_name="یادداشت")
 
     recorded_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,

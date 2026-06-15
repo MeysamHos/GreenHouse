@@ -64,24 +64,28 @@ class InventoryItem(models.Model):
 
     name = models.CharField(
         max_length=200,
-        help_text=_('e.g. NPK 20-20-20, Chlorpyrifos, Tomato Seeds F1'),
+        help_text=_('مانند دانه، نیتروژن'),
+        verbose_name="نام"
     )
     category = models.CharField(
         max_length=20,
         choices=Category.choices,
         db_index=True,
+        verbose_name="دسته‌بندی"
     )
     unit = models.CharField(
         max_length=10,
         choices=Unit.choices,
+        verbose_name="واحد"
     )
     brand = models.CharField(
         max_length=100,
         blank=True,
         default='',
-        help_text=_('Brand or manufacturer name'),
+        help_text=_('برند یا نام تولیدکننده'),
+        verbose_name="برند"
     )
-    description = models.TextField(blank=True, default='')
+    description = models.TextField(blank=True, default='', verbose_name="توضیح")
 
     # Stock alert threshold
     min_stock_threshold = models.DecimalField(
@@ -89,7 +93,8 @@ class InventoryItem(models.Model):
         decimal_places=3,
         null=True,
         blank=True,
-        help_text=_('Alert when stock falls below this level'),
+        help_text=_('هشدار هنگام سقوط به زیر این سطح'),
+        verbose_name="حداقل آستانه موجودی"
     )
 
     # Unit cost for financial calculations
@@ -98,7 +103,8 @@ class InventoryItem(models.Model):
         decimal_places=2,
         null=True,
         blank=True,
-        help_text=_('Cost per unit in local currency — updated on each purchase'),
+        help_text=_('هزینه هر واحد به ارز محلی - در هر خرید به‌روزرسانی می‌شود'),
+        verbose_name="هزینه واحد"
     )
 
     is_active = models.BooleanField(default=True)
@@ -157,29 +163,32 @@ class InventoryTransaction(models.Model):
     """
 
     class TransactionType(models.TextChoices):
-        PURCHASE       = 'purchase',       _('Purchase')         # خرید
-        CONSUMPTION    = 'consumption',    _('Consumption')      # مصرف
-        HARVEST        = 'harvest',        _('Harvest')          # برداشت
-        ADJUSTMENT_IN  = 'adjustment_in',  _('Adjustment (In)')  # تعدیل مثبت
-        ADJUSTMENT_OUT = 'adjustment_out', _('Adjustment (Out)') # تعدیل منفی
-        WASTE          = 'waste',          _('Waste / Loss')     # ضایعات
+        PURCHASE       = 'purchase',       _('خرید')         # خرید
+        CONSUMPTION    = 'consumption',    _('مصرف')      # مصرف
+        HARVEST        = 'harvest',        _('برداشت')          # برداشت
+        ADJUSTMENT_IN  = 'adjustment_in',  _('تعدیل مثبت')  # تعدیل مثبت
+        ADJUSTMENT_OUT = 'adjustment_out', _('تعدیل منفی') # تعدیل منفی
+        WASTE          = 'waste',          _('ضایعات')     # ضایعات
 
     item = models.ForeignKey(
         InventoryItem,
         on_delete=models.CASCADE,
         related_name='transactions',
+        verbose_name="آیتم"
     )
 
     transaction_type = models.CharField(
         max_length=20,
         choices=TransactionType.choices,
         db_index=True,
+        verbose_name="نوع تراکنش"
     )
 
     quantity = models.DecimalField(
         max_digits=10,
         decimal_places=3,
         help_text=_('Always positive — direction is determined by transaction_type'),
+        verbose_name="مقدار"
     )
 
     # Financial
@@ -188,7 +197,8 @@ class InventoryTransaction(models.Model):
         decimal_places=2,
         null=True,
         blank=True,
-        help_text=_('Price per unit for this transaction'),
+        help_text=_('قیمت هر واحد برای این معامله'),
+        verbose_name="قیمت واحد"
     )
 
     @property
@@ -204,30 +214,33 @@ class InventoryTransaction(models.Model):
         null=True,
         blank=True,
         related_name='inventory_transactions',
-        help_text=_('Operation that triggered this transaction (consumption/harvest)'),
+        help_text=_('عملیاتی که این تراکنش را آغاز کرده است (مصرف/برداشت)'),
+        verbose_name="عملیات"
     )
 
     # Supplier info (for purchases)
-    supplier_name = models.CharField(max_length=200, blank=True, default='')
-    invoice_number = models.CharField(max_length=100, blank=True, default='')
+    supplier_name = models.CharField(max_length=200, blank=True, default='', verbose_name="نام تامین کننده")
+    invoice_number = models.CharField(max_length=100, blank=True, default='', verbose_name="شماره فاکتور")
 
     # Batch tracking
-    batch_number = models.CharField(max_length=100, blank=True, default='')
-    expiry_date = models.DateField(null=True, blank=True)
+    batch_number = models.CharField(max_length=100, blank=True, default='', verbose_name="شماره دسته")
+    expiry_date = models.DateField(null=True, blank=True, verbose_name="زمان انقضا")
 
-    notes = models.TextField(blank=True, default='')
+    notes = models.TextField(blank=True, default='', verbose_name="یادداشت")
 
     performed_at = models.DateField(
         help_text=_('Date the transaction occurred'),
         db_index=True,
+        verbose_name="انجام شده در"
     )
     recorded_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
         related_name='inventory_transactions_recorded',
+        verbose_name="ثبت شده توسط"
     )
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="زمان ایجاد")
 
     class Meta:
         db_table = 'inventory_transactions'

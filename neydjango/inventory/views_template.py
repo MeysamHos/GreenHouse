@@ -155,14 +155,14 @@ def inventory_item_create(request, greenhouse_id):
     return render(request, 'inventory/inventory_form.html', {
         'greenhouse':   greenhouse,
         'form':         form,
-        'form_title':   'Add Inventory Item',
-        'submit_label': 'Add Item',
+        'form_title':   'ایجاد آیتم در انبار',
+        'submit_label': 'ایجاد آیتم',
         'cancel_url':   f'/greenhouse_app/greenhouses/{greenhouse.id}/inventory/',
         'breadcrumbs': [
-            {'label': 'Greenhouses', 'url': '/greenhouse_app/greenhouses/'},
+            {'label': 'گلخانه‌ها', 'url': '/greenhouse_app/greenhouses/'},
             {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
-            {'label': 'Inventory', 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/inventory/'},
-            {'label': 'New Item', 'url': None},
+            {'label': 'انبار', 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/inventory/'},
+            {'label': 'آیتم جدید', 'url': None},
         ],
     })
 
@@ -187,14 +187,14 @@ def inventory_item_edit(request, greenhouse_id, item_id):
     return render(request, 'inventory/inventory_form.html', {
         'greenhouse':   greenhouse,
         'form':         form,
-        'form_title':   f'Edit: {item.name}',
-        'submit_label': 'Save Changes',
+        'form_title':   f'ویرایش: {item.name}',
+        'submit_label': 'ذخیره تغییرات',
         'cancel_url':   f'/greenhouse_app/greenhouses/{greenhouse.id}/inventory/{item.id}/',
         'breadcrumbs': [
             {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
-            {'label': 'Inventory', 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/inventory/'},
+            {'label': 'انبار', 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/inventory/'},
             {'label': item.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/inventory/{item.id}/'},
-            {'label': 'Edit', 'url': None},
+            {'label': 'ویرایش', 'url': None},
         ],
     })
 
@@ -236,14 +236,14 @@ def transaction_create(request, greenhouse_id, item_id):
         'greenhouse':   greenhouse,
         'item':         item,
         'form':         form,
-        'form_title':   f'Record Transaction — {item.name}',
-        'submit_label': 'Record Transaction',
+        'form_title':   f'ثبت تراکنش — {item.name}',
+        'submit_label': 'ثبت تراکنش',
         'cancel_url':   f'/greenhouse_app/greenhouses/{greenhouse.id}/inventory/{item.id}/',
         'breadcrumbs': [
             {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
-            {'label': 'Inventory', 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/inventory/'},
+            {'label': 'انبار', 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/inventory/'},
             {'label': item.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/inventory/{item.id}/'},
-            {'label': 'New Transaction', 'url': None},
+            {'label': 'تراکنش جدید', 'url': None},
         ],
     })
 

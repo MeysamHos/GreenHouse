@@ -65,10 +65,10 @@ def report_pnl(request, greenhouse_id):
         'date_to': date_to,
         'data': data,
         'breadcrumbs': [
-            {'label': 'Greenhouses', 'url': '/greenhouse_app/greenhouses/'},
+            {'label': 'گلخانه‌ها', 'url': '/greenhouse_app/greenhouses/'},
             {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
-            {'label': 'Reports', 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/reports/'},
-            {'label': 'P&L Summary', 'url': None},
+            {'label': 'گزارش‌ها', 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/reports/'},
+            {'label': 'خلاصه سود و زیان', 'url': None},
         ],
     })
 
@@ -99,10 +99,10 @@ def report_crops(request, greenhouse_id):
         'all_crops': all_crops,
         'selected_crop_id': crop_id,
         'breadcrumbs': [
-            {'label': 'Greenhouses', 'url': '/greenhouse_app/greenhouses/'},
+            {'label': 'گلخانه‌ها', 'url': '/greenhouse_app/greenhouses/'},
             {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
-            {'label': 'Reports', 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/reports/'},
-            {'label': 'Crop Lifecycle', 'url': None},
+            {'label': 'گزارش‌ها', 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/reports/'},
+            {'label': 'چرخه حیات محصول', 'url': None},
         ],
     })
 
@@ -138,10 +138,10 @@ def report_operations(request, greenhouse_id):
         'selected_bed_id': bed_id,
         'operation_type_choices': Operation.Type.choices,
         'breadcrumbs': [
-            {'label': 'Greenhouses', 'url': '/greenhouse_app/greenhouses/'},
+            {'label': 'گلخانه‌ها', 'url': '/greenhouse_app/greenhouses/'},
             {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
-            {'label': 'Reports', 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/reports/'},
-            {'label': 'Operations Log', 'url': None},
+            {'label': 'گزارش‌ها', 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/reports/'},
+            {'label': 'گزارش عملیات', 'url': None},
         ],
     })
 
@@ -167,9 +167,9 @@ def report_inventory(request, greenhouse_id):
         'selected_category': category,
         'category_choices': InventoryItem.Category.choices,
         'breadcrumbs': [
-            {'label': 'Greenhouses', 'url': '/greenhouse_app/greenhouses/'},
+            {'label': 'گلخانه‌ها', 'url': '/greenhouse_app/greenhouses/'},
             {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
-            {'label': 'Reports', 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/reports/'},
-            {'label': 'Inventory Usage', 'url': None},
+            {'label': 'گزارش‌ها', 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/reports/'},
+            {'label': 'استفاده از انبار', 'url': None},
         ],
     })

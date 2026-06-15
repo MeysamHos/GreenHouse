@@ -9,7 +9,6 @@ Wire into root urls.py:
 """
 
 from django.urls import path
-from . import views
 from . import views_template
 
 app_name = 'reports'
@@ -43,25 +42,4 @@ urlpatterns = [
         name='inventory',
     ),
 
-    # ── JSON API ──────────────────────────────────────────────────────
-    path(
-        'api/v1/greenhouses/<int:greenhouse_pk>/reports/pnl/',
-        views.api_pnl,
-        name='api-pnl',
-    ),
-    path(
-        'api/v1/greenhouses/<int:greenhouse_pk>/reports/crops/',
-        views.api_crop_report,
-        name='api-crops',
-    ),
-    path(
-        'api/v1/greenhouses/<int:greenhouse_pk>/reports/operations/',
-        views.api_operations_report,
-        name='api-operations',
-    ),
-    path(
-        'api/v1/greenhouses/<int:greenhouse_pk>/reports/inventory/',
-        views.api_inventory_report,
-        name='api-inventory',
-    ),
 ]

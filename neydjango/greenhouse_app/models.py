@@ -108,20 +108,23 @@ class Bed(models.Model):
     )
     code = models.CharField(
         max_length=50,
-        help_text="شناسه کوتاه، برای مثال: 'B-01'، 'Row-3'"
+        help_text="شناسه کوتاه، برای مثال: 'B-01'، 'Row-3'",
+        verbose_name="شناسه"
     )
     area_m2 = models.DecimalField(
         max_digits=8,
         decimal_places=2,
         null=True,
-        blank=True
+        blank=True,
+        verbose_name="مساحت به متر مربع"
     )
     capacity = models.PositiveIntegerField(
         null=True,
         blank=True,
-        help_text="حداکثر تعداد گیاهی که این بستر در خود جای می‌دهد."
+        help_text="حداکثر تعداد گیاهی که این بستر در خود جای می‌دهد.",
+        verbose_name="ظرفیت"
     )
-    notes = models.TextField(blank=True)
+    notes = models.TextField(blank=True, verbose_name="یادداشت")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -167,39 +170,46 @@ class Crop(models.Model):
     )
     crop_type = models.CharField(
         max_length=100,
-        help_text="نوع محصول. برای مثال: «Tomato» (گوجه‌فرنگی)، «Cucumber» (خیار)، «گوجه فرنگی»"
+        help_text="نوع محصول. برای مثال: «Tomato» (گوجه‌فرنگی)، «Cucumber» (خیار)، «گوجه فرنگی»",
+        verbose_name="نوع محصول"
     )
     variety = models.CharField(
         max_length=100,
         blank=True,
-        help_text="گونه/رقم خاص (گیاه). برای مثال: «Cherry 100F1»، «Superstar»"
+        help_text="گونه/رقم خاص (گیاه). برای مثال: «Cherry 100F1»، «Superstar»",
+        verbose_name="گونه"
     )
     status = models.CharField(
         max_length=20,
         choices=Status.choices,
-        default=Status.PLANNED
+        default=Status.PLANNED,
+        verbose_name="وضعیت"
     )
     planted_at = models.DateField(
         null=True,
         blank=True,
-        help_text="تاریخ دقیق کاشت."
+        help_text="تاریخ دقیق کاشت.",
+        verbose_name="زمان کاشت"
     )
     expected_harvest_at = models.DateField(
         null=True,
         blank=True,
-        help_text="تاریخ برداشت تخمینی، محاسبه‌شده از زمان کاشت + طول دوره رشد"
+        help_text="تاریخ برداشت تخمینی، محاسبه‌شده از زمان کاشت + طول دوره رشد",
+        verbose_name="تاریخ برداشت تخمینی"
     )
     actual_harvest_at = models.DateField(
         null=True,
         blank=True,
-        help_text="زمانی که وضعیت به «برداشت‌شده» تغییر کند،تکمیل می‌گردد."
+        help_text="زمانی که وضعیت به «برداشت‌شده» تغییر کند،تکمیل می‌گردد.",
+        verbose_name="تاریخ برداشت"
     )
     plant_count = models.PositiveIntegerField(
         null=True,
         blank=True,
-        help_text="تعداد گیاهان در این دوره کاشت"
+        help_text="تعداد گیاهان در این دوره کاشت",
+        verbose_name="تعداد گیاهان"
     )
-    notes = models.TextField(blank=True)
+    notes = models.TextField(blank=True, verbose_name="یادداشت")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

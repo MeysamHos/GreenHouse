@@ -1,35 +1,36 @@
 {% extends "greenhouse_app/base.html" %}
 
-{% block title %}Expenses — {{ greenhouse.name }} — Greenhouse OS{% endblock %}
+{% block title %}هزینه‌ها — {{ greenhouse.name }} — سیستم گلخانه{% endblock %}
 
 {% block sidebar_greenhouse_links %}
 <div class="sidebar-divider"></div>
-<span class="sidebar-label">{{ greenhouse.name|truncatechars:20 }}</span>
+<span class="sidebar-label">{{ greenhouse.name|truncatechars:22 }}</span>
 <a href="{% url 'greenhouse_app:greenhouse_detail' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
   </svg>
-  Overview
+  نمای کلی
 </a>
 <a href="{% url 'operations:operation_list' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
     <rect x="9" y="3" width="6" height="4" rx="1"/>
   </svg>
-  Operations
+  عملیات
 </a>
 <a href="{% url 'inventory:inventory_list' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
     <path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/>
   </svg>
-  Inventory
+  انبار و موجودی
 </a>
 <a href="{% url 'financials:dashboard' greenhouse.id %}" class="sidebar-link active">
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-dollar" viewBox="0 0 16 16">
-  <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73z"/>
-</svg>
-  Financials / P&L
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <line x1="12" y1="1" x2="12" y2="23"/>
+    <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+  </svg>
+  مالی و سود/زیان
 </a>
 <a href="{% url 'reports:index' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -38,13 +39,14 @@
     <line x1="16" y1="13" x2="8" y2="13"/>
     <line x1="16" y1="17" x2="8" y2="17"/>
   </svg>
-  Reports
+  گزارش‌ها
 </a>
 <a href="{% url 'greenhouse_app:member_list' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/>
+    <circle cx="9" cy="7" r="4"/>
+    <path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/>
   </svg>
-  Members
+  اعضا
 </a>
 {% endblock %}
 
@@ -53,52 +55,52 @@
 <div class="page-header">
   <div class="page-header-left">
     <div class="breadcrumb">
-      <a href="{% url 'greenhouse_app:greenhouse_list' %}">Greenhouses</a>
+      <a href="{% url 'greenhouse_app:greenhouse_list' %}">گلخانه‌ها</a>
       <span class="breadcrumb-sep">›</span>
       <a href="{% url 'greenhouse_app:greenhouse_detail' greenhouse.id %}">{{ greenhouse.name }}</a>
       <span class="breadcrumb-sep">›</span>
-      <a href="{% url 'financials:dashboard' greenhouse.id %}">Financials</a>
+      <a href="{% url 'financials:dashboard' greenhouse.id %}">مالی</a>
       <span class="breadcrumb-sep">›</span>
-      <span>Expenses</span>
+      <span>هزینه‌ها</span>
     </div>
-    <div class="page-title">Overhead Expenses</div>
-    <div class="page-subtitle">Rent, utilities, labour and other fixed costs</div>
+    <div class="page-title">هزینه‌های سربار</div>
+    <div class="page-subtitle">اجاره، برق، نیروی کار و سایر هزینه‌های ثابت</div>
   </div>
-  <div style="display:flex; gap:8px;">
+  <div style="display: flex; gap: 8px;">
     <a href="{% url 'financials:expense_create' greenhouse.id %}" class="btn btn-primary">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13">
         <path d="M12 5v14M5 12h14"/>
       </svg>
-      Record Expense
+      ثبت هزینه
     </a>
-    <a href="{% url 'financials:dashboard' greenhouse.id %}" class="btn btn-outline">← P&L Report</a>
+    <a href="{% url 'financials:dashboard' greenhouse.id %}" class="btn btn-outline">← گزارش سود/زیان</a>
   </div>
 </div>
 
-<!-- ── Filter ──────────────────────────────────────────────────────── -->
-<div class="card animate-in" style="margin-bottom:20px;">
-  <div class="card-body" style="padding:14px 20px;">
-    <form method="get" style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;">
-      <div class="form-group" style="margin-bottom:0; min-width:200px;">
-        <label>Category</label>
+<!-- ── فیلتر ──────────────────────────────────────────────────────── -->
+<div class="card animate-in" style="margin-bottom: 20px;">
+  <div class="card-body" style="padding: 14px 18px;">
+    <form method="get" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
+      <div class="form-group" style="margin-bottom: 0; min-width: 200px;">
+        <label>دسته‌بندی</label>
         <select name="category">
-          <option value="">All Categories</option>
+          <option value="">همه دسته‌ها</option>
           {% for val, label in category_choices %}
             <option value="{{ val }}" {% if cat_filter == val %}selected{% endif %}>{{ label }}</option>
           {% endfor %}
         </select>
       </div>
-      <button type="submit" class="btn btn-outline" style="height:36px;">Filter</button>
-      <a href="{% url 'financials:expense_list' greenhouse.id %}" class="btn btn-outline" style="height:36px;">Clear</a>
+      <button type="submit" class="btn btn-outline" style="height: 36px;">اعمال فیلتر</button>
+      <a href="{% url 'financials:expense_list' greenhouse.id %}" class="btn btn-outline" style="height: 36px;">پاک کردن</a>
     </form>
   </div>
 </div>
 
-<!-- ── Expenses Table ──────────────────────────────────────────────── -->
+<!-- ── جدول هزینه‌ها ──────────────────────────────────────────────── -->
 <div class="card animate-in">
   <div class="card-header">
-    <span class="card-title">All Expenses</span>
-    <span class="badge badge-muted">{{ expenses|length }} records</span>
+    <span class="card-title">همه هزینه‌ها</span>
+    <span class="badge badge-muted">{{ expenses|length }} رکورد</span>
   </div>
 
   {% if expenses %}
@@ -106,34 +108,24 @@
     <table>
       <thead>
         <tr>
-          <th>Date</th>
-          <th>Category</th>
-          <th>Description</th>
-          <th>Vendor</th>
-          <th>Hall</th>
-          <th style="text-align:right;">Amount</th>
-          <th>Invoice</th>
-          <th>Actions</th>
+          <th>تاریخ</th><th>دسته‌بندی</th><th>شرح</th>
+          <th>تأمین‌کننده</th><th>سالن</th><th>مبلغ</th><th>فاکتور</th><th>اقدام</th>
         </tr>
       </thead>
       <tbody>
         {% for exp in expenses %}
         <tr>
-          <td style="font-size:12px; color:var(--text-muted); white-space:nowrap;">
-            {{ exp.expense_date|date:"M d, Y" }}
+          <td style="font-size: 12px; color: var(--text-muted); white-space: nowrap;">
+            {{ exp.expense_date|date:"Y/m/d" }}
           </td>
+          <td><span class="badge badge-muted">{{ exp.get_category_display }}</span></td>
+          <td style="font-weight: 600;">{{ exp.description }}</td>
+          <td class="text-muted" style="font-size: 12px;">{{ exp.vendor_name|default:"—" }}</td>
+          <td class="text-muted" style="font-size: 12px;">{{ exp.house.name|default:"—" }}</td>
+          <td style="font-weight: 600;" class="text-amber">{{ exp.amount|floatformat:0 }}</td>
+          <td class="text-dim" style="font-size: 11px;">{{ exp.invoice_number|default:"—" }}</td>
           <td>
-            <span class="badge badge-muted">{{ exp.get_category_display }}</span>
-          </td>
-          <td style="font-weight:500;">{{ exp.description }}</td>
-          <td class="text-muted" style="font-size:12px;">{{ exp.vendor_name|default:"—" }}</td>
-          <td class="text-muted" style="font-size:12px;">{{ exp.house.name|default:"—" }}</td>
-          <td style="text-align:right; font-weight:600;" class="text-amber">
-            {{ exp.amount|floatformat:0 }}
-          </td>
-          <td class="text-dim" style="font-size:11px;">{{ exp.invoice_number|default:"—" }}</td>
-          <td>
-            <a href="{% url 'financials:expense_edit' greenhouse.id exp.id %}" class="btn btn-outline btn-sm">Edit</a>
+            <a href="{% url 'financials:expense_edit' greenhouse.id exp.id %}" class="btn btn-outline btn-sm">ویرایش</a>
           </td>
         </tr>
         {% endfor %}
@@ -146,12 +138,10 @@
       <rect x="2" y="3" width="20" height="14" rx="2"/>
       <path d="M8 21h8M12 17v4"/>
     </svg>
-    <h3>No expenses recorded yet</h3>
-    <p>Log overhead costs like rent, electricity and labour to complete your P&L picture.</p>
-    <div style="margin-top:16px;">
-      <a href="{% url 'financials:expense_create' greenhouse.id %}" class="btn btn-primary">
-        Record First Expense
-      </a>
+    <h3>هنوز هزینه‌ای ثبت نشده</h3>
+    <p>هزینه‌های سربار مثل اجاره، برق و نیروی کار را ثبت کنید تا تصویر کامل سود/زیان داشته باشید.</p>
+    <div style="margin-top: 16px;">
+      <a href="{% url 'financials:expense_create' greenhouse.id %}" class="btn btn-primary">ثبت اولین هزینه</a>
     </div>
   </div>
   {% endif %}

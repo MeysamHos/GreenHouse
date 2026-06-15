@@ -1,35 +1,36 @@
 {% extends "greenhouse_app/base.html" %}
 
-{% block title %}P&L Summary — {{ greenhouse.name }} — Greenhouse OS{% endblock %}
+{% block title %}خلاصه سود و زیان — {{ greenhouse.name }} — سیستم گلخانه{% endblock %}
 
 {% block sidebar_greenhouse_links %}
 <div class="sidebar-divider"></div>
-<span class="sidebar-label">{{ greenhouse.name|truncatechars:20 }}</span>
+<span class="sidebar-label">{{ greenhouse.name|truncatechars:22 }}</span>
 <a href="{% url 'greenhouse_app:greenhouse_detail' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
   </svg>
-  Overview
+  نمای کلی
 </a>
 <a href="{% url 'operations:operation_list' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
     <rect x="9" y="3" width="6" height="4" rx="1"/>
   </svg>
-  Operations
+  عملیات
 </a>
 <a href="{% url 'inventory:inventory_list' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
     <path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/>
   </svg>
-  Inventory
+  انبار و موجودی
 </a>
 <a href="{% url 'financials:dashboard' greenhouse.id %}" class="sidebar-link">
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-    <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73z"/>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <line x1="12" y1="1" x2="12" y2="23"/>
+    <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
   </svg>
-  Financials / P&L
+  مالی و سود/زیان
 </a>
 <a href="{% url 'reports:index' greenhouse.id %}" class="sidebar-link active">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -37,15 +38,15 @@
     <polyline points="14 2 14 8 20 8"/>
     <line x1="16" y1="13" x2="8" y2="13"/>
     <line x1="16" y1="17" x2="8" y2="17"/>
-    <polyline points="10 9 9 9 8 9"/>
   </svg>
-  Reports
+  گزارش‌ها
 </a>
 <a href="{% url 'greenhouse_app:member_list' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/>
+    <circle cx="9" cy="7" r="4"/>
+    <path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/>
   </svg>
-  Members
+  اعضا
 </a>
 {% endblock %}
 
@@ -59,116 +60,110 @@
         {% else %}<span>{{ crumb.label }}</span>{% endif %}
       {% endfor %}
     </div>
-    <div class="page-title">P&L Summary</div>
+    <div class="page-title">خلاصه سود و زیان</div>
     <div class="page-subtitle">{{ date_from }} — {{ date_to }}</div>
   </div>
-  <div style="display:flex; gap:8px;">
-    <a href="{% url 'reports:index' greenhouse.id %}" class="btn btn-outline">← All Reports</a>
-  </div>
+  <a href="{% url 'reports:index' greenhouse.id %}" class="btn btn-outline">← همه گزارش‌ها</a>
 </div>
 
-<!-- ── Date Filter ──────────────────────────────────────────────────── -->
-<div class="card animate-in" style="margin-bottom:20px;">
-  <div class="card-body" style="padding:14px 20px;">
-    <form method="get" style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;">
-      <div class="form-group" style="margin-bottom:0;">
-        <label>From</label>
+<!-- ── فیلتر تاریخ ────────────────────────────────────────────────── -->
+<div class="card animate-in" style="margin-bottom: 20px;">
+  <div class="card-body" style="padding: 14px 18px;">
+    <form method="get" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
+      <div class="form-group" style="margin-bottom: 0;">
+        <label>از تاریخ</label>
         <input type="date" name="from" value="{{ date_from|date:'Y-m-d' }}">
       </div>
-      <div class="form-group" style="margin-bottom:0;">
-        <label>To</label>
+      <div class="form-group" style="margin-bottom: 0;">
+        <label>تا تاریخ</label>
         <input type="date" name="to" value="{{ date_to|date:'Y-m-d' }}">
       </div>
-      <button type="submit" class="btn btn-outline" style="height:36px;">Apply</button>
-      <a href="{% url 'reports:pnl' greenhouse.id %}" class="btn btn-outline" style="height:36px;">Reset</a>
+      <button type="submit" class="btn btn-outline" style="height: 36px;">اعمال</button>
+      <a href="{% url 'reports:pnl' greenhouse.id %}" class="btn btn-outline" style="height: 36px;">بازنشانی</a>
     </form>
   </div>
 </div>
 
-<!-- ── KPI Cards ───────────────────────────────────────────────────── -->
+<!-- ── کارت‌های KPI ───────────────────────────────────────────────── -->
 <div class="stat-grid stagger">
   <div class="stat-card animate-in">
-    <div class="stat-label">Net Profit</div>
-    <div class="stat-value {% if data.gross_profit >= 0 %}text-green{% else %}text-red{% endif %}" style="font-size:20px;">
+    <div class="stat-label">سود خالص</div>
+    <div class="stat-value {% if data.gross_profit >= 0 %}text-green{% else %}text-red{% endif %}" style="font-size: 20px;">
       {{ data.gross_profit|floatformat:0 }}
     </div>
-    <div class="stat-sub">{{ data.profit_margin_pct }}% margin</div>
+    <div class="stat-sub">{{ data.profit_margin_pct }}٪ حاشیه سود</div>
   </div>
   <div class="stat-card animate-in">
-    <div class="stat-label">Revenue</div>
-    <div class="stat-value text-green" style="font-size:20px;">{{ data.total_revenue|floatformat:0 }}</div>
-    <div class="stat-sub">{{ data.sales_count }} sale{{ data.sales_count|pluralize }}</div>
+    <div class="stat-label">درآمد فروش</div>
+    <div class="stat-value text-green" style="font-size: 20px;">{{ data.total_revenue|floatformat:0 }}</div>
+    <div class="stat-sub">{{ data.sales_count }} فاکتور فروش</div>
   </div>
   <div class="stat-card animate-in">
-    <div class="stat-label">Total Costs</div>
-    <div class="stat-value text-red" style="font-size:20px;">{{ data.total_cost|floatformat:0 }}</div>
-    <div class="stat-sub">all sources combined</div>
+    <div class="stat-label">کل هزینه‌ها</div>
+    <div class="stat-value text-red" style="font-size: 20px;">{{ data.total_cost|floatformat:0 }}</div>
+    <div class="stat-sub">همه منابع هزینه</div>
   </div>
   <div class="stat-card animate-in">
-    <div class="stat-label">Operation Costs</div>
-    <div class="stat-value" style="font-size:20px;">{{ data.cost_operations|floatformat:0 }}</div>
-    <div class="stat-sub">field activity</div>
+    <div class="stat-label">هزینه عملیات</div>
+    <div class="stat-value" style="font-size: 20px;">{{ data.cost_operations|floatformat:0 }}</div>
+    <div class="stat-sub">فعالیت‌های مزرعه</div>
   </div>
   <div class="stat-card animate-in">
-    <div class="stat-label">Input Purchases</div>
-    <div class="stat-value" style="font-size:20px;">{{ data.cost_purchases|floatformat:0 }}</div>
-    <div class="stat-sub">fertilizer, pesticide, seed</div>
+    <div class="stat-label">خرید نهاده</div>
+    <div class="stat-value" style="font-size: 20px;">{{ data.cost_purchases|floatformat:0 }}</div>
+    <div class="stat-sub">کود، سم، بذر</div>
   </div>
   <div class="stat-card animate-in">
-    <div class="stat-label">Overhead</div>
-    <div class="stat-value" style="font-size:20px;">{{ data.cost_overhead|floatformat:0 }}</div>
-    <div class="stat-sub">rent, utilities, labour</div>
+    <div class="stat-label">هزینه سربار</div>
+    <div class="stat-value" style="font-size: 20px;">{{ data.cost_overhead|floatformat:0 }}</div>
+    <div class="stat-sub">اجاره، برق، نیروی کار</div>
   </div>
 </div>
 
-<!-- ── Two-column breakdowns ───────────────────────────────────────── -->
-<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px;">
-
+<!-- ── تفکیک دو‌ستونی ────────────────────────────────────────────── -->
+<div class="grid-2">
   <div class="card animate-in">
-    <div class="card-header"><span class="card-title">Overhead by Category</span></div>
+    <div class="card-header"><span class="card-title">سربار بر اساس دسته‌بندی</span></div>
     {% if data.expense_breakdown %}
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Category</th><th style="text-align:right;">Amount</th></tr></thead>
+        <thead><tr><th>دسته‌بندی</th><th>مبلغ</th></tr></thead>
         <tbody>
           {% for row in data.expense_breakdown %}
           <tr>
             <td><span class="badge badge-muted">{{ row.category|capfirst }}</span></td>
-            <td style="text-align:right; font-weight:500;" class="text-amber">{{ row.total|floatformat:0 }}</td>
+            <td style="font-weight: 600;" class="text-amber">{{ row.total|floatformat:0 }}</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
     {% else %}
-    <div class="empty-state" style="padding:24px;"><p>No overhead expenses in this period.</p></div>
+    <div class="empty-state" style="padding: 24px;"><p>هزینه‌ای در این بازه ثبت نشده.</p></div>
     {% endif %}
   </div>
 
   <div class="card animate-in">
-    <div class="card-header"><span class="card-title">Operation Costs by Type</span></div>
+    <div class="card-header"><span class="card-title">هزینه عملیات بر اساس نوع</span></div>
     {% if data.ops_by_type %}
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Type</th><th style="text-align:right;">Count</th><th style="text-align:right;">Cost</th></tr></thead>
+        <thead><tr><th>نوع</th><th>تعداد</th><th>هزینه</th></tr></thead>
         <tbody>
           {% for row in data.ops_by_type %}
           <tr>
             <td><span class="badge badge-muted">{{ row.operation_type|capfirst }}</span></td>
-            <td style="text-align:right;" class="text-muted" style="font-size:12px;">{{ row.count }}</td>
-            <td style="text-align:right; font-weight:500;" class="text-amber">
-              {{ row.total_cost|floatformat:0 }}
-            </td>
+            <td class="text-muted" style="font-size: 12px;">{{ row.count }}</td>
+            <td style="font-weight: 600;" class="text-amber">{{ row.total_cost|floatformat:0 }}</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
     {% else %}
-    <div class="empty-state" style="padding:24px;"><p>No operations with cost in this period.</p></div>
+    <div class="empty-state" style="padding: 24px;"><p>عملیاتی با هزینه در این بازه ثبت نشده.</p></div>
     {% endif %}
   </div>
-
 </div>
 
 {% endblock %}

@@ -1,35 +1,36 @@
 {% extends "greenhouse_app/base.html" %}
 
-{% block title %}Reports — {{ greenhouse.name }} — Greenhouse OS{% endblock %}
+{% block title %}گزارش‌ها — {{ greenhouse.name }} — سیستم گلخانه{% endblock %}
 
 {% block sidebar_greenhouse_links %}
 <div class="sidebar-divider"></div>
-<span class="sidebar-label">{{ greenhouse.name|truncatechars:20 }}</span>
+<span class="sidebar-label">{{ greenhouse.name|truncatechars:22 }}</span>
 <a href="{% url 'greenhouse_app:greenhouse_detail' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
   </svg>
-  Overview
+  نمای کلی
 </a>
 <a href="{% url 'operations:operation_list' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
     <rect x="9" y="3" width="6" height="4" rx="1"/>
   </svg>
-  Operations
+  عملیات
 </a>
 <a href="{% url 'inventory:inventory_list' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
     <path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/>
   </svg>
-  Inventory
+  انبار و موجودی
 </a>
 <a href="{% url 'financials:dashboard' greenhouse.id %}" class="sidebar-link">
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-    <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73z"/>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <line x1="12" y1="1" x2="12" y2="23"/>
+    <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
   </svg>
-  Financials / P&L
+  مالی و سود/زیان
 </a>
 <a href="{% url 'reports:index' greenhouse.id %}" class="sidebar-link active">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -37,15 +38,15 @@
     <polyline points="14 2 14 8 20 8"/>
     <line x1="16" y1="13" x2="8" y2="13"/>
     <line x1="16" y1="17" x2="8" y2="17"/>
-    <polyline points="10 9 9 9 8 9"/>
   </svg>
-  Reports
+  گزارش‌ها
 </a>
 <a href="{% url 'greenhouse_app:member_list' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/>
+    <circle cx="9" cy="7" r="4"/>
+    <path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/>
   </svg>
-  Members
+  اعضا
 </a>
 {% endblock %}
 
@@ -54,118 +55,122 @@
 <div class="page-header">
   <div class="page-header-left">
     <div class="breadcrumb">
-      <a href="{% url 'greenhouse_app:greenhouse_list' %}">Greenhouses</a>
+      <a href="{% url 'greenhouse_app:greenhouse_list' %}">گلخانه‌ها</a>
       <span class="breadcrumb-sep">›</span>
       <a href="{% url 'greenhouse_app:greenhouse_detail' greenhouse.id %}">{{ greenhouse.name }}</a>
       <span class="breadcrumb-sep">›</span>
-      <span>Reports</span>
+      <span>گزارش‌ها</span>
     </div>
-    <div class="page-title">Reports</div>
-    <div class="page-subtitle">Analytics and data exports for {{ greenhouse.name }}</div>
+    <div class="page-title">گزارش‌ها</div>
+    <div class="page-subtitle">تحلیل‌ها و آمارهای {{ greenhouse.name }}</div>
   </div>
 </div>
 
-<!-- ── Report Cards Grid ───────────────────────────────────────────── -->
-<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:20px;">
+<!-- ── کارت‌های گزارش ─────────────────────────────────────────────── -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px;">
 
-  <!-- P&L Summary -->
-  <a href="{% url 'reports:pnl' greenhouse.id %}" style="text-decoration:none;">
-    <div class="card animate-in" style="cursor:pointer; transition:border-color .15s;"
+  <!-- سود و زیان -->
+  <a href="{% url 'reports:pnl' greenhouse.id %}" style="text-decoration: none;">
+    <div class="card animate-in" style="cursor: pointer; transition: border-color .15s;"
          onmouseover="this.style.borderColor='var(--green)'"
          onmouseout="this.style.borderColor=''">
-      <div class="card-body" style="padding:24px;">
-        <div style="width:44px; height:44px; background:var(--green-dim);
-                    border-radius:var(--radius); display:flex; align-items:center;
-                    justify-content:center; margin-bottom:16px;">
+      <div class="card-body" style="padding: 24px;">
+        <div style="width: 44px; height: 44px; background: var(--green-dim);
+                    border-radius: var(--radius); display: flex; align-items: center;
+                    justify-content: center; margin-bottom: 16px;">
           <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" width="22" height="22">
             <line x1="12" y1="1" x2="12" y2="23"/>
             <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
           </svg>
         </div>
-        <div style="font-family:var(--display); font-size:15px; font-weight:700;
-                    color:#e6edf3; margin-bottom:6px;">P&L Summary</div>
-        <div style="font-size:12px; color:var(--text-muted); line-height:1.5;">
-          Revenue vs costs breakdown. Operation costs, inventory purchases, overhead expenses,
-          gross profit and margin for any date range.
+        <div style="font-size: 15px; font-weight: 700; color: #e6edf3; margin-bottom: 6px;">
+          خلاصه سود و زیان
         </div>
-        <div style="margin-top:16px; font-size:11px; color:var(--green);">View report →</div>
+        <div style="font-size: 12px; color: var(--text-muted); line-height: 1.6;">
+          تفکیک درآمد در برابر هزینه‌ها. هزینه عملیات، خرید نهاده، هزینه‌های سربار،
+          سود ناخالص و حاشیه سود برای هر بازه زمانی.
+        </div>
+        <div style="margin-top: 16px; font-size: 11px; color: var(--green);">مشاهده گزارش ←</div>
       </div>
     </div>
   </a>
 
-  <!-- Crop Lifecycle -->
-  <a href="{% url 'reports:crops' greenhouse.id %}" style="text-decoration:none;">
-    <div class="card animate-in" style="cursor:pointer; transition:border-color .15s;"
+  <!-- چرخه کشت -->
+  <a href="{% url 'reports:crops' greenhouse.id %}" style="text-decoration: none;">
+    <div class="card animate-in" style="cursor: pointer; transition: border-color .15s;"
          onmouseover="this.style.borderColor='var(--blue)'"
          onmouseout="this.style.borderColor=''">
-      <div class="card-body" style="padding:24px;">
-        <div style="width:44px; height:44px; background:rgba(88,166,255,.1);
-                    border-radius:var(--radius); display:flex; align-items:center;
-                    justify-content:center; margin-bottom:16px;">
+      <div class="card-body" style="padding: 24px;">
+        <div style="width: 44px; height: 44px; background: rgba(88,166,255,.1);
+                    border-radius: var(--radius); display: flex; align-items: center;
+                    justify-content: center; margin-bottom: 16px;">
           <svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" width="22" height="22">
             <path d="M12 22V12M12 12C12 7 7 4 2 5c0 5 3 9 7 9"/>
             <path d="M12 12c0-5 5-8 10-7-1 5-4 8-8 9"/>
           </svg>
         </div>
-        <div style="font-family:var(--display); font-size:15px; font-weight:700;
-                    color:#e6edf3; margin-bottom:6px;">Crop Lifecycle</div>
-        <div style="font-size:12px; color:var(--text-muted); line-height:1.5;">
-          Per-crop profitability. Cost of operations, total harvest weight, revenue from sales,
-          net profit and cost-per-kg for each crop cycle.
+        <div style="font-size: 15px; font-weight: 700; color: #e6edf3; margin-bottom: 6px;">
+          چرخه کشت
         </div>
-        <div style="margin-top:16px; font-size:11px; color:var(--blue);">View report →</div>
+        <div style="font-size: 12px; color: var(--text-muted); line-height: 1.6;">
+          سودآوری به ازای هر محصول. هزینه عملیات، وزن برداشت، درآمد فروش،
+          سود خالص و هزینه به ازای هر کیلوگرم برای هر دوره کشت.
+        </div>
+        <div style="margin-top: 16px; font-size: 11px; color: var(--blue);">مشاهده گزارش ←</div>
       </div>
     </div>
   </a>
 
-  <!-- Operations Log -->
-  <a href="{% url 'reports:operations' greenhouse.id %}" style="text-decoration:none;">
-    <div class="card animate-in" style="cursor:pointer; transition:border-color .15s;"
-         onmouseover="this.style.borderColor='var(--amber,#d29922)'"
+  <!-- گزارش عملیات -->
+  <a href="{% url 'reports:operations' greenhouse.id %}" style="text-decoration: none;">
+    <div class="card animate-in" style="cursor: pointer; transition: border-color .15s;"
+         onmouseover="this.style.borderColor='var(--amber)'"
          onmouseout="this.style.borderColor=''">
-      <div class="card-body" style="padding:24px;">
-        <div style="width:44px; height:44px; background:rgba(210,153,34,.12);
-                    border-radius:var(--radius); display:flex; align-items:center;
-                    justify-content:center; margin-bottom:16px;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="var(--amber,#d29922)" stroke-width="2" width="22" height="22">
+      <div class="card-body" style="padding: 24px;">
+        <div style="width: 44px; height: 44px; background: var(--amber-dim);
+                    border-radius: var(--radius); display: flex; align-items: center;
+                    justify-content: center; margin-bottom: 16px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" width="22" height="22">
             <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
             <rect x="9" y="3" width="6" height="4" rx="1"/>
             <line x1="9" y1="12" x2="15" y2="12"/>
             <line x1="9" y1="16" x2="12" y2="16"/>
           </svg>
         </div>
-        <div style="font-family:var(--display); font-size:15px; font-weight:700;
-                    color:#e6edf3; margin-bottom:6px;">Operations Log</div>
-        <div style="font-size:12px; color:var(--text-muted); line-height:1.5;">
-          Full filtered activity log. Cost totals by operation type, harvest weight,
-          filterable by date range, operation type, and bed.
+        <div style="font-size: 15px; font-weight: 700; color: #e6edf3; margin-bottom: 6px;">
+          گزارش عملیات
         </div>
-        <div style="margin-top:16px; font-size:11px; color:var(--amber,#d29922);">View report →</div>
+        <div style="font-size: 12px; color: var(--text-muted); line-height: 1.6;">
+          گزارش فعالیت‌های فیلتر شده. جمع هزینه‌ها بر اساس نوع عملیات، وزن برداشت،
+          قابل فیلتر بر اساس بازه زمانی، نوع عملیات و بستر.
+        </div>
+        <div style="margin-top: 16px; font-size: 11px; color: var(--amber);">مشاهده گزارش ←</div>
       </div>
     </div>
   </a>
 
-  <!-- Inventory Usage -->
-  <a href="{% url 'reports:inventory' greenhouse.id %}" style="text-decoration:none;">
-    <div class="card animate-in" style="cursor:pointer; transition:border-color .15s;"
+  <!-- مصرف انبار -->
+  <a href="{% url 'reports:inventory' greenhouse.id %}" style="text-decoration: none;">
+    <div class="card animate-in" style="cursor: pointer; transition: border-color .15s;"
          onmouseover="this.style.borderColor='var(--red)'"
          onmouseout="this.style.borderColor=''">
-      <div class="card-body" style="padding:24px;">
-        <div style="width:44px; height:44px; background:var(--red-dim);
-                    border-radius:var(--radius); display:flex; align-items:center;
-                    justify-content:center; margin-bottom:16px;">
+      <div class="card-body" style="padding: 24px;">
+        <div style="width: 44px; height: 44px; background: var(--red-dim);
+                    border-radius: var(--radius); display: flex; align-items: center;
+                    justify-content: center; margin-bottom: 16px;">
           <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" width="22" height="22">
             <path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
             <path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/>
           </svg>
         </div>
-        <div style="font-family:var(--display); font-size:15px; font-weight:700;
-                    color:#e6edf3; margin-bottom:6px;">Inventory Usage</div>
-        <div style="font-size:12px; color:var(--text-muted); line-height:1.5;">
-          Consumption vs purchases per item. Total spend by input category,
-          waste tracking and current stock levels — filterable by category.
+        <div style="font-size: 15px; font-weight: 700; color: #e6edf3; margin-bottom: 6px;">
+          مصرف انبار
         </div>
-        <div style="margin-top:16px; font-size:11px; color:var(--red);">View report →</div>
+        <div style="font-size: 12px; color: var(--text-muted); line-height: 1.6;">
+          مصرف در برابر خریدها به ازای هر آیتم. جمع هزینه بر اساس دسته نهاده،
+          ردیابی ضایعات و سطح موجودی فعلی — قابل فیلتر بر اساس دسته‌بندی.
+        </div>
+        <div style="margin-top: 16px; font-size: 11px; color: var(--red);">مشاهده گزارش ←</div>
       </div>
     </div>
   </a>

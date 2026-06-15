@@ -69,7 +69,7 @@
       <span>مالی</span>
     </div>
     <div class="page-title">مالی و سود/زیان</div>
-    <div class="page-subtitle">دوره: {{ date_from }} تا {{ date_to }}</div>
+    <div class="page-subtitle">{{ date_from }} تا {{ date_to }}</div>
   </div>
   <div style="display: flex; gap: 8px; flex-wrap: wrap;">
     <a href="{% url 'financials:sale_create' greenhouse.id %}" class="btn btn-primary">
@@ -87,7 +87,7 @@
   </div>
 </div>
 
-<!-- ── فیلتر تاریخ و محصول ────────────────────────────────────────── -->
+<!-- ── فیلتر تاریخ و محصول ───────────────────────────────────────── -->
 <div class="card animate-in" style="margin-bottom: 20px;">
   <div class="card-body" style="padding: 14px 18px;">
     <form method="get" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
@@ -105,45 +105,40 @@
           <option value="">همه محصولات</option>
           {% for crop in active_crops %}
             <option value="{{ crop.id }}" {% if selected_crop_id == crop.id|stringformat:"s" %}selected{% endif %}>
-              {{ crop.crop_type }} — {{ crop.variety }}
+              {{ crop.crop_type }}{% if crop.variety %} — {{ crop.variety }}{% endif %}
             </option>
           {% endfor %}
         </select>
       </div>
       <button type="submit" class="btn btn-outline" style="height: 36px;">اعمال</button>
-      <a href="{% url 'financials:dashboard' greenhouse.id %}" class="btn btn-outline" style="height: 36px;">پاک کردن</a>
+      <a href="{% url 'financials:dashboard' greenhouse.id %}" class="btn btn-outline" style="height: 36px;">بازنشانی</a>
     </form>
   </div>
 </div>
 
-<!-- ── کارت‌های KPI ───────────────────────────────────────────────── -->
+<!-- ── کارت‌های آمار کلیدی ───────────────────────────────────────── -->
 <div class="stat-grid stagger">
   <div class="stat-card animate-in">
     <div class="stat-label">سود خالص</div>
-    <div class="stat-value {% if pnl.gross_profit >= 0 %}text-green{% else %}text-red{% endif %}"
-         style="font-size: 20px;">
+    <div class="stat-value {% if pnl.gross_profit >= 0 %}text-green{% else %}text-red{% endif %}" style="font-size: 20px;">
       {{ pnl.gross_profit|floatformat:0 }}
     </div>
-    <div class="stat-sub">{{ pnl.profit_margin_pct }}% حاشیه سود</div>
+    <div class="stat-sub">{{ pnl.profit_margin_pct }}٪ حاشیه سود</div>
   </div>
   <div class="stat-card animate-in">
-    <div class="stat-label">درآمد کل</div>
-    <div class="stat-value text-green" style="font-size: 20px;">
-      {{ pnl.total_revenue|floatformat:0 }}
-    </div>
-    <div class="stat-sub">{{ pnl.sales_count }} فروش</div>
+    <div class="stat-label">درآمد فروش</div>
+    <div class="stat-value text-green" style="font-size: 20px;">{{ pnl.total_revenue|floatformat:0 }}</div>
+    <div class="stat-sub">{{ pnl.sales_count }} فاکتور فروش</div>
   </div>
   <div class="stat-card animate-in">
-    <div class="stat-label">هزینه کل</div>
-    <div class="stat-value text-red" style="font-size: 20px;">
-      {{ pnl.total_cost|floatformat:0 }}
-    </div>
+    <div class="stat-label">کل هزینه‌ها</div>
+    <div class="stat-value text-red" style="font-size: 20px;">{{ pnl.total_cost|floatformat:0 }}</div>
     <div class="stat-sub">همه منابع هزینه</div>
   </div>
   <div class="stat-card animate-in">
     <div class="stat-label">هزینه عملیات</div>
     <div class="stat-value" style="font-size: 20px;">{{ pnl.cost_operations|floatformat:0 }}</div>
-    <div class="stat-sub">فعالیت مزرعه</div>
+    <div class="stat-sub">فعالیت‌های مزرعه</div>
   </div>
   <div class="stat-card animate-in">
     <div class="stat-label">خرید نهاده</div>
@@ -151,16 +146,14 @@
     <div class="stat-sub">کود، سم، بذر</div>
   </div>
   <div class="stat-card animate-in">
-    <div class="stat-label">سربار</div>
+    <div class="stat-label">هزینه سربار</div>
     <div class="stat-value" style="font-size: 20px;">{{ pnl.cost_expenses|floatformat:0 }}</div>
-    <div class="stat-sub">اجاره، آب، برق، نیرو</div>
+    <div class="stat-sub">اجاره، برق، نیروی کار</div>
   </div>
 </div>
 
-<!-- ── تفکیک دو ستونی ─────────────────────────────────────────────── -->
+<!-- ── تفکیک دو‌ستونی ────────────────────────────────────────────── -->
 <div class="grid-2" style="margin-bottom: 20px;">
-
-  <!-- برترین محصولات -->
   <div class="card animate-in">
     <div class="card-header">
       <span class="card-title">برترین محصولات بر اساس درآمد</span>
@@ -169,32 +162,23 @@
     {% if pnl.top_crops %}
     <div class="table-wrap">
       <table>
-        <thead>
-          <tr>
-            <th>محصول</th>
-            <th>واریته</th>
-            <th style="text-align: left;">درآمد</th>
-          </tr>
-        </thead>
+        <thead><tr><th>محصول</th><th>واریته</th><th>درآمد</th></tr></thead>
         <tbody>
           {% for row in pnl.top_crops %}
           <tr>
             <td style="font-weight: 600;">{{ row.crop__crop_type|default:"—" }}</td>
             <td class="text-muted" style="font-size: 12px;">{{ row.crop__variety|default:"—" }}</td>
-            <td style="font-weight: 700;" class="text-green">{{ row.revenue|floatformat:0 }}</td>
+            <td style="font-weight: 600;" class="text-green">{{ row.revenue|floatformat:0 }}</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
     {% else %}
-    <div class="empty-state" style="padding: 24px;">
-      <p>در این دوره فروشی ثبت نشده است.</p>
-    </div>
+    <div class="empty-state" style="padding: 24px;"><p>فروشی در این بازه ثبت نشده.</p></div>
     {% endif %}
   </div>
 
-  <!-- تفکیک هزینه‌های سربار -->
   <div class="card animate-in">
     <div class="card-header">
       <span class="card-title">سربار بر اساس دسته‌بندی</span>
@@ -203,12 +187,7 @@
     {% if pnl.expense_breakdown %}
     <div class="table-wrap">
       <table>
-        <thead>
-          <tr>
-            <th>دسته‌بندی</th>
-            <th style="text-align: left;">مبلغ</th>
-          </tr>
-        </thead>
+        <thead><tr><th>دسته‌بندی</th><th>مبلغ</th></tr></thead>
         <tbody>
           {% for row in pnl.expense_breakdown %}
           <tr>
@@ -220,12 +199,9 @@
       </table>
     </div>
     {% else %}
-    <div class="empty-state" style="padding: 24px;">
-      <p>در این دوره هزینه سرباری ثبت نشده است.</p>
-    </div>
+    <div class="empty-state" style="padding: 24px;"><p>هزینه‌ای در این بازه ثبت نشده.</p></div>
     {% endif %}
   </div>
-
 </div>
 
 <!-- ── آخرین فروش‌ها ──────────────────────────────────────────────── -->
@@ -238,42 +214,25 @@
   <div class="table-wrap">
     <table>
       <thead>
-        <tr>
-          <th>تاریخ</th>
-          <th>محصول</th>
-          <th>نوع کشت</th>
-          <th>خریدار</th>
-          <th>مقدار (kg)</th>
-          <th>قیمت/kg</th>
-          <th>وضعیت</th>
-          <th>اقدام</th>
-        </tr>
+        <tr><th>تاریخ</th><th>محصول</th><th>کشت</th><th>خریدار</th><th>مقدار (kg)</th><th>قیمت/kg</th><th>وضعیت</th><th>اقدام</th></tr>
       </thead>
       <tbody>
         {% for sale in recent_sales %}
         <tr>
-          <td style="font-size: 12px; color: var(--text-muted); white-space: nowrap;">
-            {{ sale.sold_at|date:"Y/m/d" }}
-          </td>
+          <td style="font-size: 12px; color: var(--text-muted); white-space: nowrap;">{{ sale.sold_at|date:"Y/m/d" }}</td>
           <td style="font-weight: 600;">{{ sale.product_name }}</td>
           <td class="text-muted" style="font-size: 12px;">{{ sale.crop.crop_type|default:"—" }}</td>
           <td>{{ sale.buyer_name }}</td>
-          <td style="font-weight: 700;" class="text-green">{{ sale.quantity_kg }}</td>
+          <td style="font-weight: 600;" class="text-green">{{ sale.quantity_kg }}</td>
           <td class="text-muted" style="font-size: 12px;">{{ sale.price_per_kg }}</td>
           <td>
-            {% if sale.payment_status == 'paid' %}
-              <span class="badge badge-green">پرداخت شده</span>
-            {% elif sale.payment_status == 'overdue' %}
-              <span class="badge badge-red">معوق</span>
-            {% elif sale.payment_status == 'cancelled' %}
-              <span class="badge badge-muted">لغو شده</span>
-            {% else %}
-              <span class="badge badge-amber">در انتظار</span>
-            {% endif %}
+            {% if sale.payment_status == 'paid' %}<span class="badge badge-green">پرداخت شده</span>
+            {% elif sale.payment_status == 'overdue' %}<span class="badge badge-red">معوق</span>
+            {% elif sale.payment_status == 'cancelled' %}<span class="badge badge-muted">لغو شده</span>
+            {% elif sale.payment_status == 'partial' %}<span class="badge badge-amber">پرداخت ناقص</span>
+            {% else %}<span class="badge badge-amber">در انتظار</span>{% endif %}
           </td>
-          <td>
-            <a href="{% url 'financials:sale_edit' greenhouse.id sale.id %}" class="btn btn-outline btn-sm">ویرایش</a>
-          </td>
+          <td><a href="{% url 'financials:sale_edit' greenhouse.id sale.id %}" class="btn btn-outline btn-sm">ویرایش</a></td>
         </tr>
         {% endfor %}
       </tbody>
@@ -285,8 +244,8 @@
       <line x1="12" y1="1" x2="12" y2="23"/>
       <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
     </svg>
-    <h3>در این دوره فروشی ثبت نشده</h3>
-    <p>فروش محصولات را ثبت کنید تا درآمد ردیابی شود.</p>
+    <h3>فروشی در این بازه ثبت نشده</h3>
+    <p>محصولات فروخته شده به خریداران را ثبت کنید تا درآمد ردیابی شود.</p>
     <div style="margin-top: 16px;">
       <a href="{% url 'financials:sale_create' greenhouse.id %}" class="btn btn-primary">ثبت اولین فروش</a>
     </div>
@@ -304,28 +263,17 @@
   <div class="table-wrap">
     <table>
       <thead>
-        <tr>
-          <th>تاریخ</th>
-          <th>دسته</th>
-          <th>شرح</th>
-          <th>تأمین‌کننده</th>
-          <th>مبلغ</th>
-          <th>اقدام</th>
-        </tr>
+        <tr><th>تاریخ</th><th>دسته‌بندی</th><th>شرح</th><th>تأمین‌کننده</th><th>مبلغ</th><th>اقدام</th></tr>
       </thead>
       <tbody>
         {% for exp in recent_expenses %}
         <tr>
-          <td style="font-size: 12px; color: var(--text-muted); white-space: nowrap;">
-            {{ exp.expense_date|date:"Y/m/d" }}
-          </td>
+          <td style="font-size: 12px; color: var(--text-muted); white-space: nowrap;">{{ exp.expense_date|date:"Y/m/d" }}</td>
           <td><span class="badge badge-muted">{{ exp.get_category_display }}</span></td>
           <td style="font-weight: 600;">{{ exp.description }}</td>
           <td class="text-muted" style="font-size: 12px;">{{ exp.vendor_name|default:"—" }}</td>
-          <td style="font-weight: 700;" class="text-amber">{{ exp.amount|floatformat:0 }}</td>
-          <td>
-            <a href="{% url 'financials:expense_edit' greenhouse.id exp.id %}" class="btn btn-outline btn-sm">ویرایش</a>
-          </td>
+          <td style="font-weight: 600;" class="text-amber">{{ exp.amount|floatformat:0 }}</td>
+          <td><a href="{% url 'financials:expense_edit' greenhouse.id exp.id %}" class="btn btn-outline btn-sm">ویرایش</a></td>
         </tr>
         {% endfor %}
       </tbody>
@@ -333,7 +281,7 @@
   </div>
   {% else %}
   <div class="empty-state" style="padding: 28px;">
-    <p>در این دوره هزینه سرباری ثبت نشده است.</p>
+    <p>هزینه‌ای در این بازه ثبت نشده.</p>
     <div style="margin-top: 12px;">
       <a href="{% url 'financials:expense_create' greenhouse.id %}" class="btn btn-primary">ثبت هزینه</a>
     </div>

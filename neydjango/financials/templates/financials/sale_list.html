@@ -1,35 +1,36 @@
 {% extends "greenhouse_app/base.html" %}
 
-{% block title %}Sales — {{ greenhouse.name }} — Greenhouse OS{% endblock %}
+{% block title %}فروش‌ها — {{ greenhouse.name }} — سیستم گلخانه{% endblock %}
 
 {% block sidebar_greenhouse_links %}
 <div class="sidebar-divider"></div>
-<span class="sidebar-label">{{ greenhouse.name|truncatechars:20 }}</span>
+<span class="sidebar-label">{{ greenhouse.name|truncatechars:22 }}</span>
 <a href="{% url 'greenhouse_app:greenhouse_detail' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
   </svg>
-  Overview
+  نمای کلی
 </a>
 <a href="{% url 'operations:operation_list' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
     <rect x="9" y="3" width="6" height="4" rx="1"/>
   </svg>
-  Operations
+  عملیات
 </a>
 <a href="{% url 'inventory:inventory_list' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
     <path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/>
   </svg>
-  Inventory
+  انبار و موجودی
 </a>
 <a href="{% url 'financials:dashboard' greenhouse.id %}" class="sidebar-link active">
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-dollar" viewBox="0 0 16 16">
-  <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73z"/>
-</svg>
-  Financials / P&L
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <line x1="12" y1="1" x2="12" y2="23"/>
+    <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+  </svg>
+  مالی و سود/زیان
 </a>
 <a href="{% url 'reports:index' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -38,13 +39,14 @@
     <line x1="16" y1="13" x2="8" y2="13"/>
     <line x1="16" y1="17" x2="8" y2="17"/>
   </svg>
-  Reports
+  گزارش‌ها
 </a>
 <a href="{% url 'greenhouse_app:member_list' greenhouse.id %}" class="sidebar-link">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/>
+    <circle cx="9" cy="7" r="4"/>
+    <path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/>
   </svg>
-  Members
+  اعضا
 </a>
 {% endblock %}
 
@@ -53,52 +55,52 @@
 <div class="page-header">
   <div class="page-header-left">
     <div class="breadcrumb">
-      <a href="{% url 'greenhouse_app:greenhouse_list' %}">Greenhouses</a>
+      <a href="{% url 'greenhouse_app:greenhouse_list' %}">گلخانه‌ها</a>
       <span class="breadcrumb-sep">›</span>
       <a href="{% url 'greenhouse_app:greenhouse_detail' greenhouse.id %}">{{ greenhouse.name }}</a>
       <span class="breadcrumb-sep">›</span>
-      <a href="{% url 'financials:dashboard' greenhouse.id %}">Financials</a>
+      <a href="{% url 'financials:dashboard' greenhouse.id %}">مالی</a>
       <span class="breadcrumb-sep">›</span>
-      <span>Sales</span>
+      <span>فروش‌ها</span>
     </div>
-    <div class="page-title">Sales</div>
-    <div class="page-subtitle">All produce sold — revenue tracking</div>
+    <div class="page-title">فروش‌ها</div>
+    <div class="page-subtitle">همه محصولات فروخته شده — ردیابی درآمد</div>
   </div>
-  <div style="display:flex; gap:8px;">
+  <div style="display: flex; gap: 8px;">
     <a href="{% url 'financials:sale_create' greenhouse.id %}" class="btn btn-primary">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13">
         <path d="M12 5v14M5 12h14"/>
       </svg>
-      Record Sale
+      ثبت فروش
     </a>
-    <a href="{% url 'financials:dashboard' greenhouse.id %}" class="btn btn-outline">← P&L Report</a>
+    <a href="{% url 'financials:dashboard' greenhouse.id %}" class="btn btn-outline">← گزارش سود/زیان</a>
   </div>
 </div>
 
-<!-- ── Filter ──────────────────────────────────────────────────────── -->
-<div class="card animate-in" style="margin-bottom:20px;">
-  <div class="card-body" style="padding:14px 20px;">
-    <form method="get" style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;">
-      <div class="form-group" style="margin-bottom:0; min-width:180px;">
-        <label>Payment Status</label>
+<!-- ── فیلتر ──────────────────────────────────────────────────────── -->
+<div class="card animate-in" style="margin-bottom: 20px;">
+  <div class="card-body" style="padding: 14px 18px;">
+    <form method="get" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
+      <div class="form-group" style="margin-bottom: 0; min-width: 180px;">
+        <label>وضعیت پرداخت</label>
         <select name="status">
-          <option value="">All Statuses</option>
+          <option value="">همه وضعیت‌ها</option>
           {% for val, label in payment_status_choices %}
             <option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ label }}</option>
           {% endfor %}
         </select>
       </div>
-      <button type="submit" class="btn btn-outline" style="height:36px;">Filter</button>
-      <a href="{% url 'financials:sale_list' greenhouse.id %}" class="btn btn-outline" style="height:36px;">Clear</a>
+      <button type="submit" class="btn btn-outline" style="height: 36px;">اعمال فیلتر</button>
+      <a href="{% url 'financials:sale_list' greenhouse.id %}" class="btn btn-outline" style="height: 36px;">پاک کردن</a>
     </form>
   </div>
 </div>
 
-<!-- ── Sales Table ─────────────────────────────────────────────────── -->
+<!-- ── جدول فروش‌ها ───────────────────────────────────────────────── -->
 <div class="card animate-in">
   <div class="card-header">
-    <span class="card-title">All Sales</span>
-    <span class="badge badge-muted">{{ sales|length }} records</span>
+    <span class="card-title">همه فروش‌ها</span>
+    <span class="badge badge-muted">{{ sales|length }} رکورد</span>
   </div>
 
   {% if sales %}
@@ -106,59 +108,37 @@
     <table>
       <thead>
         <tr>
-          <th>#</th>
-          <th>Date</th>
-          <th>Product</th>
-          <th>Crop</th>
-          <th>Buyer</th>
-          <th style="text-align:right;">Qty (kg)</th>
-          <th style="text-align:right;">Price/kg</th>
-          <th>Status</th>
-          <th>Invoice</th>
-          <th>Actions</th>
+          <th>#</th><th>تاریخ</th><th>محصول</th><th>کشت</th><th>خریدار</th>
+          <th>مقدار (kg)</th><th>قیمت/kg</th><th>وضعیت</th><th>فاکتور</th><th>اقدام</th>
         </tr>
       </thead>
       <tbody>
         {% for sale in sales %}
         <tr>
-          <td style="color:var(--text-dim); font-size:11px;">{{ sale.id }}</td>
-          <td style="font-size:12px; color:var(--text-muted); white-space:nowrap;">
-            {{ sale.sold_at|date:"M d, Y" }}
+          <td style="color: var(--text-dim); font-size: 11px;">{{ sale.id }}</td>
+          <td style="font-size: 12px; color: var(--text-muted); white-space: nowrap;">
+            {{ sale.sold_at|date:"Y/m/d" }}
           </td>
-          <td style="font-weight:500;">{{ sale.product_name }}</td>
-          <td class="text-muted" style="font-size:12px;">
-            {{ sale.crop.crop_type|default:"—" }}
-          </td>
+          <td style="font-weight: 600;">{{ sale.product_name }}</td>
+          <td class="text-muted" style="font-size: 12px;">{{ sale.crop.crop_type|default:"—" }}</td>
           <td>
             {{ sale.buyer_name }}
             {% if sale.buyer_phone %}
-              <div class="text-dim" style="font-size:11px;">{{ sale.buyer_phone }}</div>
+              <div class="text-dim" style="font-size: 11px;">{{ sale.buyer_phone }}</div>
             {% endif %}
           </td>
-          <td style="text-align:right; font-weight:600;" class="text-green">
-            {{ sale.quantity_kg }}
-          </td>
-          <td style="text-align:right;" class="text-muted" style="font-size:12px;">
-            {{ sale.price_per_kg }}
-          </td>
+          <td style="font-weight: 600;" class="text-green">{{ sale.quantity_kg }}</td>
+          <td class="text-muted" style="font-size: 12px;">{{ sale.price_per_kg }}</td>
           <td>
-            {% if sale.payment_status == 'paid' %}
-              <span class="badge badge-green">{{ sale.get_payment_status_display }}</span>
-            {% elif sale.payment_status == 'overdue' %}
-              <span class="badge badge-red">{{ sale.get_payment_status_display }}</span>
-            {% elif sale.payment_status == 'cancelled' %}
-              <span class="badge badge-muted">{{ sale.get_payment_status_display }}</span>
-            {% else %}
-              <span class="badge" style="background:var(--amber-dim,rgba(210,153,34,.15));color:var(--amber,#d29922);">
-                {{ sale.get_payment_status_display }}
-              </span>
-            {% endif %}
+            {% if sale.payment_status == 'paid' %}<span class="badge badge-green">پرداخت شده</span>
+            {% elif sale.payment_status == 'overdue' %}<span class="badge badge-red">معوق</span>
+            {% elif sale.payment_status == 'cancelled' %}<span class="badge badge-muted">لغو شده</span>
+            {% elif sale.payment_status == 'partial' %}<span class="badge badge-amber">پرداخت ناقص</span>
+            {% else %}<span class="badge badge-amber">در انتظار</span>{% endif %}
           </td>
-          <td class="text-dim" style="font-size:11px;">
-            {{ sale.invoice_number|default:"—" }}
-          </td>
+          <td class="text-dim" style="font-size: 11px;">{{ sale.invoice_number|default:"—" }}</td>
           <td>
-            <a href="{% url 'financials:sale_edit' greenhouse.id sale.id %}" class="btn btn-outline btn-sm">Edit</a>
+            <a href="{% url 'financials:sale_edit' greenhouse.id sale.id %}" class="btn btn-outline btn-sm">ویرایش</a>
           </td>
         </tr>
         {% endfor %}
@@ -171,12 +151,10 @@
       <line x1="12" y1="1" x2="12" y2="23"/>
       <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
     </svg>
-    <h3>No sales recorded yet</h3>
-    <p>Record produce sold to buyers to start tracking revenue.</p>
-    <div style="margin-top:16px;">
-      <a href="{% url 'financials:sale_create' greenhouse.id %}" class="btn btn-primary">
-        Record First Sale
-      </a>
+    <h3>هنوز فروشی ثبت نشده</h3>
+    <p>محصولات فروخته شده به خریداران را ثبت کنید تا درآمد ردیابی شود.</p>
+    <div style="margin-top: 16px;">
+      <a href="{% url 'financials:sale_create' greenhouse.id %}" class="btn btn-primary">ثبت اولین فروش</a>
     </div>
   </div>
   {% endif %}

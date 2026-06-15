@@ -139,13 +139,13 @@ def greenhouse_create(request):
 
     return render(request, 'greenhouse_app/form.html', {
         'form': form,
-        'form_title': 'New Greenhouse',
-        'form_subtitle': 'Define a new growing facility',
-        'submit_label': 'Create Greenhouse',
+        'form_title': 'گلخانه جدید',
+        'form_subtitle': 'تعریف تاسیسات پرورش جدید',
+        'submit_label': 'ایجاد گلخانه',
         'cancel_url': '/greenhouse_app/greenhouses/',
         'breadcrumbs': [
-            {'label': 'Greenhouses', 'url': '/greenhouses/'},
-            {'label': 'New Greenhouse', 'url': None},
+            {'label': 'گلخانه‌ها', 'url': '/greenhouse_app/greenhouses/'},
+            {'label': 'ایجاد گلخانه', 'url': None},
         ],
     })
 
@@ -171,13 +171,13 @@ def greenhouse_edit(request, greenhouse_id):
     return render(request, 'greenhouse_app/form.html', {
         'form': form,
         'greenhouse': greenhouse,
-        'form_title': f'Edit {greenhouse.name}',
-        'submit_label': 'Save Changes',
+        'form_title': f'ویرایش {greenhouse.name}',
+        'submit_label': 'ذخیره تغییرات',
         'cancel_url': f'/greenhouse_app/greenhouses/{greenhouse.id}/',
         'breadcrumbs': [
-            {'label': 'Greenhouses', 'url': '/greenhouses/'},
-            {'label': greenhouse.name, 'url': f'/greenhouses/{greenhouse.id}/'},
-            {'label': 'Edit', 'url': None},
+            {'label': 'گلخانه‌ها', 'url': '/greenhouse_app/greenhouses/'},
+            {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
+            {'label': 'ویرایش', 'url': None},
         ],
     })
 
@@ -218,13 +218,13 @@ def house_create(request, greenhouse_id):
 
     return render(request, 'greenhouse_app/form.html', {
         'form': form, 'greenhouse': greenhouse,
-        'form_title': f'Add House to {greenhouse.name}',
-        'submit_label': 'Create House',
+        'form_title': f'افزودن سالن به {greenhouse.name}',
+        'submit_label': 'ایجاد سالن',
         'cancel_url': f'/greenhouse_app/greenhouses/{greenhouse.id}/',
         'breadcrumbs': [
-            {'label': 'Greenhouses', 'url': '/greenhouses/'},
-            {'label': greenhouse.name, 'url': f'/greenhouses/{greenhouse.id}/'},
-            {'label': 'Add House', 'url': None},
+            {'label': 'گلخانه‌ها', 'url': '/greenhouse_app/greenhouses/'},
+            {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
+            {'label': 'افزودن سالن', 'url': None},
         ],
     })
 
@@ -252,13 +252,13 @@ def house_edit(request, greenhouse_id, house_id):
 
     return render(request, 'greenhouse_app/form.html', {
         'form': form, 'greenhouse': greenhouse,
-        'form_title': f'Edit {house.name}',
-        'submit_label': 'Save Changes',
+        'form_title': f'ویرایش {house.name}',
+        'submit_label': 'ذخیره تغییرات',
         'cancel_url': f'/greenhouse_app/greenhouses/{greenhouse.id}/houses/{house.id}/',
         'breadcrumbs': [
             {'label': greenhouse.name, 'url': f'/greenhouses/{greenhouse.id}/'},
             {'label': house.name, 'url': f'/greenhouses/{greenhouse.id}/houses/{house.id}/'},
-            {'label': 'Edit', 'url': None},
+            {'label': 'ویرایش', 'url': None},
         ],
     })
 
@@ -305,13 +305,13 @@ def bed_create(request, greenhouse_id, house_id):
 
     return render(request, 'greenhouse_app/form.html', {
         'form': form, 'greenhouse': greenhouse,
-        'form_title': f'Add Bed to {house.name}',
-        'submit_label': 'Create Bed',
+        'form_title': f'افزودن بستر به {house.name}',
+        'submit_label': 'ایجاد بستر',
         'cancel_url': f'/greenhouse_app/greenhouses/{greenhouse.id}/houses/{house.id}/',
         'breadcrumbs': [
             {'label': greenhouse.name, 'url': f'/greenhouses/{greenhouse.id}/'},
             {'label': house.name, 'url': f'/greenhouses/{greenhouse.id}/houses/{house.id}/'},
-            {'label': 'Add Bed', 'url': None},
+            {'label': 'افزودن بستر', 'url': None},
         ],
     })
 
@@ -340,14 +340,14 @@ def bed_edit(request, greenhouse_id, house_id, bed_id):
 
     return render(request, 'greenhouse_app/form.html', {
         'form': form, 'greenhouse': greenhouse,
-        'form_title': f'Edit Bed {bed.code}',
-        'submit_label': 'Save Changes',
+        'form_title': f'ویرایش بستر {bed.code}',
+        'submit_label': 'ذخیره تغییرات',
         'cancel_url': f'/greenhouse_app/greenhouses/{greenhouse.id}/houses/{house.id}/beds/{bed.id}/',
         'breadcrumbs': [
             {'label': greenhouse.name, 'url': f'/greenhouses/{greenhouse.id}/'},
             {'label': house.name, 'url': f'/greenhouses/{greenhouse.id}/houses/{house.id}/'},
             {'label': bed.code, 'url': f'/greenhouses/{greenhouse.id}/houses/{house.id}/beds/{bed.id}/'},
-            {'label': 'Edit', 'url': None},
+            {'label': 'ویرایش', 'url': None},
         ],
     })
 
@@ -386,15 +386,15 @@ def crop_create(request, greenhouse_id, house_id, bed_id):
 
     return render(request, 'greenhouse_app/form.html', {
         'form': form, 'greenhouse': greenhouse,
-        'form_title': f'New Crop Cycle — Bed {bed.code}',
+        'form_title': f'دوره کاشت جدید — بستر {bed.code}',
         'form_subtitle': f'{greenhouse.name} / {house.name}',
-        'submit_label': 'Start Crop Cycle',
+        'submit_label': 'شروع دوره کاشت',
         'cancel_url': f'/greenhouse_app/greenhouses/{greenhouse.id}/houses/{house.id}/beds/{bed.id}/',
         'breadcrumbs': [
             {'label': greenhouse.name, 'url': f'/greenhouses/{greenhouse.id}/'},
             {'label': house.name, 'url': f'/greenhouses/{greenhouse.id}/houses/{house.id}/'},
             {'label': bed.code, 'url': f'/greenhouses/{greenhouse.id}/houses/{house.id}/beds/{bed.id}/'},
-            {'label': 'New Crop', 'url': None},
+            {'label': 'محصول جدید', 'url': None},
         ],
     })
 
@@ -430,13 +430,13 @@ def crop_edit(request, greenhouse_id, house_id, bed_id, crop_id):
 
     return render(request, 'greenhouse_app/form.html', {
         'form': form, 'greenhouse': greenhouse,
-        'form_title': f'Edit Crop — {crop.crop_type}',
-        'submit_label': 'Save Changes',
+        'form_title': f'ویرایش محصول — {crop.crop_type}',
+        'submit_label': 'دخیره تغییرات',
         'cancel_url': f'/greenhouse_app/greenhouses/{greenhouse.id}/houses/{house.id}/beds/{bed.id}/',
         'breadcrumbs': [
             {'label': greenhouse.name, 'url': f'/greenhouses/{greenhouse.id}/'},
             {'label': bed.code, 'url': f'/greenhouses/{greenhouse.id}/houses/{house.id}/beds/{bed.id}/'},
-            {'label': 'Edit Crop', 'url': None},
+            {'label': 'ویرایش محصول', 'url': None},
         ],
     })
 
@@ -485,13 +485,13 @@ def member_add(request, greenhouse_id):
 
     return render(request, 'greenhouse_app/form.html', {
         'form': form, 'greenhouse': greenhouse,
-        'form_title': f'Add Member — {greenhouse.name}',
-        'submit_label': 'Add Member',
+        'form_title': f'افزودن عضو — {greenhouse.name}',
+        'submit_label': 'افزودن عضو',
         'cancel_url': f'/greenhouse_app/greenhouses/{greenhouse.id}/members/',
         'breadcrumbs': [
             {'label': greenhouse.name, 'url': f'/greenhouses/{greenhouse.id}/'},
-            {'label': 'Members', 'url': f'/greenhouses/{greenhouse.id}/members/'},
-            {'label': 'Add', 'url': None},
+            {'label': 'عضوها', 'url': f'/greenhouses/{greenhouse.id}/members/'},
+            {'label': 'افزودن', 'url': None},
         ],
     })
 
@@ -518,13 +518,13 @@ def member_edit(request, greenhouse_id, member_id):
 
     return render(request, 'greenhouse_app/form.html', {
         'form': form, 'greenhouse': greenhouse,
-        'form_title': f'Change Role — {member.user.username}',
-        'submit_label': 'Update Role',
+        'form_title': f'تغییر نقش — {member.user.username}',
+        'submit_label': 'بروزرسانی نقش',
         'cancel_url': f'/greenhouse_app/greenhouses/{greenhouse.id}/members/',
         'breadcrumbs': [
             {'label': greenhouse.name, 'url': f'/greenhouses/{greenhouse.id}/'},
-            {'label': 'Members', 'url': f'/greenhouses/{greenhouse.id}/members/'},
-            {'label': 'Edit Role', 'url': None},
+            {'label': 'عضوها', 'url': f'/greenhouses/{greenhouse.id}/members/'},
+            {'label': 'ویرایش نقش', 'url': None},
         ],
     })
 

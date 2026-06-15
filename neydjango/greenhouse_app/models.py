@@ -23,23 +23,26 @@ class Greenhouse(models.Model):
         on_delete=models.PROTECT,      # don't delete greenhouse if owner is deleted
         related_name='owned_greenhouses_app'
     )
-    name = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
+    name = models.CharField(max_length=200, verbose_name="نام")
+    description = models.TextField(blank=True, verbose_name="توضیحات")
     location_geojson = models.TextField(
         blank=True,
-        help_text='GeoJSON point string. Example: {"type":"Point","coordinates":[51.38,35.68]}'
+        help_text='GeoJSON point string. Example: {"type":"Point","coordinates":[51.38,35.68]}',
+        verbose_name="موقعیت مکانی GeoJSON"
     )
     timezone = models.CharField(
         max_length=60,
         default='Asia/Tehran',
-        help_text="Timezone for date/time calculations. E.g. Asia/Tehran"
+        help_text="منطقه زمانی برای محاسبات تاریخ و زمان. برای مثال: Asia/Tehran",
+        verbose_name="منطقه زمانی"
     )
     total_area_m2 = models.DecimalField(
     max_digits=10, decimal_places=2,
     null=True, blank=True,
-    help_text="Total greenhouse area in square metres"
+    help_text="مساحت کل گلخانه به متر مربع",
+    verbose_name="مجموع مساحت به متر مربع"
     )
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True, verbose_name="فعال است؟")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -65,17 +68,20 @@ class House(models.Model):
     )
     name = models.CharField(
         max_length=100,
-        help_text="E.g. 'Hall A', 'North Section', 'سالن ۱'"
+        help_text="مانند 'Hall A', 'North Section', 'سالن ۱'",
+        verbose_name="نام"
     )
     area_m2 = models.DecimalField(
         max_digits=10,
         decimal_places=2,
         null=True,
         blank=True,
-        help_text="Floor area in square meters."
+        help_text="مساحت کف به متر مربع",
+        verbose_name="مساحت به متر مربع"
     )
-    notes = models.TextField(blank=True)
+    notes = models.TextField(blank=True, verbose_name="یادداشت")
     created_at = models.DateTimeField(auto_now_add=True)
+
 
     class Meta:
         ordering = ['greenhouse', 'name']
@@ -102,7 +108,7 @@ class Bed(models.Model):
     )
     code = models.CharField(
         max_length=50,
-        help_text="Short identifier, e.g. 'B-01', 'Row-3'"
+        help_text="شناسه کوتاه، برای مثال: 'B-01'، 'Row-3'"
     )
     area_m2 = models.DecimalField(
         max_digits=8,
@@ -113,7 +119,7 @@ class Bed(models.Model):
     capacity = models.PositiveIntegerField(
         null=True,
         blank=True,
-        help_text="Max number of plants this bed holds."
+        help_text="حداکثر تعداد گیاهی که این بستر در خود جای می‌دهد."
     )
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -161,12 +167,12 @@ class Crop(models.Model):
     )
     crop_type = models.CharField(
         max_length=100,
-        help_text="Type of crop. E.g. 'Tomato', 'Cucumber', 'گوجه فرنگی'"
+        help_text="نوع محصول. برای مثال: «Tomato» (گوجه‌فرنگی)، «Cucumber» (خیار)، «گوجه فرنگی»"
     )
     variety = models.CharField(
         max_length=100,
         blank=True,
-        help_text="Specific variety/cultivar. E.g. 'Cherry 100F1', 'Superstar'"
+        help_text="گونه/رقم خاص (گیاه). برای مثال: «Cherry 100F1»، «Superstar»"
     )
     status = models.CharField(
         max_length=20,
@@ -176,22 +182,22 @@ class Crop(models.Model):
     planted_at = models.DateField(
         null=True,
         blank=True,
-        help_text="Actual planting date."
+        help_text="تاریخ دقیق کاشت."
     )
     expected_harvest_at = models.DateField(
         null=True,
         blank=True,
-        help_text="Estimated harvest date, calculated from planting + crop cycle length."
+        help_text="تاریخ برداشت تخمینی، محاسبه‌شده از زمان کاشت + طول دوره رشد"
     )
     actual_harvest_at = models.DateField(
         null=True,
         blank=True,
-        help_text="Filled when status → HARVESTED."
+        help_text="زمانی که وضعیت به «برداشت‌شده» تغییر کند،تکمیل می‌گردد."
     )
     plant_count = models.PositiveIntegerField(
         null=True,
         blank=True,
-        help_text="Number of plants in this crop cycle."
+        help_text="تعداد گیاهان در این دوره کاشت"
     )
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

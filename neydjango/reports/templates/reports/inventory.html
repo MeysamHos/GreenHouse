@@ -148,8 +148,7 @@
           <td class="text-muted" style="font-size: 12px;">
             {% if row.wasted_qty %}{{ row.wasted_qty|floatformat:2 }}{% else %}—{% endif %}
           </td>
-          <td style="font-weight: 600;
-                     color: {% if row.is_low_stock %}var(--red){% else %}var(--text){% endif %};">
+          <td style="font-weight: 600; color: {% if row.is_low_stock %}var(--red){% else %}var(--text){% endif %};">
             {{ row.current_stock|floatformat:2 }}
             <span class="text-dim" style="font-size: 10px;"> {{ row.item.get_unit_display }}</span>
           </td>
@@ -178,3 +177,4 @@
 </div>
 
 {% endblock %}
+

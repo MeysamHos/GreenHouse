@@ -1,41 +1,25 @@
 /**
  * jalali-picker.js
  * Self-contained Persian (Jalali) date picker — no dependencies.
- * Converts between Jalali and Gregorian internally.
- * Usage: attach to any <input> with data-jalali-picker attribute.
  *
- * How it works:
- *   - Shows a Jalali calendar popup to the user
- *   - Stores the selected date as Jalali in the visible input (display only)
- *   - Writes the Gregorian equivalent to a hidden input (submitted to Django)
- *
- * HTML pattern required:
- *   <input type="text"
- *          id="id_performed_at_jalali"
- *          data-jalali-picker
- *          data-target="id_performed_at"
- *          placeholder="انتخاب تاریخ"
- *          readonly>
- *   <input type="hidden" id="id_performed_at" name="performed_at">
+ * HTML pattern:
+ *   <input type="text" id="X_jalali" data-jalali-picker data-target="X"
+ *          placeholder="انتخاب تاریخ" autocomplete="off" readonly>
+ *   <input type="hidden" id="X" name="field_name" value="">
  */
 
 (function () {
   'use strict';
 
-  // ── Jalali ↔ Gregorian conversion ──────────────────────────────────────────
-  // Algorithm: https://www.fourmilab.ch/documents/calendar/
+  // ── Jalali ↔ Gregorian ────────────────────────────────────────────────────
 
-  // jalaaliCal: computes leap year data and the Gregorian March day of Nowruz.
-  // Ported from jalaali-js (https://github.com/jalaali/jalaali-js) — the
-  // standard reference implementation for Persian calendar conversions.
   function jalaaliCal(jy) {
     var breaks = [-61, 9, 38, 199, 426, 686, 756, 818, 1111, 1181, 1210,
                   1635, 2060, 2097, 2192, 2262, 2324, 2394, 2456, 3178];
     var bl = breaks.length, gy = jy + 621, leapJ = -14;
     var jp = breaks[0], jm, jump = 0, i, n;
     for (i = 1; i < bl; i++) {
-      jm = breaks[i];
-      jump = jm - jp;
+      jm = breaks[i]; jump = jm - jp;
       if (jy < jm) break;
       leapJ += Math.floor(jump / 33) * 8 + Math.floor((jump % 33) / 4);
       jp = jm;
@@ -48,30 +32,19 @@
   }
 
   function jalaaliToGregorian(jy, jm, jd) {
-    // Month day-of-year offsets for Jalali months 1–12
     var monthOffsets = [0, 31, 62, 93, 124, 155, 186, 216, 246, 276, 306, 336];
     var r = jalaaliCal(jy);
-    // Day offset from March 1 of the corresponding Gregorian year
     var dayFromMarch1 = r.march - 1 + monthOffsets[jm - 1] + jd - 1;
-    // March 1 = day 60 in a non-leap year (Jan=31, Feb=28, Mar1=0-based day 59+1)
-    // Simpler: walk forward from March 1, r.gy
     var gy = r.gy;
-    // Days in months for the Gregorian year starting from March
     var isLeap = function (y) { return (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0; };
-    // 13 slots: Mar–Dec of gy, then Jan–Mar of gy+1.
-    // We need the extra March slot because late-year Jalali dates (e.g. 12/29–30)
-    // can fall in March of the following Gregorian year.
     var gMonths     = [31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31, isLeap(gy + 1) ? 29 : 28, 31];
-    var gMonthNames = [3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 1,  2,                         3 ];
+    var gMonthNames = [3,   4,  5,  6,  7,  8,  9, 10, 11, 12,  1,  2,                        3];
     var gYears      = [gy, gy, gy, gy, gy, gy, gy, gy, gy, gy, gy+1, gy+1, gy+1];
     var remaining = dayFromMarch1;
     for (var i = 0; i < 13; i++) {
-      if (remaining < gMonths[i]) {
-        return { gy: gYears[i], gm: gMonthNames[i], gd: remaining + 1 };
-      }
+      if (remaining < gMonths[i]) return { gy: gYears[i], gm: gMonthNames[i], gd: remaining + 1 };
       remaining -= gMonths[i];
     }
-    // Should never reach here for valid Jalali dates
     return { gy: gy, gm: 3, gd: 1 };
   }
 
@@ -79,7 +52,6 @@
     var g_d_no, j_d_no, j_np, i;
     var g_days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
     var j_days_in_month = [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29];
-
     gy -= 1600; gm -= 1; gd -= 1;
     g_d_no = 365 * gy + Math.floor((gy + 3) / 4) - Math.floor((gy + 99) / 100) +
              Math.floor((gy + 399) / 400);
@@ -87,7 +59,6 @@
     if (gm > 1 && ((gy + 1600) % 4 === 0 && ((gy + 1600) % 100 !== 0 ||
         (gy + 1600) % 400 === 0))) g_d_no++;
     g_d_no += gd;
-
     j_d_no = g_d_no - 79;
     j_np = Math.floor(j_d_no / 12053);
     j_d_no %= 12053;
@@ -95,23 +66,18 @@
     j_d_no %= 1461;
     if (j_d_no >= 366) { jy += Math.floor((j_d_no - 1) / 365); j_d_no = (j_d_no - 1) % 365; }
     for (i = 0; i < 11 && j_d_no >= j_days_in_month[i]; ++i) j_d_no -= j_days_in_month[i];
-    var jm = i + 1, jd = j_d_no + 1;
-    return { jy: jy, jm: jm, jd: jd };
+    return { jy: jy, jm: i + 1, jd: j_d_no + 1 };
   }
 
   function pad(n) { return n < 10 ? '0' + n : '' + n; }
-
-  function toJalaliStr(gy, gm, gd) {
-    var j = gregorianToJalaali(gy, gm, gd);
-    return j.jy + '/' + pad(j.jm) + '/' + pad(j.jd);
-  }
 
   function toGregorianStr(jy, jm, jd) {
     var g = jalaaliToGregorian(jy, jm, jd);
     return g.gy + '-' + pad(g.gm) + '-' + pad(g.gd);
   }
 
-  // ── Persian number & month names ──────────────────────────────────────────
+  // ── Constants ─────────────────────────────────────────────────────────────
+
   var JALALI_MONTHS = [
     'فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور',
     'مهر','آبان','آذر','دی','بهمن','اسفند'
@@ -121,197 +87,184 @@
   function jalaaliDaysInMonth(jy, jm) {
     if (jm <= 6) return 31;
     if (jm <= 11) return 30;
-    // Esfand: 29 or 30
     var g = jalaaliToGregorian(jy, 12, 29);
-    var leap = (g.gy % 4 === 0 && g.gy % 100 !== 0) || g.gy % 400 === 0;
-    return leap ? 30 : 29;
+    return ((g.gy % 4 === 0 && g.gy % 100 !== 0) || g.gy % 400 === 0) ? 30 : 29;
   }
 
-  // Day of week for first day of Jalali month (0=Shanbe, 6=Jome)
   function firstDayOfWeek(jy, jm) {
     var g = jalaaliToGregorian(jy, jm, 1);
-    var date = new Date(g.gy, g.gm - 1, g.gd);
-    // JS: 0=Sun,1=Mon,...,6=Sat  → Persian week: Sat=0
-    var dow = date.getDay(); // 0-6
-    return (dow + 1) % 7; // Sat=0, Sun=1, Mon=2, ..., Fri=6
+    var dow = new Date(g.gy, g.gm - 1, g.gd).getDay();
+    return (dow + 1) % 7; // Sat=0 … Fri=6
   }
 
-  // ── DOM helpers ───────────────────────────────────────────────────────────
-  function el(tag, cls, txt) {
+  // ── Shared styles ─────────────────────────────────────────────────────────
+
+  var BTN = 'background:none;border:1px solid var(--border);border-radius:var(--radius);' +
+            'color:var(--text-muted);cursor:pointer;padding:2px 8px;font-size:16px;line-height:1.4;';
+
+  function makeEl(tag, css, txt) {
     var e = document.createElement(tag);
-    if (cls) e.className = cls;
+    if (css) e.style.cssText = css;
     if (txt !== undefined) e.textContent = txt;
     return e;
   }
 
-  // ── Picker factory ────────────────────────────────────────────────────────
+  function hoverGreen(el) {
+    el.addEventListener('mouseenter', function () {
+      el.style.borderColor = 'var(--green)'; el.style.color = 'var(--green)';
+    });
+    el.addEventListener('mouseleave', function () {
+      el.style.borderColor = 'var(--border)'; el.style.color = 'var(--text-muted)';
+    });
+  }
+
+  // ── Picker ────────────────────────────────────────────────────────────────
+
   function createPicker(inputEl, hiddenEl) {
     var today = gregorianToJalaali(
       new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate()
     );
     var viewJy = today.jy, viewJm = today.jm;
-    var selectedJy = null, selectedJm = null, selectedJd = null;
+    var selJy = null, selJm = null, selJd = null;
 
-    // If hidden already has a value (edit form), pre-select it
+    // 'day' | 'month' | 'year'
+    var mode = 'day';
+
+    // Pre-select on edit form
     if (hiddenEl.value) {
       var parts = hiddenEl.value.split('-');
       if (parts.length === 3) {
         var j = gregorianToJalaali(+parts[0], +parts[1], +parts[2]);
-        selectedJy = j.jy; selectedJm = j.jm; selectedJd = j.jd;
-        viewJy = selectedJy; viewJm = selectedJm;
-        inputEl.value = selectedJy + '/' + pad(selectedJm) + '/' + pad(selectedJd);
+        selJy = j.jy; selJm = j.jm; selJd = j.jd;
+        viewJy = selJy; viewJm = selJm;
+        inputEl.value = selJy + '/' + pad(selJm) + '/' + pad(selJd);
       }
     }
 
-    // ── Popup element ────────────────────────────────────────────────
-    var popup = el('div', 'jp-popup');
+    // Popup container
+    var popup = makeEl('div', [
+      'display:none', 'position:absolute', 'z-index:9999',
+      'background:var(--surface)', 'border:1px solid var(--border)',
+      'border-radius:var(--radius-lg)', 'box-shadow:0 8px 32px rgba(0,0,0,.5)',
+      'width:272px', 'font-family:Vazirmatn,system-ui,sans-serif',
+      'font-size:13px', 'color:var(--text)', 'user-select:none',
+    ].join(';'));
     popup.setAttribute('dir', 'rtl');
-    popup.style.cssText = [
-      'display:none',
-      'position:absolute',
-      'z-index:9999',
-      'background:var(--surface)',
-      'border:1px solid var(--border)',
-      'border-radius:var(--radius-lg)',
-      'box-shadow:0 8px 32px rgba(0,0,0,.5)',
-      'padding:0',
-      'width:272px',
-      'font-family:Vazirmatn,system-ui,sans-serif',
-      'font-size:13px',
-      'color:var(--text)',
-      'user-select:none',
-    ].join(';');
     document.body.appendChild(popup);
 
-    function render() {
-      popup.innerHTML = '';
+    // ── Render header (shared by all modes) ───────────────────────────────
+    function renderHeader(titleText, onPrev, onNext) {
+      var header = makeEl('div',
+        'display:flex;align-items:center;justify-content:space-between;' +
+        'padding:12px 14px 8px;border-bottom:1px solid var(--border); flex-direction:row-reverse;'
+      );
 
-      // Header
-      var header = el('div');
-      header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 14px 8px;border-bottom:1px solid var(--border); flex-direction:row-reverse;';
+      var btnPrev = makeEl('button', BTN, '›');
+      btnPrev.type = 'button'; btnPrev.title = 'بعدی';
+      btnPrev.addEventListener('click', function (e) { e.stopPropagation(); onPrev(); });
 
-      var btnPrev = el('button', '', '›');
-      btnPrev.type = 'button';
-      btnPrev.style.cssText = 'background:none;border:1px solid var(--border);border-radius:var(--radius);color:var(--text-muted);cursor:pointer;padding:2px 8px;font-size:16px;line-height:1.4;';
-      btnPrev.title = 'ماه بعد';
+      var btnNext = makeEl('button', BTN, '‹');
+      btnNext.type = 'button'; btnNext.title = 'قبلی';
+      btnNext.addEventListener('click', function (e) { e.stopPropagation(); onNext(); });
 
-      var btnNext = el('button', '', '‹');
-      btnNext.type = 'button';
-      btnNext.style.cssText = btnPrev.style.cssText;
-      btnNext.title = 'ماه قبل';
-
-      var title = el('span', '', JALALI_MONTHS[viewJm - 1] + ' ' + viewJy);
-      title.style.cssText = 'font-weight:700;color:var(--text);font-size:14px;';
-
-      // RTL: "next" visually is on the right (‹), previous is on the left (›)
-      btnPrev.addEventListener('click', function () {
-        event.stopPropagation();
-        viewJm++;
-        if (viewJm > 12) { viewJm = 1; viewJy++; }
-        render();
-      });
-      btnNext.addEventListener('click', function () {
-        event.stopPropagation();
-        viewJm--;
-        if (viewJm < 1) { viewJm = 12; viewJy--; }
-        render();
+      var titleEl = makeEl('button',
+        'background:none;border:none;cursor:pointer;font-weight:700;' +
+        'color:var(--text);font-size:14px;font-family:Vazirmatn,sans-serif;' +
+        'padding:2px 8px;border-radius:var(--radius);transition:background .12s;',
+        titleText
+      );
+      titleEl.type = 'button';
+      titleEl.addEventListener('mouseenter', function () { titleEl.style.background = 'var(--surface-2)'; });
+      titleEl.addEventListener('mouseleave', function () { titleEl.style.background = 'none'; });
+      titleEl.addEventListener('click', function (e) {
+        e.stopPropagation();
+        // Cycle: day → month → year → day
+        if (mode === 'day')   { mode = 'month'; render(); }
+        else if (mode === 'month') { mode = 'year';  render(); }
+        else                  { mode = 'day';   render(); }
       });
 
       header.appendChild(btnPrev);
-      header.appendChild(title);
+      header.appendChild(titleEl);
       header.appendChild(btnNext);
-      popup.appendChild(header);
+      return header;
+    }
 
-      // Weekday row
-      var wdRow = el('div');
-      wdRow.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);padding:6px 8px 2px;';
+    // ── Day view ──────────────────────────────────────────────────────────
+    function renderDayView() {
+      popup.innerHTML = '';
+
+      popup.appendChild(renderHeader(
+        JALALI_MONTHS[viewJm - 1] + ' ' + viewJy,
+        function () { viewJm++; if (viewJm > 12) { viewJm = 1; viewJy++; } render(); },
+        function () { viewJm--; if (viewJm < 1) { viewJm = 12; viewJy--; } render(); }
+      ));
+
+      // Weekday labels
+      var wdRow = makeEl('div', 'display:grid;grid-template-columns:repeat(7,1fr);padding:6px 8px 2px;');
       WEEKDAYS.forEach(function (wd) {
-        var d = el('div', '', wd);
-        d.style.cssText = 'text-align:center;font-size:11px;color:var(--text-dim);font-weight:600;padding:3px 0;';
-        wdRow.appendChild(d);
+        wdRow.appendChild(makeEl('div',
+          'text-align:center;font-size:11px;color:var(--text-dim);font-weight:600;padding:3px 0;', wd));
       });
       popup.appendChild(wdRow);
 
       // Days grid
-      var grid = el('div');
-      grid.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);padding:4px 8px 10px;gap:2px;';
-
-      var firstDow = firstDayOfWeek(viewJy, viewJm); // 0=Sat
+      var grid = makeEl('div', 'display:grid;grid-template-columns:repeat(7,1fr);padding:4px 8px 10px;gap:2px;');
+      var firstDow   = firstDayOfWeek(viewJy, viewJm);
       var daysInMonth = jalaaliDaysInMonth(viewJy, viewJm);
 
-      // Empty cells before first day
-      for (var e = 0; e < firstDow; e++) {
-        grid.appendChild(el('div'));
-      }
+      for (var e = 0; e < firstDow; e++) grid.appendChild(makeEl('div'));
 
       for (var d = 1; d <= daysInMonth; d++) {
         (function (day) {
-          var cell = el('button', '', '' + day);
-          cell.type = 'button';
           var isToday = (viewJy === today.jy && viewJm === today.jm && day === today.jd);
-          var isSelected = (selectedJy === viewJy && selectedJm === viewJm && selectedJd === day);
-          cell.style.cssText = [
-            'background:' + (isSelected ? 'var(--green)' : isToday ? 'var(--green-dim)' : 'none'),
-            'border:1px solid ' + (isSelected ? 'var(--green)' : isToday ? 'var(--green)' : 'transparent'),
-            'border-radius:var(--radius)',
-            'color:' + (isSelected ? '#0d1117' : isToday ? 'var(--green)' : 'var(--text)'),
-            'cursor:pointer',
-            'font-family:Vazirmatn,system-ui,sans-serif',
-            'font-size:12px',
-            'font-weight:' + (isSelected || isToday ? '700' : '400'),
-            'padding:5px 2px',
-            'text-align:center',
-            'transition:background .12s,color .12s',
-          ].join(';');
-
+          var isSel   = (selJy === viewJy && selJm === viewJm && selJd === day);
+          var cell = makeEl('button',
+            'background:' + (isSel ? 'var(--green)' : 'none') + ';' +
+            'border:1px solid ' + (isSel ? 'var(--green)' : isToday ? 'var(--green)' : 'transparent') + ';' +
+            'border-radius:var(--radius);' +
+            'color:' + (isSel ? '#0d1117' : isToday ? 'var(--green)' : 'var(--text)') + ';' +
+            'cursor:pointer;font-family:Vazirmatn,system-ui,sans-serif;font-size:12px;' +
+            'font-weight:' + (isSel || isToday ? '700' : '400') + ';' +
+            'padding:5px 2px;text-align:center;transition:background .12s,color .12s;',
+            String(day)
+          );
+          cell.type = 'button';
           cell.addEventListener('mouseenter', function () {
-            if (!isSelected) {
-              cell.style.background = 'var(--surface-2)';
-              cell.style.borderColor = 'var(--border)';
-            }
+            if (!isSel) { cell.style.background = 'var(--surface-2)'; cell.style.borderColor = 'var(--border)'; }
           });
           cell.addEventListener('mouseleave', function () {
-            if (!isSelected) {
-              cell.style.background = 'none';
-              cell.style.borderColor = 'transparent';
-            }
+            if (!isSel) { cell.style.background = 'none'; cell.style.borderColor = isToday ? 'var(--green)' : 'transparent'; }
           });
-
-          cell.addEventListener('click', function () {
-            selectedJy = viewJy; selectedJm = viewJm; selectedJd = day;
-            // Set visible input
-            inputEl.value = selectedJy + '/' + pad(selectedJm) + '/' + pad(selectedJd);
-            // Set hidden Gregorian input for Django
-            hiddenEl.value = toGregorianStr(selectedJy, selectedJm, selectedJd);
-            // Trigger change event so other JS can react
+          cell.addEventListener('click', function (e) {
+            e.stopPropagation();
+            selJy = viewJy; selJm = viewJm; selJd = day;
+            inputEl.value  = selJy + '/' + pad(selJm) + '/' + pad(selJd);
+            hiddenEl.value = toGregorianStr(selJy, selJm, selJd);
             hiddenEl.dispatchEvent(new Event('change'));
             closePopup();
           });
-
           grid.appendChild(cell);
         })(d);
       }
       popup.appendChild(grid);
 
-      // Today button
-      var footer = el('div');
-      footer.style.cssText = 'padding:8px 14px 10px;border-top:1px solid var(--border);display:flex;justify-content:center;';
-      var todayBtn = el('button', '', 'امروز');
+      // Footer — today button
+      var footer = makeEl('div', 'padding:8px 14px 10px;border-top:1px solid var(--border);display:flex;justify-content:center;');
+      var todayBtn = makeEl('button',
+        'background:none;border:1px solid var(--border);border-radius:var(--radius);' +
+        'color:var(--text-muted);cursor:pointer;padding:4px 16px;' +
+        'font-family:Vazirmatn,sans-serif;font-size:12px;transition:all .12s;',
+        'امروز'
+      );
       todayBtn.type = 'button';
-      todayBtn.style.cssText = 'background:none;border:1px solid var(--border);border-radius:var(--radius);color:var(--text-muted);cursor:pointer;padding:4px 16px;font-family:Vazirmatn,sans-serif;font-size:12px;transition:all .12s;';
-      todayBtn.addEventListener('mouseenter', function () {
-        todayBtn.style.borderColor = 'var(--green)';
-        todayBtn.style.color = 'var(--green)';
-      });
-      todayBtn.addEventListener('mouseleave', function () {
-        todayBtn.style.borderColor = 'var(--border)';
-        todayBtn.style.color = 'var(--text-muted)';
-      });
-      todayBtn.addEventListener('click', function () {
-        selectedJy = today.jy; selectedJm = today.jm; selectedJd = today.jd;
+      hoverGreen(todayBtn);
+      todayBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        selJy = today.jy; selJm = today.jm; selJd = today.jd;
         viewJy = today.jy; viewJm = today.jm;
-        inputEl.value = selectedJy + '/' + pad(selectedJm) + '/' + pad(selectedJd);
-        hiddenEl.value = toGregorianStr(selectedJy, selectedJm, selectedJd);
+        inputEl.value  = selJy + '/' + pad(selJm) + '/' + pad(selJd);
+        hiddenEl.value = toGregorianStr(selJy, selJm, selJd);
         hiddenEl.dispatchEvent(new Event('change'));
         closePopup();
       });
@@ -319,18 +272,123 @@
       popup.appendChild(footer);
     }
 
+    // ── Month view ────────────────────────────────────────────────────────
+    function renderMonthView() {
+      popup.innerHTML = '';
+
+      popup.appendChild(renderHeader(
+        String(viewJy),
+        function () { viewJy++; render(); },
+        function () { viewJy--; render(); }
+      ));
+
+      var grid = makeEl('div',
+        'display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:12px;'
+      );
+      JALALI_MONTHS.forEach(function (name, idx) {
+        var m = idx + 1;
+        var isCurrent = (viewJm === m && viewJy === today.jy) ||
+                        (selJm === m && selJy === viewJy);
+        var isSelMonth = (selJm === m && selJy === viewJy);
+        var cell = makeEl('button',
+          'background:' + (isSelMonth ? 'var(--green)' : 'none') + ';' +
+          'border:1px solid ' + (isSelMonth ? 'var(--green)' : isCurrent ? 'var(--green)' : 'var(--border)') + ';' +
+          'border-radius:var(--radius);' +
+          'color:' + (isSelMonth ? '#0d1117' : isCurrent ? 'var(--green)' : 'var(--text)') + ';' +
+          'cursor:pointer;font-family:Vazirmatn,sans-serif;font-size:12px;' +
+          'font-weight:' + (isSelMonth ? '700' : '400') + ';' +
+          'padding:8px 4px;text-align:center;transition:all .12s;',
+          name
+        );
+        cell.type = 'button';
+        cell.addEventListener('mouseenter', function () {
+          if (!isSelMonth) { cell.style.background = 'var(--surface-2)'; }
+        });
+        cell.addEventListener('mouseleave', function () {
+          if (!isSelMonth) { cell.style.background = 'none'; }
+        });
+        cell.addEventListener('click', function (e) {
+          e.stopPropagation();
+          viewJm = m;
+          mode = 'day';
+          render();
+        });
+        grid.appendChild(cell);
+      });
+      popup.appendChild(grid);
+    }
+
+    // ── Year view ─────────────────────────────────────────────────────────
+    // Show a range of 12 years centered around viewJy
+    var yearRangeStart = viewJy - 5;
+
+    function renderYearView() {
+      popup.innerHTML = '';
+
+      var rangeEnd = yearRangeStart + 11;
+      popup.appendChild(renderHeader(
+        yearRangeStart + ' – ' + rangeEnd,
+        function () { yearRangeStart += 12; render(); },
+        function () { yearRangeStart -= 12; render(); }
+      ));
+
+      var grid = makeEl('div',
+        'display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:12px;'
+      );
+      for (var y = yearRangeStart; y <= rangeEnd; y++) {
+        (function (year) {
+          var isSelYear = (selJy === year);
+          var isThisYear = (year === today.jy);
+          var cell = makeEl('button',
+            'background:' + (isSelYear ? 'var(--green)' : 'none') + ';' +
+            'border:1px solid ' + (isSelYear ? 'var(--green)' : isThisYear ? 'var(--green)' : 'var(--border)') + ';' +
+            'border-radius:var(--radius);' +
+            'color:' + (isSelYear ? '#0d1117' : isThisYear ? 'var(--green)' : 'var(--text)') + ';' +
+            'cursor:pointer;font-family:Vazirmatn,sans-serif;font-size:12px;' +
+            'font-weight:' + (isSelYear ? '700' : '400') + ';' +
+            'padding:8px 4px;text-align:center;transition:all .12s;',
+            String(year)
+          );
+          cell.type = 'button';
+          cell.addEventListener('mouseenter', function () {
+            if (!isSelYear) { cell.style.background = 'var(--surface-2)'; }
+          });
+          cell.addEventListener('mouseleave', function () {
+            if (!isSelYear) { cell.style.background = 'none'; }
+          });
+          cell.addEventListener('click', function (e) {
+            e.stopPropagation();
+            viewJy = year;
+            yearRangeStart = year - 5;
+            mode = 'month';
+            render();
+          });
+          grid.appendChild(cell);
+        })(y);
+      }
+      popup.appendChild(grid);
+    }
+
+    // ── Main render dispatcher ────────────────────────────────────────────
+    function render() {
+      if (mode === 'day')   renderDayView();
+      else if (mode === 'month') renderMonthView();
+      else                  renderYearView();
+    }
+
+    // ── Position & open/close ─────────────────────────────────────────────
     function positionPopup() {
       var rect = inputEl.getBoundingClientRect();
       var scrollY = window.scrollY || document.documentElement.scrollTop;
       var scrollX = window.scrollX || document.documentElement.scrollLeft;
       popup.style.top = (rect.bottom + scrollY + 4) + 'px';
-      // RTL: align popup to the right edge of the input
-      var rightEdge = window.innerWidth - rect.right + scrollX;
-      popup.style.right = rightEdge + 'px';
+      popup.style.right = (window.innerWidth - rect.right + scrollX) + 'px';
       popup.style.left = 'auto';
     }
 
     function openPopup() {
+      mode = 'day';
+      yearRangeStart = viewJy - 5;
       render();
       popup.style.display = 'block';
       positionPopup();
@@ -342,46 +400,31 @@
 
     inputEl.addEventListener('click', function (e) {
       e.stopPropagation();
-      if (popup.style.display === 'none') {
-        openPopup();
-      } else {
-        closePopup();
-      }
+      popup.style.display === 'none' ? openPopup() : closePopup();
     });
-
     inputEl.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') closePopup();
     });
-
-    // Close when clicking outside
     document.addEventListener('click', function (e) {
-      if (!popup.contains(e.target) && e.target !== inputEl) {
-        closePopup();
-      }
+      if (!popup.contains(e.target) && e.target !== inputEl) closePopup();
     });
-
-    // Reposition on scroll/resize
     window.addEventListener('resize', function () {
       if (popup.style.display !== 'none') positionPopup();
     });
   }
 
-  // ── Auto-init: find all inputs with data-jalali-picker ────────────────────
+  // ── Auto-init ─────────────────────────────────────────────────────────────
   function init() {
-    var inputs = document.querySelectorAll('[data-jalali-picker]');
-    inputs.forEach(function (input) {
+    document.querySelectorAll('[data-jalali-picker]').forEach(function (input) {
       var targetId = input.getAttribute('data-target');
-      if (!targetId) { console.warn('jalali-picker: missing data-target on', input); return; }
+      if (!targetId) return;
       var hiddenInput = document.getElementById(targetId);
-      if (!hiddenInput) { console.warn('jalali-picker: hidden input #' + targetId + ' not found'); return; }
+      if (!hiddenInput) return;
       createPicker(input, hiddenInput);
     });
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 
 })();

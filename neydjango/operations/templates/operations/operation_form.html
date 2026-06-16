@@ -95,10 +95,20 @@
               {% endfor %}
             </div>
             <div class="form-group">
-              <label for="{{ form.performed_at.id_for_label }}">
+              <label for="id_performed_at_jalali">
                 تاریخ <span style="color: var(--red);">*</span>
               </label>
-              {{ form.performed_at }}
+              <input type="text"
+                    id="id_performed_at_jalali"
+                    data-jalali-picker
+                    data-target="id_performed_at"
+                    placeholder="انتخاب تاریخ"
+                    autocomplete="off"
+                    readonly>
+              <input type="hidden"
+                    id="id_performed_at"
+                    name="performed_at"
+                    value="{{ form.performed_at.value|default:'' }}">
               {% for error in form.performed_at.errors %}
                 <span style="font-size: 11px; color: var(--red);">{{ error }}</span>
               {% endfor %}

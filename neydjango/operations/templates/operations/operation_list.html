@@ -1,4 +1,5 @@
 {% extends "greenhouse_app/base.html" %}
+{% load jalali_utils %}
 
 {% block title %}عملیات — {{ greenhouse.name }} — سیستم گلخانه{% endblock %}
 
@@ -131,11 +132,31 @@
       </div>
       <div class="form-group" style="margin-bottom: 0;">
         <label>از تاریخ</label>
-        <input type="date" name="from" value="{{ filter_from }}">
+        <input type="text"
+              id="filter_from_jalali"
+              data-jalali-picker
+              data-target="filter_from_hidden"
+              placeholder="انتخاب تاریخ"
+              autocomplete="off"
+              readonly>
+        <input type="hidden"
+              id="filter_from_hidden"
+              name="from"
+              value="{{ filter_from }}">
       </div>
       <div class="form-group" style="margin-bottom: 0;">
         <label>تا تاریخ</label>
-        <input type="date" name="to" value="{{ filter_to }}">
+        <input type="text"
+              id="filter_to_jalali"
+              data-jalali-picker
+              data-target="filter_to_hidden"
+              placeholder="انتخاب تاریخ"
+              autocomplete="off"
+              readonly>
+        <input type="hidden"
+              id="filter_to_hidden"
+              name="to"
+              value="{{ filter_to }}">
       </div>
       <button type="submit" class="btn btn-outline" style="height: 36px;">اعمال فیلتر</button>
       <a href="{% url 'operations:operation_list' greenhouse.id %}"
@@ -172,7 +193,7 @@
         <tr>
           <td style="white-space: nowrap;">
             <span style="font-size: 12px; color: var(--text-muted);">
-              {{ op.performed_at|date:"Y/m/d" }}
+              {{ op.performed_at|to_jalali }}
             </span>
           </td>
           <td>

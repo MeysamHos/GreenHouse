@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'financials.apps.FinancialsConfig',
     'reports.apps.ReportsConfig',
     'diagnosis.apps.DiagnosisConfig',
+    'django_jalali',
 ]
 
 
@@ -204,7 +205,7 @@ STORAGES = {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
 

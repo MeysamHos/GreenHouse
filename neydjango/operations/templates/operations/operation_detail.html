@@ -1,5 +1,5 @@
 {% extends "greenhouse_app/base.html" %}
-
+{% load jalali_utils %}
 {% block title %}{{ operation.get_operation_type_display }} — سیستم گلخانه{% endblock %}
 
 {% block sidebar_greenhouse_links %}
@@ -73,7 +73,7 @@
     </div>
     <div class="page-title">{{ operation.get_operation_type_display }}</div>
     <div class="page-subtitle">
-      {{ operation.performed_at|date:"Y/m/d" }}
+      {{ operation.performed_at|to_jalali }}
       · {{ operation.bed.house.name }} / {{ operation.bed.code }}
     </div>
   </div>
@@ -121,7 +121,7 @@
         <table style="width: 100%;">
           <tr>
             <td style="padding: 8px 0; color: var(--text-dim); font-size: 12px; width: 40%;">تاریخ</td>
-            <td style="padding: 8px 0; font-size: 13px;">{{ operation.performed_at|date:"Y/m/d" }}</td>
+            <td style="padding: 8px 0; font-size: 13px;">{{ operation.performed_at|to_jalali }}</td>
           </tr>
           <tr>
             <td style="padding: 8px 0; color: var(--text-dim); font-size: 12px;">بستر</td>
@@ -197,7 +197,7 @@
           <tr>
             <td style="padding: 8px 0; color: var(--text-dim); font-size: 12px;">زمان ثبت</td>
             <td style="padding: 8px 0; font-size: 12px; color: var(--text-muted);">
-              {{ operation.created_at|date:"Y/m/d H:i" }}
+              {{ operation.created_at|to_jalali }} {{ operation.created_at|time:"H:i" }}
             </td>
           </tr>
         </table>

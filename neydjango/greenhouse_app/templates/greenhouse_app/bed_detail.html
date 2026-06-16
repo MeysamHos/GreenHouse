@@ -1,4 +1,5 @@
 {% extends "greenhouse_app/base.html" %}
+{% load jalali_utils %}
 
 {% block title %}بستر {{ bed.code }} — سیستم گلخانه{% endblock %}
 
@@ -135,9 +136,9 @@
         {% endif %}
       </div>
       <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
-        کاشت {{ active_crop.planted_at|date:"Y/m/d" }}
+        کاشت {{ active_crop.planted_at|to_jalali }}
         {% if active_crop.expected_harvest_at %}
-          · برداشت تخمینی: {{ active_crop.expected_harvest_at|date:"Y/m/d" }}
+          · برداشت تخمینی: {{ active_crop.expected_harvest_at|to_jalali }}
         {% endif %}
         {% if active_crop.plant_count %}
           · {{ active_crop.plant_count }} بوته
@@ -211,12 +212,12 @@
         <tr>
           <td style="font-weight: 600;">{{ crop.crop_type }}</td>
           <td class="text-muted">{{ crop.variety|default:"—" }}</td>
-          <td class="text-muted">{{ crop.planted_at|date:"Y/m/d" }}</td>
+          <td class="text-muted">{{ crop.planted_at|to_jalali }}</td>
           <td class="text-muted">
             {% if crop.actual_harvest_at %}
-              {{ crop.actual_harvest_at|date:"Y/m/d" }}
+              {{ crop.actual_harvest_at|to_jalali }}
             {% elif crop.expected_harvest_at %}
-              <span class="text-amber">~ {{ crop.expected_harvest_at|date:"Y/m/d" }}</span>
+              <span class="text-amber">~ {{ crop.expected_harvest_at|to_jalali }}</span>
             {% else %}
               —
             {% endif %}

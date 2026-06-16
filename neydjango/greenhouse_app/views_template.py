@@ -205,6 +205,13 @@ def house_create(request, greenhouse_id):
             model = House
             fields = ['name', 'area_m2', 'notes']
 
+        def clean_name(self):
+            name = self.cleaned_data.get('name')
+            # Check if this greenhouse already has a house with this name
+            if name and House.objects.filter(greenhouse=greenhouse, name=name).exists():
+                raise forms.ValidationError("سالنی با این نام در این گلخانه قبلاً ثبت شده است، لطفاً نام دیگری انتخاب کنید.")
+            return name
+
     if request.method == 'POST':
         form = HouseForm(request.POST)
         if form.is_valid():
@@ -240,6 +247,13 @@ def house_edit(request, greenhouse_id, house_id):
             model = House
             fields = ['name', 'area_m2', 'notes']
 
+        def clean_name(self):
+            name = self.cleaned_data.get('name')
+            # Check for duplicates, excluding the current house instance being edited
+            if name and House.objects.filter(greenhouse=greenhouse, name=name).exclude(id=house.id).exists():
+                raise forms.ValidationError("سالنی با این نام در این گلخانه قبلاً ثبت شده است، لطفاً نام دیگری انتخاب کنید.")
+            return name
+
     if request.method == 'POST':
         form = HouseForm(request.POST, instance=house)
         if form.is_valid():
@@ -256,8 +270,8 @@ def house_edit(request, greenhouse_id, house_id):
         'submit_label': 'ذخیره تغییرات',
         'cancel_url': f'/greenhouse_app/greenhouses/{greenhouse.id}/houses/{house.id}/',
         'breadcrumbs': [
-            {'label': greenhouse.name, 'url': f'/greenhouses/{greenhouse.id}/'},
-            {'label': house.name, 'url': f'/greenhouses/{greenhouse.id}/houses/{house.id}/'},
+            {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
+            {'label': house.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/houses/{house.id}/'},
             {'label': 'ویرایش', 'url': None},
         ],
     })
@@ -291,6 +305,13 @@ def bed_create(request, greenhouse_id, house_id):
             model = Bed
             fields = ['code', 'area_m2', 'capacity', 'notes']
 
+        # Custom validation to check for duplicate bed names in this house
+        def clean_code(self):
+            code = self.cleaned_data.get('code')
+            if code and Bed.objects.filter(house=house, code=code).exists():
+                raise forms.ValidationError("بستری با این شناسه در این سالن قبلاً ثبت شده است، لطفاً نام دیگری انتخاب کنید.")
+            return code
+        
     if request.method == 'POST':
         form = BedForm(request.POST)
         if form.is_valid():
@@ -309,8 +330,8 @@ def bed_create(request, greenhouse_id, house_id):
         'submit_label': 'ایجاد بستر',
         'cancel_url': f'/greenhouse_app/greenhouses/{greenhouse.id}/houses/{house.id}/',
         'breadcrumbs': [
-            {'label': greenhouse.name, 'url': f'/greenhouses/{greenhouse.id}/'},
-            {'label': house.name, 'url': f'/greenhouses/{greenhouse.id}/houses/{house.id}/'},
+            {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
+            {'label': house.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/houses/{house.id}/'},
             {'label': 'افزودن بستر', 'url': None},
         ],
     })
@@ -328,6 +349,13 @@ def bed_edit(request, greenhouse_id, house_id, bed_id):
             model = Bed
             fields = ['code', 'area_m2', 'capacity', 'notes']
 
+        def clean_code(self):
+            code = self.cleaned_data.get('code')
+            # Check for duplicates, excluding the current bed instance being edited
+            if code and Bed.objects.filter(house=house, code=code).exclude(id=bed.id).exists():
+                raise forms.ValidationError("بستری با این شناسه در این سالن قبلاً ثبت شده است، لطفاً نام دیگری انتخاب کنید.")
+            return code
+
     if request.method == 'POST':
         form = BedForm(request.POST, instance=bed)
         if form.is_valid():
@@ -344,9 +372,9 @@ def bed_edit(request, greenhouse_id, house_id, bed_id):
         'submit_label': 'ذخیره تغییرات',
         'cancel_url': f'/greenhouse_app/greenhouses/{greenhouse.id}/houses/{house.id}/beds/{bed.id}/',
         'breadcrumbs': [
-            {'label': greenhouse.name, 'url': f'/greenhouses/{greenhouse.id}/'},
-            {'label': house.name, 'url': f'/greenhouses/{greenhouse.id}/houses/{house.id}/'},
-            {'label': bed.code, 'url': f'/greenhouses/{greenhouse.id}/houses/{house.id}/beds/{bed.id}/'},
+            {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
+            {'label': house.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/houses/{house.id}/'},
+            {'label': bed.code, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/houses/{house.id}/beds/{bed.id}/'},
             {'label': 'ویرایش', 'url': None},
         ],
     })
@@ -391,9 +419,9 @@ def crop_create(request, greenhouse_id, house_id, bed_id):
         'submit_label': 'شروع دوره کاشت',
         'cancel_url': f'/greenhouse_app/greenhouses/{greenhouse.id}/houses/{house.id}/beds/{bed.id}/',
         'breadcrumbs': [
-            {'label': greenhouse.name, 'url': f'/greenhouses/{greenhouse.id}/'},
-            {'label': house.name, 'url': f'/greenhouses/{greenhouse.id}/houses/{house.id}/'},
-            {'label': bed.code, 'url': f'/greenhouses/{greenhouse.id}/houses/{house.id}/beds/{bed.id}/'},
+            {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
+            {'label': house.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/houses/{house.id}/'},
+            {'label': bed.code, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/houses/{house.id}/beds/{bed.id}/'},
             {'label': 'محصول جدید', 'url': None},
         ],
     })
@@ -434,8 +462,8 @@ def crop_edit(request, greenhouse_id, house_id, bed_id, crop_id):
         'submit_label': 'دخیره تغییرات',
         'cancel_url': f'/greenhouse_app/greenhouses/{greenhouse.id}/houses/{house.id}/beds/{bed.id}/',
         'breadcrumbs': [
-            {'label': greenhouse.name, 'url': f'/greenhouses/{greenhouse.id}/'},
-            {'label': bed.code, 'url': f'/greenhouses/{greenhouse.id}/houses/{house.id}/beds/{bed.id}/'},
+            {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
+            {'label': bed.code, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/houses/{house.id}/beds/{bed.id}/'},
             {'label': 'ویرایش محصول', 'url': None},
         ],
     })
@@ -489,8 +517,8 @@ def member_add(request, greenhouse_id):
         'submit_label': 'افزودن عضو',
         'cancel_url': f'/greenhouse_app/greenhouses/{greenhouse.id}/members/',
         'breadcrumbs': [
-            {'label': greenhouse.name, 'url': f'/greenhouses/{greenhouse.id}/'},
-            {'label': 'عضوها', 'url': f'/greenhouses/{greenhouse.id}/members/'},
+            {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
+            {'label': 'عضوها', 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/members/'},
             {'label': 'افزودن', 'url': None},
         ],
     })
@@ -522,8 +550,8 @@ def member_edit(request, greenhouse_id, member_id):
         'submit_label': 'بروزرسانی نقش',
         'cancel_url': f'/greenhouse_app/greenhouses/{greenhouse.id}/members/',
         'breadcrumbs': [
-            {'label': greenhouse.name, 'url': f'/greenhouses/{greenhouse.id}/'},
-            {'label': 'عضوها', 'url': f'/greenhouses/{greenhouse.id}/members/'},
+            {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},
+            {'label': 'عضوها', 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/members/'},
             {'label': 'ویرایش نقش', 'url': None},
         ],
     })

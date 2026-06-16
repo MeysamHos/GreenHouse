@@ -50,5 +50,17 @@ urlpatterns = [
 
     path('register/', views_template.register_view, name='register'),
     path('profile/', views_template.profile_view, name='profile'),
+    
+    path('greenhouses/<int:greenhouse_id>/delete/', 
+         views_template.greenhouse_delete, name='greenhouse_delete'),
+
+    path('greenhouses/<int:greenhouse_id>/houses/<int:house_id>/delete/',
+          views_template.house_delete, name='house_delete'),
+
+    path('greenhouses/<int:greenhouse_id>/houses/<int:house_id>/beds/<int:bed_id>/delete/',
+          views_template.bed_delete, name='bed_delete'),
+
+    path('greenhouses/<int:greenhouse_id>/houses/<int:house_id>/beds/<int:bed_id>/crops/<int:crop_id>/delete/',
+          views_template.crop_delete, name='crop_delete'),
 
 ]

@@ -680,3 +680,157 @@ def profile_view(request):
         'user_role':      user_role,
         'password_error': password_error,
     })
+
+
+# ── Delete Views ──────────────────────────────────────────────────────────────
+# All deletes are POST-only and restricted to Owner and Manager roles.
+
+ALLOWED_DELETE_ROLES = (
+    GreenhouseMembership.Role.OWNER,
+    GreenhouseMembership.Role.MANAGER,
+)
+
+
+@require_POST
+@login_required
+def greenhouse_delete(request, greenhouse_id):
+    """
+    Soft-delete a greenhouse. Sets is_active=False — data is preserved.
+    Only the Owner or Manager of this greenhouse can do this.
+    Redirects to the greenhouse list after deletion.
+    """
+    greenhouse = get_object_or_404(
+        Greenhouse,
+        id=greenhouse_id,
+        memberships__user=request.user,
+    )
+
+    membership = get_object_or_404(
+        GreenhouseMembership,
+        greenhouse=greenhouse,
+        user=request.user,
+    )
+
+    if membership.role not in ALLOWED_DELETE_ROLES:
+        messages.error(request, 'فقط مالک یا مدیر گلخانه می‌تواند آن را حذف کند.')
+        return redirect('greenhouse_app:greenhouse_detail', greenhouse_id=greenhouse.id)
+
+    name = greenhouse.name
+    greenhouse.is_active = False
+    greenhouse.save()
+    greenhouse.delete()
+    messages.success(request, f'گلخانه "{name}" غیرفعال و حذف شد.')
+    return redirect('greenhouse_app:greenhouse_list')
+
+
+@require_POST
+@login_required
+def house_delete(request, greenhouse_id, house_id):
+    """
+    Hard-delete a house and all its beds and crops (cascade).
+    Only Owner or Manager of this greenhouse can do this.
+    Redirects to the greenhouse detail page.
+    """
+    greenhouse = get_object_or_404(
+        Greenhouse,
+        id=greenhouse_id,
+        memberships__user=request.user,
+    )
+
+    membership = get_object_or_404(
+        GreenhouseMembership,
+        greenhouse=greenhouse,
+        user=request.user,
+    )
+
+    if membership.role not in ALLOWED_DELETE_ROLES:
+        messages.error(request, 'فقط مالک یا مدیر گلخانه می‌تواند سالن را حذف کند.')
+        return redirect('greenhouse_app:greenhouse_detail', greenhouse_id=greenhouse.id)
+
+    house = get_object_or_404(House, id=house_id, greenhouse=greenhouse)
+    name = house.name
+    house.delete()
+    messages.success(request, f'سالن "{name}" و تمام بسترهای آن حذف شدند.')
+    return redirect('greenhouse_app:greenhouse_detail', greenhouse_id=greenhouse.id)
+
+
+@require_POST
+@login_required
+def bed_delete(request, greenhouse_id, house_id, bed_id):
+    """
+    Hard-delete a bed and all its crop cycles (cascade).
+    Only Owner or Manager of this greenhouse can do this.
+    Redirects to the house detail page.
+    """
+    greenhouse = get_object_or_404(
+        Greenhouse,
+        id=greenhouse_id,
+        memberships__user=request.user,
+    )
+
+    membership = get_object_or_404(
+        GreenhouseMembership,
+        greenhouse=greenhouse,
+        user=request.user,
+    )
+
+    if membership.role not in ALLOWED_DELETE_ROLES:
+        messages.error(request, 'فقط مالک یا مدیر گلخانه می‌تواند بستر را حذف کند.')
+        return redirect('greenhouse_app:house_detail',
+                        greenhouse_id=greenhouse.id, house_id=house_id)
+
+    house = get_object_or_404(House, id=house_id, greenhouse=greenhouse)
+    bed = get_object_or_404(Bed, id=bed_id, house=house)
+    code = bed.code
+    bed.delete()
+    messages.success(request, f'بستر "{code}" و تمام دوره‌های کاشت آن حذف شدند.')
+    return redirect('greenhouse_app:house_detail',
+                    greenhouse_id=greenhouse.id, house_id=house.id)
+
+
+@require_POST
+@login_required
+def crop_delete(request, greenhouse_id, house_id, bed_id, crop_id):
+    """
+    Hard-delete a crop cycle.
+    Blocked if this crop has any sales records linked to it — deleting
+    a crop with sales would break financial history.
+    Only Owner or Manager of this greenhouse can do this.
+    Redirects to the bed detail page.
+    """
+    greenhouse = get_object_or_404(
+        Greenhouse,
+        id=greenhouse_id,
+        memberships__user=request.user,
+    )
+
+    membership = get_object_or_404(
+        GreenhouseMembership,
+        greenhouse=greenhouse,
+        user=request.user,
+    )
+
+    if membership.role not in ALLOWED_DELETE_ROLES:
+        messages.error(request, 'فقط مالک یا مدیر گلخانه می‌تواند دوره کاشت را حذف کند.')
+        return redirect('greenhouse_app:bed_detail',
+                        greenhouse_id=greenhouse.id, house_id=house_id, bed_id=bed_id)
+
+    house = get_object_or_404(House, id=house_id, greenhouse=greenhouse)
+    bed = get_object_or_404(Bed, id=bed_id, house=house)
+    crop = get_object_or_404(Crop, id=crop_id, bed=bed)
+
+    # Guard: block deletion if sales records exist for this crop
+    if crop.sales.exists():
+        messages.error(
+            request,
+            f'دوره کاشت "{crop.crop_type}" دارای سوابق فروش است و نمی‌توان آن را حذف کرد. '
+            'ابتدا فروش‌های مرتبط را حذف یا ویرایش کنید.'
+        )
+        return redirect('greenhouse_app:bed_detail',
+                        greenhouse_id=greenhouse.id, house_id=house.id, bed_id=bed.id)
+
+    crop_name = f'{crop.crop_type} ({crop.variety})' if crop.variety else crop.crop_type
+    crop.delete()
+    messages.success(request, f'دوره کاشت "{crop_name}" حذف شد.')
+    return redirect('greenhouse_app:bed_detail',
+                    greenhouse_id=greenhouse.id, house_id=house.id, bed_id=bed.id)

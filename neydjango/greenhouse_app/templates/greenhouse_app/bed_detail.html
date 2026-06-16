@@ -99,6 +99,12 @@
     </a>
     <a href="{% url 'greenhouse_app:bed_edit' greenhouse.id house.id bed.id %}"
        class="btn btn-outline">ویرایش بستر</a>
+
+    <form method="post" action="{% url 'greenhouse_app:bed_delete' greenhouse.id house.id bed.id %}"
+          onsubmit="return confirm('بستر و تمام محصولات آن حذف خواهند شد. آیا مطمئنید؟')">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">حذف بستر</button>
+    </form>
   </div>
 </div>
 
@@ -247,8 +253,15 @@
             {% endwith %}
           </td>
           <td>
+            <div style="display: flex; gap: 4px;">
             <a href="{% url 'greenhouse_app:crop_edit' greenhouse.id house.id bed.id crop.id %}"
                class="btn btn-outline btn-sm">ویرایش</a>
+            <form method="post" action="{% url 'greenhouse_app:crop_delete' greenhouse.id house.id bed.id crop.id %}"
+                  onsubmit="return confirm('محصول حذف خواهد شد. آیا مطمئنید؟')">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm">حذف</button>
+            </form>
+            </div>
           </td>
         </tr>
         {% endfor %}

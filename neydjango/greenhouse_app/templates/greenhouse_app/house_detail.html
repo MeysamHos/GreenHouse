@@ -86,6 +86,11 @@
     <a href="{% url 'greenhouse_app:house_edit' greenhouse.id house.id %}" class="btn btn-outline">
       ویرایش
     </a>
+    <form method="post" action="{% url 'greenhouse_app:house_delete' greenhouse.id house.id %}"
+          onsubmit="return confirm('سالن و تمام بسترهای آن حذف خواهند شد. آیا مطمئنید؟')">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">حذف سالن</button>
+    </form>
   </div>
 </div>
 
@@ -152,6 +157,11 @@
                  class="btn btn-outline btn-sm">مشاهده</a>
               <a href="{% url 'greenhouse_app:crop_create' greenhouse.id house.id bed.id %}"
                  class="btn btn-outline btn-sm text-green">+ محصول</a>
+              <form method="post" action="{% url 'greenhouse_app:bed_delete' greenhouse.id house.id bed.id %}"
+                    onsubmit="return confirm('بستر و تمام محصول‌های آن حذف خواهند شد. آیا مطمئنید؟')">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger btn-sm">حذف</button>
+              </form>
             </div>
           </td>
         </tr>

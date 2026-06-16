@@ -96,6 +96,10 @@
       </svg>
       ویرایش
     </a>
+    <form method="post" action="{% url 'greenhouse_app:greenhouse_delete' greenhouse.id %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger" onclick="return confirm('این گلخانه بصورت کامل حذف خواهد شد. آیا مطمئنید؟')">حذف گلخانه</button>
+    </form>
   </div>
 </div>
 

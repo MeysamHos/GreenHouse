@@ -188,7 +188,7 @@
 
       // Header
       var header = el('div');
-      header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 14px 8px;border-bottom:1px solid var(--border);';
+      header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 14px 8px;border-bottom:1px solid var(--border); flex-direction:row-reverse;';
 
       var btnPrev = el('button', '', '›');
       btnPrev.type = 'button';
@@ -205,11 +205,13 @@
 
       // RTL: "next" visually is on the right (‹), previous is on the left (›)
       btnPrev.addEventListener('click', function () {
+        event.stopPropagation();
         viewJm++;
         if (viewJm > 12) { viewJm = 1; viewJy++; }
         render();
       });
       btnNext.addEventListener('click', function () {
+        event.stopPropagation();
         viewJm--;
         if (viewJm < 1) { viewJm = 12; viewJy--; }
         render();

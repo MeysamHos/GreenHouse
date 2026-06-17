@@ -269,7 +269,7 @@ def operation_edit(request, greenhouse_id, operation_id):
         form = OperationForm(request.POST, instance=operation, greenhouse=greenhouse)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Operation updated.')
+            messages.success(request, 'عملیات بروزرسانی شد.')
             return redirect(
                 'operations:operation_detail',
                 greenhouse_id=greenhouse.id,
@@ -306,7 +306,7 @@ def operation_delete(request, greenhouse_id, operation_id):
     )
     op_label = operation.get_operation_type_display()
     operation.delete()
-    messages.success(request, f'{op_label} operation deleted.')
+    messages.success(request, f'عملیات {op_label} حذف شد.')
     return redirect('operations:operation_list', greenhouse_id=greenhouse.id)
 
 

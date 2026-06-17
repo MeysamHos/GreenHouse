@@ -1,4 +1,5 @@
 {% extends "greenhouse_app/base.html" %}
+{% load jalali_utils humanize %}
 
 {% block title %}خلاصه سود و زیان — {{ greenhouse.name }} — سیستم گلخانه{% endblock %}
 
@@ -32,6 +33,13 @@
   </svg>
   مالی و سود/زیان
 </a>
+<a href="{% url 'diagnosis:diagnosis_list' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="11" cy="11" r="8"/>
+    <path d="M21 21l-4.35-4.35M11 8v6M8 11h6"/>
+  </svg>
+  تشخیص بیماری
+</a>
 <a href="{% url 'reports:index' greenhouse.id %}" class="sidebar-link active">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
@@ -61,7 +69,7 @@
       {% endfor %}
     </div>
     <div class="page-title">خلاصه سود و زیان</div>
-    <div class="page-subtitle">{{ date_from }} — {{ date_to }}</div>
+    <div class="page-subtitle">{{ date_from|to_jalali }} — {{ date_to|to_jalali }}</div>
   </div>
   <a href="{% url 'reports:index' greenhouse.id %}" class="btn btn-outline">← همه گزارش‌ها</a>
 </div>
@@ -72,11 +80,31 @@
     <form method="get" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
       <div class="form-group" style="margin-bottom: 0;">
         <label>از تاریخ</label>
-        <input type="date" name="from" value="{{ date_from|date:'Y-m-d' }}">
+        <input type="text"
+              id="pnl_from_jalali"
+              data-jalali-picker
+              data-target="pnl_from_hidden"
+              placeholder="انتخاب تاریخ"
+              autocomplete="off"
+              readonly>
+        <input type="hidden"
+              id="pnl_from_hidden"
+              name="from"
+              value="{{ date_from|date:'Y-m-d' }}">
       </div>
       <div class="form-group" style="margin-bottom: 0;">
         <label>تا تاریخ</label>
-        <input type="date" name="to" value="{{ date_to|date:'Y-m-d' }}">
+        <input type="text"
+              id="pnl_to_jalali"
+              data-jalali-picker
+              data-target="pnl_to_hidden"
+              placeholder="انتخاب تاریخ"
+              autocomplete="off"
+              readonly>
+        <input type="hidden"
+              id="pnl_to_hidden"
+              name="to"
+              value="{{ date_to|date:'Y-m-d' }}">
       </div>
       <button type="submit" class="btn btn-outline" style="height: 36px;">اعمال</button>
       <a href="{% url 'reports:pnl' greenhouse.id %}" class="btn btn-outline" style="height: 36px;">بازنشانی</a>
@@ -89,33 +117,33 @@
   <div class="stat-card animate-in">
     <div class="stat-label">سود خالص</div>
     <div class="stat-value {% if data.gross_profit >= 0 %}text-green{% else %}text-red{% endif %}" style="font-size: 20px;">
-      {{ data.gross_profit|floatformat:0 }}
+      {{ data.gross_profit|floatformat:0|intcomma }}
     </div>
     <div class="stat-sub">{{ data.profit_margin_pct }}٪ حاشیه سود</div>
   </div>
   <div class="stat-card animate-in">
     <div class="stat-label">درآمد فروش</div>
-    <div class="stat-value text-green" style="font-size: 20px;">{{ data.total_revenue|floatformat:0 }}</div>
+    <div class="stat-value text-green" style="font-size: 20px;">{{ data.total_revenue|floatformat:0|intcomma }}</div>
     <div class="stat-sub">{{ data.sales_count }} فاکتور فروش</div>
   </div>
   <div class="stat-card animate-in">
     <div class="stat-label">کل هزینه‌ها</div>
-    <div class="stat-value text-red" style="font-size: 20px;">{{ data.total_cost|floatformat:0 }}</div>
+    <div class="stat-value text-red" style="font-size: 20px;">{{ data.total_cost|floatformat:0|intcomma }}</div>
     <div class="stat-sub">همه منابع هزینه</div>
   </div>
   <div class="stat-card animate-in">
     <div class="stat-label">هزینه عملیات</div>
-    <div class="stat-value" style="font-size: 20px;">{{ data.cost_operations|floatformat:0 }}</div>
+    <div class="stat-value" style="font-size: 20px;">{{ data.cost_operations|floatformat:0|intcomma }}</div>
     <div class="stat-sub">فعالیت‌های مزرعه</div>
   </div>
   <div class="stat-card animate-in">
     <div class="stat-label">خرید نهاده</div>
-    <div class="stat-value" style="font-size: 20px;">{{ data.cost_purchases|floatformat:0 }}</div>
+    <div class="stat-value" style="font-size: 20px;">{{ data.cost_purchases|floatformat:0|intcomma }}</div>
     <div class="stat-sub">کود، سم، بذر</div>
   </div>
   <div class="stat-card animate-in">
     <div class="stat-label">هزینه سربار</div>
-    <div class="stat-value" style="font-size: 20px;">{{ data.cost_overhead|floatformat:0 }}</div>
+    <div class="stat-value" style="font-size: 20px;">{{ data.cost_overhead|floatformat:0|intcomma }}</div>
     <div class="stat-sub">اجاره، برق، نیروی کار</div>
   </div>
 </div>
@@ -132,7 +160,7 @@
           {% for row in data.expense_breakdown %}
           <tr>
             <td><span class="badge badge-muted">{{ row.category|capfirst }}</span></td>
-            <td style="font-weight: 600;" class="text-amber">{{ row.total|floatformat:0 }}</td>
+            <td style="font-weight: 600;" class="text-amber">{{ row.total|floatformat:0|intcomma }}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -154,7 +182,7 @@
           <tr>
             <td><span class="badge badge-muted">{{ row.operation_type|capfirst }}</span></td>
             <td class="text-muted" style="font-size: 12px;">{{ row.count }}</td>
-            <td style="font-weight: 600;" class="text-amber">{{ row.total_cost|floatformat:0 }}</td>
+            <td style="font-weight: 600;" class="text-amber">{{ row.total_cost|floatformat:0|intcomma }}</td>
           </tr>
           {% endfor %}
         </tbody>

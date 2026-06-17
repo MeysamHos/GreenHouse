@@ -1,4 +1,5 @@
 {% extends "greenhouse_app/base.html" %}
+{% load jalali_utils humanize %}
 
 {% block title %}مصرف انبار — {{ greenhouse.name }} — سیستم گلخانه{% endblock %}
 
@@ -31,6 +32,13 @@
     <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
   </svg>
   مالی و سود/زیان
+</a>
+<a href="{% url 'diagnosis:diagnosis_list' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="11" cy="11" r="8"/>
+    <path d="M21 21l-4.35-4.35M11 8v6M8 11h6"/>
+  </svg>
+  تشخیص بیماری
 </a>
 <a href="{% url 'reports:index' greenhouse.id %}" class="sidebar-link active">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -72,11 +80,31 @@
     <form method="get" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
       <div class="form-group" style="margin-bottom: 0;">
         <label>از تاریخ</label>
-        <input type="date" name="from" value="{{ date_from|date:'Y-m-d' }}">
+        <input type="text"
+              id="inv_from_jalali"
+              data-jalali-picker
+              data-target="inv_from_hidden"
+              placeholder="انتخاب تاریخ"
+              autocomplete="off"
+              readonly>
+        <input type="hidden"
+              id="inv_from_hidden"
+              name="from"
+              value="{{ date_from|date:'Y-m-d' }}">
       </div>
       <div class="form-group" style="margin-bottom: 0;">
         <label>تا تاریخ</label>
-        <input type="date" name="to" value="{{ date_to|date:'Y-m-d' }}">
+        <input type="text"
+              id="inv_to_jalali"
+              data-jalali-picker
+              data-target="inv_to_hidden"
+              placeholder="انتخاب تاریخ"
+              autocomplete="off"
+              readonly>
+        <input type="hidden"
+              id="inv_to_hidden"
+              name="to"
+              value="{{ date_to|date:'Y-m-d' }}">
       </div>
       <div class="form-group" style="margin-bottom: 0; min-width: 180px;">
         <label>دسته‌بندی</label>
@@ -102,7 +130,7 @@
   </div>
   <div class="stat-card animate-in">
     <div class="stat-label">جمع هزینه نهاده</div>
-    <div class="stat-value text-red" style="font-size: 20px;">{{ data.total_spend|floatformat:0 }}</div>
+    <div class="stat-value text-red" style="font-size: 20px;">{{ data.total_spend|floatformat:0|intcomma }}</div>
     <div class="stat-sub">خریدهای این بازه</div>
   </div>
 </div>
@@ -140,7 +168,7 @@
             {{ row.purchased_qty|floatformat:2 }}
             <span class="text-dim" style="font-size: 10px;"> {{ row.item.get_unit_display }}</span>
           </td>
-          <td style="font-weight: 600;" class="text-red">{{ row.purchased_cost|floatformat:0 }}</td>
+          <td style="font-weight: 600;" class="text-red">{{ row.purchased_cost|floatformat:0|intcomma }}</td>
           <td style="font-weight: 600;" class="text-amber">
             {{ row.consumed_qty|floatformat:2 }}
             <span class="text-dim" style="font-size: 10px;"> {{ row.item.get_unit_display }}</span>

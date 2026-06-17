@@ -1,4 +1,5 @@
 {% extends "greenhouse_app/base.html" %}
+{% load jalali_utils humanize %}
 
 {% block title %}چرخه کشت — {{ greenhouse.name }} — سیستم گلخانه{% endblock %}
 
@@ -31,6 +32,13 @@
     <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
   </svg>
   مالی و سود/زیان
+</a>
+<a href="{% url 'diagnosis:diagnosis_list' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="11" cy="11" r="8"/>
+    <path d="M21 21l-4.35-4.35M11 8v6M8 11h6"/>
+  </svg>
+  تشخیص بیماری
 </a>
 <a href="{% url 'reports:index' greenhouse.id %}" class="sidebar-link active">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -72,11 +80,31 @@
     <form method="get" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
       <div class="form-group" style="margin-bottom: 0;">
         <label>از تاریخ</label>
-        <input type="date" name="from" value="{{ date_from|date:'Y-m-d' }}">
+        <input type="text"
+              id="crops_from_jalali"
+              data-jalali-picker
+              data-target="crops_from_hidden"
+              placeholder="انتخاب تاریخ"
+              autocomplete="off"
+              readonly>
+        <input type="hidden"
+              id="crops_from_hidden"
+              name="from"
+              value="{{ date_from|date:'Y-m-d' }}">
       </div>
       <div class="form-group" style="margin-bottom: 0;">
         <label>تا تاریخ</label>
-        <input type="date" name="to" value="{{ date_to|date:'Y-m-d' }}">
+        <input type="text"
+              id="crops_to_jalali"
+              data-jalali-picker
+              data-target="crops_to_hidden"
+              placeholder="انتخاب تاریخ"
+              autocomplete="off"
+              readonly>
+        <input type="hidden"
+              id="crops_to_hidden"
+              name="to"
+              value="{{ date_to|date:'Y-m-d' }}">
       </div>
       <div class="form-group" style="margin-bottom: 0; min-width: 200px;">
         <label>محصول مشخص</label>
@@ -127,20 +155,20 @@
             {% else %}<span class="badge badge-amber">{{ row.crop.status }}</span>{% endif %}
           </td>
           <td class="text-muted" style="font-size: 12px; white-space: nowrap;">
-            {{ row.crop.planted_at|date:"Y/m/d"|default:"—" }}
+            {{ row.crop.planted_at|to_jalali|default:"—" }}
           </td>
           <td class="text-muted" style="font-size: 12px;">{{ row.op_count }}</td>
-          <td style="font-weight: 600;" class="text-amber">{{ row.op_cost|floatformat:0 }}</td>
+          <td style="font-weight: 600;" class="text-amber">{{ row.op_cost|floatformat:0|intcomma }}</td>
           <td style="font-weight: 600;" class="text-green">
             {% if row.harvest_kg %}{{ row.harvest_kg|floatformat:1 }}{% else %}—{% endif %}
           </td>
           <td class="text-muted" style="font-size: 12px;">
             {% if row.cost_per_kg %}{{ row.cost_per_kg|floatformat:1 }}{% else %}—{% endif %}
           </td>
-          <td style="font-weight: 600;" class="text-green">{{ row.revenue|floatformat:0 }}</td>
+          <td style="font-weight: 600;" class="text-green">{{ row.revenue|floatformat:0|intcomma }}</td>
           <td style="font-weight: 700;
                      color: {% if row.profit >= 0 %}var(--green){% else %}var(--red){% endif %};">
-            {{ row.profit|floatformat:0 }}
+            {{ row.profit|floatformat:0|intcomma }}
           </td>
           <td class="text-muted" style="font-size: 12px;">
             {% if row.revenue %}{{ row.margin_pct }}٪{% else %}—{% endif %}

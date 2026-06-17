@@ -1,5 +1,5 @@
 {% extends "greenhouse_app/base.html" %}
-{% load jalali_utils %}
+{% load jalali_utils humanize %}
 
 {% block title %}فروش‌ها — {{ greenhouse.name }} — سیستم گلخانه{% endblock %}
 
@@ -129,7 +129,7 @@
             {% endif %}
           </td>
           <td style="font-weight: 600;" class="text-green">{{ sale.quantity_kg }}</td>
-          <td class="text-muted" style="font-size: 12px;">{{ sale.price_per_kg }}</td>
+          <td class="text-muted" style="font-size: 12px;">{{ sale.price_per_kg|floatformat:0|intcomma }}</td>
           <td>
             {% if sale.payment_status == 'paid' %}<span class="badge badge-green">پرداخت شده</span>
             {% elif sale.payment_status == 'overdue' %}<span class="badge badge-red">معوق</span>
@@ -139,7 +139,16 @@
           </td>
           <td class="text-dim" style="font-size: 11px;">{{ sale.invoice_number|default:"—" }}</td>
           <td>
+            <div style="display: flex; gap: 4px;">
             <a href="{% url 'financials:sale_edit' greenhouse.id sale.id %}" class="btn btn-outline btn-sm">ویرایش</a>
+            <form method="post" action="{% url 'financials:sale_delete' greenhouse.id sale.id %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm"
+                      onclick="return confirm('آیا از حذف این فروش اطمینان دارید؟')">
+                حذف
+              </button>
+            </form>
+            </div>
           </td>
         </tr>
         {% endfor %}

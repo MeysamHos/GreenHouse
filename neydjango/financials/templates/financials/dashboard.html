@@ -1,5 +1,5 @@
 {% extends "greenhouse_app/base.html" %}
-{% load jalali_utils %}
+{% load jalali_utils humanize %}
 
 {% block title %}مالی — {{ greenhouse.name }} — سیستم گلخانه{% endblock %}
 
@@ -142,33 +142,33 @@
   <div class="stat-card animate-in">
     <div class="stat-label">سود خالص</div>
     <div class="stat-value {% if pnl.gross_profit >= 0 %}text-green{% else %}text-red{% endif %}" style="font-size: 20px;">
-      {{ pnl.gross_profit|floatformat:0 }}
+      {{ pnl.gross_profit|floatformat:0|intcomma }}
     </div>
     <div class="stat-sub">{{ pnl.profit_margin_pct }}٪ حاشیه سود</div>
   </div>
   <div class="stat-card animate-in">
     <div class="stat-label">درآمد فروش</div>
-    <div class="stat-value text-green" style="font-size: 20px;">{{ pnl.total_revenue|floatformat:0 }}</div>
+    <div class="stat-value text-green" style="font-size: 20px;">{{ pnl.total_revenue|floatformat:0|intcomma }}</div>
     <div class="stat-sub">{{ pnl.sales_count }} فاکتور فروش</div>
   </div>
   <div class="stat-card animate-in">
     <div class="stat-label">کل هزینه‌ها</div>
-    <div class="stat-value text-red" style="font-size: 20px;">{{ pnl.total_cost|floatformat:0 }}</div>
+    <div class="stat-value text-red" style="font-size: 20px;">{{ pnl.total_cost|floatformat:0|intcomma }}</div>
     <div class="stat-sub">همه منابع هزینه</div>
   </div>
   <div class="stat-card animate-in">
     <div class="stat-label">هزینه عملیات</div>
-    <div class="stat-value" style="font-size: 20px;">{{ pnl.cost_operations|floatformat:0 }}</div>
+    <div class="stat-value" style="font-size: 20px;">{{ pnl.cost_operations|floatformat:0|intcomma }}</div>
     <div class="stat-sub">فعالیت‌های مزرعه</div>
   </div>
   <div class="stat-card animate-in">
     <div class="stat-label">خرید نهاده</div>
-    <div class="stat-value" style="font-size: 20px;">{{ pnl.cost_purchases|floatformat:0 }}</div>
+    <div class="stat-value" style="font-size: 20px;">{{ pnl.cost_purchases|floatformat:0|intcomma }}</div>
     <div class="stat-sub">کود، سم، بذر</div>
   </div>
   <div class="stat-card animate-in">
     <div class="stat-label">هزینه سربار</div>
-    <div class="stat-value" style="font-size: 20px;">{{ pnl.cost_expenses|floatformat:0 }}</div>
+    <div class="stat-value" style="font-size: 20px;">{{ pnl.cost_expenses|floatformat:0|intcomma }}</div>
     <div class="stat-sub">اجاره، برق، نیروی کار</div>
   </div>
 </div>
@@ -189,7 +189,7 @@
           <tr>
             <td style="font-weight: 600;">{{ row.crop__crop_type|default:"—" }}</td>
             <td class="text-muted" style="font-size: 12px;">{{ row.crop__variety|default:"—" }}</td>
-            <td style="font-weight: 600;" class="text-green">{{ row.revenue|floatformat:0 }}</td>
+            <td style="font-weight: 600;" class="text-green">{{ row.revenue|floatformat:0|intcomma }}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -213,7 +213,7 @@
           {% for row in pnl.expense_breakdown %}
           <tr>
             <td><span class="badge badge-muted">{{ row.category|capfirst }}</span></td>
-            <td style="font-weight: 600;" class="text-amber">{{ row.total|floatformat:0 }}</td>
+            <td style="font-weight: 600;" class="text-amber">{{ row.total|floatformat:0|intcomma }}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -245,7 +245,7 @@
           <td class="text-muted" style="font-size: 12px;">{{ sale.crop.crop_type|default:"—" }}</td>
           <td>{{ sale.buyer_name }}</td>
           <td style="font-weight: 600;" class="text-green">{{ sale.quantity_kg }}</td>
-          <td class="text-muted" style="font-size: 12px;">{{ sale.price_per_kg }}</td>
+          <td class="text-muted" style="font-size: 12px;">{{ sale.price_per_kg|floatformat:0|intcomma }}</td>
           <td>
             {% if sale.payment_status == 'paid' %}<span class="badge badge-green">پرداخت شده</span>
             {% elif sale.payment_status == 'overdue' %}<span class="badge badge-red">معوق</span>
@@ -293,7 +293,7 @@
           <td><span class="badge badge-muted">{{ exp.get_category_display }}</span></td>
           <td style="font-weight: 600;">{{ exp.description }}</td>
           <td class="text-muted" style="font-size: 12px;">{{ exp.vendor_name|default:"—" }}</td>
-          <td style="font-weight: 600;" class="text-amber">{{ exp.amount|floatformat:0 }}</td>
+          <td style="font-weight: 600;" class="text-amber">{{ exp.amount|floatformat:0|intcomma }}</td>
           <td><a href="{% url 'financials:expense_edit' greenhouse.id exp.id %}" class="btn btn-outline btn-sm">ویرایش</a></td>
         </tr>
         {% endfor %}

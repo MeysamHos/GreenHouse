@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'reports.apps.ReportsConfig',
     'diagnosis.apps.DiagnosisConfig',
     'django_jalali',
+    'django.contrib.humanize',
 ]
 
 

@@ -1,5 +1,5 @@
 {% extends "greenhouse_app/base.html" %}
-{% load jalali_utils %}
+{% load jalali_utils humanize %}
 
 {% block title %}هزینه‌ها — {{ greenhouse.name }} — سیستم گلخانه{% endblock %}
 
@@ -123,10 +123,19 @@
           <td style="font-weight: 600;">{{ exp.description }}</td>
           <td class="text-muted" style="font-size: 12px;">{{ exp.vendor_name|default:"—" }}</td>
           <td class="text-muted" style="font-size: 12px;">{{ exp.house.name|default:"—" }}</td>
-          <td style="font-weight: 600;" class="text-amber">{{ exp.amount|floatformat:0 }}</td>
+          <td style="font-weight: 600;" class="text-amber">{{ exp.amount|floatformat:0|intcomma }}</td>
           <td class="text-dim" style="font-size: 11px;">{{ exp.invoice_number|default:"—" }}</td>
           <td>
+            <div style="display: flex; gap: 4px;">
             <a href="{% url 'financials:expense_edit' greenhouse.id exp.id %}" class="btn btn-outline btn-sm">ویرایش</a>
+            <form method="post" action="{% url 'financials:expense_delete' greenhouse.id exp.id %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm"
+                      onclick="return confirm('آیا از حذف این هزینه اطمینان دارید؟')">
+                حذف
+              </button>
+            </form>
+            </div>
           </td>
         </tr>
         {% endfor %}

@@ -1,4 +1,5 @@
 {% extends "greenhouse_app/base.html" %}
+{% load jalali_utils %}
 
 {% block title %}هزینه‌ها — {{ greenhouse.name }} — سیستم گلخانه{% endblock %}
 
@@ -116,7 +117,7 @@
         {% for exp in expenses %}
         <tr>
           <td style="font-size: 12px; color: var(--text-muted); white-space: nowrap;">
-            {{ exp.expense_date|date:"Y/m/d" }}
+            {{ exp.expense_date|to_jalali }}
           </td>
           <td><span class="badge badge-muted">{{ exp.get_category_display }}</span></td>
           <td style="font-weight: 600;">{{ exp.description }}</td>

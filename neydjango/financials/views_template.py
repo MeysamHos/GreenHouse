@@ -186,7 +186,7 @@ class SaleForm(forms.ModelForm):
             'amount_paid', 'invoice_number', 'sold_at', 'notes',
         ]
         widgets = {
-            'sold_at': forms.DateInput(attrs={'type': 'date'}),
+            'sold_at': forms.HiddenInput(),
             'notes': forms.Textarea(attrs={'rows': 3}),
         }
 
@@ -237,7 +237,7 @@ def sale_create(request, greenhouse_id):
             sale.greenhouse = greenhouse
             sale.recorded_by = request.user
             sale.save()
-            messages.success(request, 'Sale recorded.')
+            messages.success(request, 'فروش ثبت شد.')
             return redirect('financials:sale_list', greenhouse_id=greenhouse.id)
     else:
         form = SaleForm(greenhouse=greenhouse, initial={'sold_at': date.today()})
@@ -266,7 +266,7 @@ def sale_edit(request, greenhouse_id, sale_id):
         form = SaleForm(request.POST, instance=sale, greenhouse=greenhouse)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Sale updated.')
+            messages.success(request, 'فروش بروزرسانی شد.')
             return redirect('financials:sale_list', greenhouse_id=greenhouse.id)
     else:
         form = SaleForm(instance=sale, greenhouse=greenhouse)
@@ -292,7 +292,7 @@ def sale_delete(request, greenhouse_id, sale_id):
     greenhouse = _get_greenhouse(request, greenhouse_id)
     sale = get_object_or_404(Sale, id=sale_id, greenhouse=greenhouse)
     sale.delete()
-    messages.success(request, 'Sale deleted.')
+    messages.success(request, 'فروش حذف شد.')
     return redirect('financials:sale_list', greenhouse_id=greenhouse.id)
 
 
@@ -306,7 +306,7 @@ class ExpenseForm(forms.ModelForm):
             'expense_date', 'invoice_number', 'vendor_name', 'notes',
         ]
         widgets = {
-            'expense_date': forms.DateInput(attrs={'type': 'date'}),
+            'expense_date': forms.HiddenInput(),
             'notes': forms.Textarea(attrs={'rows': 3}),
         }
 
@@ -350,7 +350,7 @@ def expense_create(request, greenhouse_id):
             expense.greenhouse = greenhouse
             expense.recorded_by = request.user
             expense.save()
-            messages.success(request, 'Expense recorded.')
+            messages.success(request, 'هزینه ثبت شد.')
             return redirect('financials:expense_list', greenhouse_id=greenhouse.id)
     else:
         form = ExpenseForm(greenhouse=greenhouse, initial={'expense_date': date.today()})
@@ -379,7 +379,7 @@ def expense_edit(request, greenhouse_id, expense_id):
         form = ExpenseForm(request.POST, instance=expense, greenhouse=greenhouse)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Expense updated.')
+            messages.success(request, 'هزینه بروزرسانی شد.')
             return redirect('financials:expense_list', greenhouse_id=greenhouse.id)
     else:
         form = ExpenseForm(instance=expense, greenhouse=greenhouse)
@@ -405,5 +405,5 @@ def expense_delete(request, greenhouse_id, expense_id):
     greenhouse = _get_greenhouse(request, greenhouse_id)
     expense = get_object_or_404(Expense, id=expense_id, greenhouse=greenhouse)
     expense.delete()
-    messages.success(request, 'Expense deleted.')
+    messages.success(request, 'هزینه حذف شد.')
     return redirect('financials:expense_list', greenhouse_id=greenhouse.id)

@@ -84,19 +84,42 @@
         {% endif %}
 
         {% for field in form %}
-          <div class="form-group">
-            <label for="{{ field.id_for_label }}">
-              {{ field.label }}
-              {% if field.field.required %}<span style="color: var(--red);">*</span>{% endif %}
-            </label>
-            {{ field }}
-            {% if field.help_text %}
-              <span class="form-hint">{{ field.help_text }}</span>
-            {% endif %}
-            {% for error in field.errors %}
-              <span style="font-size: 11px; color: var(--red);">{{ error }}</span>
-            {% endfor %}
-          </div>
+          {% if field.is_hidden %}
+            <div class="form-group">
+              <label for="{{ field.id_for_label }}_jalali">
+                {{ field.label }}
+                {% if field.field.required %}<span style="color: var(--red);">*</span>{% endif %}
+              </label>
+              <input type="text"
+                    id="{{ field.id_for_label }}_jalali"
+                    data-jalali-picker
+                    data-target="{{ field.id_for_label }}"
+                    placeholder="انتخاب تاریخ"
+                    autocomplete="off"
+                    readonly>
+              {{ field }}
+              {% if field.help_text %}
+                <span class="form-hint">{{ field.help_text }}</span>
+              {% endif %}
+              {% for error in field.errors %}
+                <span style="font-size: 11px; color: var(--red);">{{ error }}</span>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="form-group">
+              <label for="{{ field.id_for_label }}">
+                {{ field.label }}
+                {% if field.field.required %}<span style="color: var(--red);">*</span>{% endif %}
+              </label>
+              {{ field }}
+              {% if field.help_text %}
+                <span class="form-hint">{{ field.help_text }}</span>
+              {% endif %}
+              {% for error in field.errors %}
+                <span style="font-size: 11px; color: var(--red);">{{ error }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
         {% endfor %}
 
         <div class="form-actions">

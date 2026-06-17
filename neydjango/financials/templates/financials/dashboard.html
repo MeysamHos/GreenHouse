@@ -1,4 +1,5 @@
 {% extends "greenhouse_app/base.html" %}
+{% load jalali_utils %}
 
 {% block title %}مالی — {{ greenhouse.name }} — سیستم گلخانه{% endblock %}
 
@@ -69,7 +70,7 @@
       <span>مالی</span>
     </div>
     <div class="page-title">مالی و سود/زیان</div>
-    <div class="page-subtitle">{{ date_from }} تا {{ date_to }}</div>
+    <div class="page-subtitle">{{ date_from|to_jalali }} تا {{ date_to|to_jalali }}</div>
   </div>
   <div style="display: flex; gap: 8px; flex-wrap: wrap;">
     <a href="{% url 'financials:sale_create' greenhouse.id %}" class="btn btn-primary">
@@ -93,11 +94,31 @@
     <form method="get" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
       <div class="form-group" style="margin-bottom: 0;">
         <label>از تاریخ</label>
-        <input type="date" name="from" value="{{ date_from|date:'Y-m-d' }}">
+        <input type="text"
+              id="fin_from_jalali"
+              data-jalali-picker
+              data-target="fin_from_hidden"
+              placeholder="انتخاب تاریخ"
+              autocomplete="off"
+              readonly>
+        <input type="hidden"
+              id="fin_from_hidden"
+              name="from"
+              value="{{ date_from|date:'Y-m-d' }}">
       </div>
       <div class="form-group" style="margin-bottom: 0;">
         <label>تا تاریخ</label>
-        <input type="date" name="to" value="{{ date_to|date:'Y-m-d' }}">
+        <input type="text"
+              id="fin_to_jalali"
+              data-jalali-picker
+              data-target="fin_to_hidden"
+              placeholder="انتخاب تاریخ"
+              autocomplete="off"
+              readonly>
+        <input type="hidden"
+              id="fin_to_hidden"
+              name="to"
+              value="{{ date_to|date:'Y-m-d' }}">
       </div>
       <div class="form-group" style="margin-bottom: 0; min-width: 180px;">
         <label>محصول (اختیاری)</label>
@@ -219,7 +240,7 @@
       <tbody>
         {% for sale in recent_sales %}
         <tr>
-          <td style="font-size: 12px; color: var(--text-muted); white-space: nowrap;">{{ sale.sold_at|date:"Y/m/d" }}</td>
+          <td style="font-size: 12px; color: var(--text-muted); white-space: nowrap;">{{ sale.sold_at|to_jalali }}</td>
           <td style="font-weight: 600;">{{ sale.product_name }}</td>
           <td class="text-muted" style="font-size: 12px;">{{ sale.crop.crop_type|default:"—" }}</td>
           <td>{{ sale.buyer_name }}</td>
@@ -268,7 +289,7 @@
       <tbody>
         {% for exp in recent_expenses %}
         <tr>
-          <td style="font-size: 12px; color: var(--text-muted); white-space: nowrap;">{{ exp.expense_date|date:"Y/m/d" }}</td>
+          <td style="font-size: 12px; color: var(--text-muted); white-space: nowrap;">{{ exp.expense_date|to_jalali }}</td>
           <td><span class="badge badge-muted">{{ exp.get_category_display }}</span></td>
           <td style="font-weight: 600;">{{ exp.description }}</td>
           <td class="text-muted" style="font-size: 12px;">{{ exp.vendor_name|default:"—" }}</td>

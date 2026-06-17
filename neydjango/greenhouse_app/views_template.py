@@ -395,8 +395,8 @@ def crop_create(request, greenhouse_id, house_id, bed_id):
             fields = ['crop_type', 'variety', 'planted_at', 'expected_harvest_at',
                       'status', 'plant_count', 'notes']
             widgets = {
-                'planted_at': forms.DateInput(attrs={'type': 'date'}),
-                'expected_harvest_at': forms.DateInput(attrs={'type': 'date'}),
+                'planted_at': forms.HiddenInput(),
+                'expected_harvest_at': forms.HiddenInput(),
             }
 
     if request.method == 'POST':
@@ -441,16 +441,16 @@ def crop_edit(request, greenhouse_id, house_id, bed_id, crop_id):
             fields = ['crop_type', 'variety', 'planted_at', 'expected_harvest_at',
                       'actual_harvest_at', 'status', 'plant_count', 'notes']
             widgets = {
-                'planted_at': forms.DateInput(attrs={'type': 'date'}),
-                'expected_harvest_at': forms.DateInput(attrs={'type': 'date'}),
-                'actual_harvest_at': forms.DateInput(attrs={'type': 'date'}),
+                'planted_at': forms.HiddenInput(),
+                'expected_harvest_at': forms.HiddenInput(),
+                'actual_harvest_at': forms.HiddenInput(),
             }
 
     if request.method == 'POST':
         form = CropForm(request.POST, instance=crop)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Crop cycle updated.')
+            messages.success(request, 'دوره کاشت بروزرسانی شد.')
             return redirect('greenhouse_app:bed_detail',
                             greenhouse_id=greenhouse.id, house_id=house.id, bed_id=bed.id)
     else:

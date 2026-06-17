@@ -158,10 +158,10 @@ class Crop(models.Model):
     """
 
     class Status(models.TextChoices):
-        PLANNED   = 'planned',   'Planned'
-        GROWING   = 'growing',   'Growing'
-        HARVESTED = 'harvested', 'Harvested'
-        FAILED    = 'failed',    'Failed'
+        PLANNED   = 'planned',   'برنامه‌ریزی شده'
+        GROWING   = 'growing',   'در حال رشد'
+        HARVESTED = 'harvested', 'برداشت شده'
+        FAILED    = 'failed',    'ناموفق'
 
     bed = models.ForeignKey(
         Bed,

@@ -61,7 +61,7 @@
 {% block content %}
 
 <a href="{% url 'auditlog:audit_log_list' greenhouse.id %}" class="back-link">
-  ← Back to Activity Log
+  ← بازگشت به لاگ فعالیت‌ها
 </a>
 
 <!-- Meta cards -->
@@ -74,9 +74,9 @@
 
   <div class="meta-item">
     <div class="meta-label">چه کسی</div>
-    <div class="meta-value">{{ entry.username_snapshot|default:"Unknown" }}</div>
+    <div class="meta-value">{{ entry.username_snapshot|default:"نامشخص" }}</div>
     {% if entry.user %}
-      <div class="meta-sub">User #{{ entry.user.id }}</div>
+      <div class="meta-sub">کاربر #{{ entry.user.id }}</div>
     {% endif %}
   </div>
 
@@ -96,7 +96,7 @@
   <div class="meta-item">
     <div class="meta-label">نوع رکورد</div>
     <div class="meta-value" style="font-family:monospace;font-size:.9rem;">{{ entry.entity_type }}</div>
-    <div class="meta-sub">ID #{{ entry.entity_id }}</div>
+    <div class="meta-sub">شناسه #{{ entry.entity_id }}</div>
   </div>
 
   <div class="meta-item">
@@ -113,13 +113,13 @@
 <!-- Record label -->
 <div class="record-info">
   <div class="record-info-title">توضیحات رکورد هنگام انجام عملیات</div>
-  <div class="record-info-label">{{ entry.entity_label|default:"(no description)" }}</div>
+  <div class="record-info-label">{{ entry.entity_label|default:"(بدون توضیح)" }}</div>
   <div class="record-info-id">{{ entry.entity_type }} #{{ entry.entity_id }}</div>
 </div>
 
 <!-- Diff section -->
 {% if is_update %}
-  <div class="section-heading">چه چیز تغییر کرده است</div>
+  <div class="section-heading">چه چیزی تغییر کرده است</div>
   <div class="card" style="padding:0;overflow:hidden;">
     {% if diff_rows %}
     <table class="diff-table">
@@ -136,14 +136,18 @@
           <td class="field-name">{{ row.field }}</td>
           <td>
             {% if row.before is None %}
-              <span class="val-null">null</span>
+              <span class="val-null">خالی</span>
+            {% elif row.is_date %}
+              <span class="val-before">{{ row.before|to_jalali }}</span>
             {% else %}
               <span class="val-before">{{ row.before }}</span>
             {% endif %}
           </td>
           <td>
             {% if row.after is None %}
-              <span class="val-null">null</span>
+              <span class="val-null">خالی</span>
+            {% elif row.is_date %}
+              <span class="val-after">{{ row.after|to_jalali }}</span>
             {% else %}
               <span class="val-after">{{ row.after }}</span>
             {% endif %}
@@ -153,15 +157,14 @@
       </tbody>
     </table>
     {% else %}
-      <p style="padding:1.5rem;color:var(--text-muted);font-size:.875rem;">No field-level diff available.</p>
+      <p style="padding:1.5rem;color:var(--text-muted);font-size:.875rem;">اطلاعات تغییرات در دسترس نیست.</p>
     {% endif %}
   </div>
 
 {% else %}
-
   <!-- CREATE or DELETE — show snapshot -->
   <div class="section-heading">
-    {% if entry.action == 'create' %}مقدار رکورد هنگام ایجاد{% else %}Record values before deletion{% endif %}
+    {% if entry.action == 'create' %}مقدار رکورد هنگام ایجاد{% else %}مقدار رکورد قبل از حذف{% endif %}
   </div>
   <div class="card" style="padding:0;overflow:hidden;">
     {% if diff_rows %}
@@ -178,7 +181,9 @@
           <td class="field-col">{{ row.field }}</td>
           <td>
             {% if row.value is None %}
-              <span class="val-null">null</span>
+              <span class="val-null">خالی</span>
+            {% elif row.is_date %}
+              {{ row.value|to_jalali }}
             {% else %}
               {{ row.value }}
             {% endif %}
@@ -188,7 +193,7 @@
       </tbody>
     </table>
     {% else %}
-      <p style="padding:1.5rem;color:var(--text-muted);font-size:.875rem;">No snapshot data available.</p>
+      <p style="padding:1.5rem;color:var(--text-muted);font-size:.875rem;">اطلاعات اسنپ‌شات در دسترس نیست.</p>
     {% endif %}
   </div>
 {% endif %}

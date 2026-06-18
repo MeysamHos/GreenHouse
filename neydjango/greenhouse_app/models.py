@@ -158,7 +158,7 @@ class Crop(models.Model):
     """
 
     class Status(models.TextChoices):
-        PLANNED   = 'planned',   'برنامه‌ریزی شده'
+        PLANNED   = 'planned',   'کاشته شده'
         GROWING   = 'growing',   'در حال رشد'
         HARVESTED = 'harvested', 'برداشت شده'
         FAILED    = 'failed',    'ناموفق'

@@ -1,0 +1,251 @@
+{% extends "greenhouse_app/base.html" %}
+{% load jalali_utils humanize %}
+
+{% block title %}گزارش فعالیت — {{ greenhouse.name }}{% endblock %}
+
+{% block sidebar_greenhouse_links %}
+<div class="sidebar-divider"></div>
+<span class="sidebar-label">{{ greenhouse.name|truncatechars:22 }}</span>
+<a href="{% url 'greenhouse_app:greenhouse_detail' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+  </svg>
+  نمای کلی
+</a>
+<a href="{% url 'operations:operation_list' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+    <rect x="9" y="3" width="6" height="4" rx="1"/>
+  </svg>
+  عملیات
+</a>
+<a href="{% url 'inventory:inventory_list' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
+    <path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/>
+  </svg>
+  انبار و موجودی
+</a>
+<a href="{% url 'financials:dashboard' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <line x1="12" y1="1" x2="12" y2="23"/>
+    <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+  </svg>
+  مالی و سود/زیان
+</a>
+<a href="{% url 'diagnosis:diagnosis_list' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="11" cy="11" r="8"/>
+    <path d="M21 21l-4.35-4.35M11 8v6M8 11h6"/>
+  </svg>
+  تشخیص بیماری
+</a>
+<a href="{% url 'reports:index' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+    <polyline points="14 2 14 8 20 8"/>
+    <line x1="16" y1="13" x2="8" y2="13"/>
+    <line x1="16" y1="17" x2="8" y2="17"/>
+  </svg>
+  گزارش‌ها
+</a>
+<a href="{% url 'greenhouse_app:member_list' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="9" cy="7" r="4"/>
+    <path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/>
+  </svg>
+  اعضا
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="audit-header">
+  <div class="audit-title">
+    <h1>گزارش فعالیت</h1>
+    <p>تمام عملیات‌های ساخت، ویرایش و حذف برای {{ greenhouse.name }}</p>
+  </div>
+</div>
+
+<!-- Filter bar -->
+<div class="filter-bar">
+  <form method="get" action="">
+    <div class="filter-group">
+      <label for="f-user">عضو تیم</label>
+      <select name="user_id" id="f-user">
+        <option value="">تمامی عضوها</option>
+        {% for m in members %}
+          <option value="{{ m.user.id }}"
+            {% if filter_user_id == m.user.id|stringformat:"s" %}selected{% endif %}>
+            {{ m.user.get_full_name|default:m.user.username }}
+            ({{ m.get_role_display }})
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="f-action">فعالیت</label>
+      <select name="action" id="f-action">
+        <option value="">تمام فعالیت‌ها</option>
+        {% for val, label in action_choices %}
+          <option value="{{ val }}" {% if filter_action == val %}selected{% endif %}>
+            {{ label }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="f-entity">نوع رکورد</label>
+      <select name="entity_type" id="f-entity">
+        <option value="">تمام نوع‌ها</option>
+        {% for et in entity_types %}
+          <option value="{{ et }}" {% if filter_entity_type == et %}selected{% endif %}>
+            {{ et }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="f-from">از تاریخ</label>
+      <input type="text"
+            id="f-from"
+            data-jalali-picker
+            data-target="f-from-hidden"
+            placeholder="انتخاب تاریخ"
+            autocomplete="off"
+            readonly>
+      <input type="hidden"
+            id="f-from-hidden"
+            name="from"
+            value="{{ filter_from }}">
+    </div>
+
+    <div class="filter-group">
+      <label for="f-to">تا تاریخ</label>
+      <input type="text"
+            id="f-to"
+            data-jalali-picker
+            data-target="f-to-hidden"
+            placeholder="انتخاب تاریخ"
+            autocomplete="off"
+            readonly>
+      <input type="hidden"
+            id="f-to-hidden"
+            name="to"
+            value="{{ filter_to }}">
+    </div>
+
+    <div class="filter-actions">
+      <button type="submit" class="btn btn-primary">اجرا</button>
+      <a href="{% url 'auditlog:audit_log_list' greenhouse.id %}" class="btn btn-outline">پاکسازی</a>
+    </div>
+  </form>
+</div>
+
+<!-- Stats strip -->
+<div class="stats-strip">
+  <span>نمایش <strong>{{ page_obj.paginator.count }}</strong> ورودی</span>
+  {% if filter_action or filter_user_id or filter_entity_type or filter_from or filter_to %}
+    <span>— filters active</span>
+  {% endif %}
+</div>
+
+<!-- Log table -->
+{% if page_obj.object_list %}
+<div class="card">
+  <div class="log-table-wrap">
+    <table class="log-table">
+      <thead>
+        <tr>
+          <th>زمان</th>
+          <th>کاربر</th>
+          <th>فعالیت</th>
+          <th>نوع رکورد</th>
+          <th>رکورد</th>
+          <th>تغییر</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for entry in page_obj %}
+        <tr onclick="window.location='{% url 'auditlog:audit_log_detail' greenhouse.id entry.id %}'">
+          <td>
+            <span class="ts-date">{{ entry.timestamp|to_jalali }}</span>
+            <span class="ts-time">{{ entry.timestamp|time:"H:i" }}</span>
+          </td>
+          <td class="user-cell">
+            {{ entry.username_snapshot|default:"—" }}
+            {% if entry.user %}
+              <small>#{{ entry.user.id }}</small>
+            {% endif %}
+          </td>
+          <td>
+            {% if entry.action == 'create' %}
+              <span class="badge badge-create">ایجاد</span>
+            {% elif entry.action == 'update' %}
+              <span class="badge badge-update">بروزرسانی</span>
+            {% elif entry.action == 'delete' %}
+              <span class="badge badge-delete">حذف</span>
+            {% endif %}
+          </td>
+          <td><span class="entity-chip">{{ entry.entity_type }}</span></td>
+          <td>
+            <span title="{{ entry.entity_label }}">
+              {{ entry.entity_label|truncatechars:55 }}
+            </span>
+          </td>
+          <td>
+            <span class="diff-summary">
+              {% if entry.action == 'update' and entry.diff_summary %}
+                {{ entry.diff_summary }}
+              {% elif entry.action == 'create' %}
+                رکورد جدید
+              {% elif entry.action == 'delete' %}
+                حذف رکورد
+              {% endif %}
+            </span>
+          </td>
+          <td>
+            <a class="link-detail"
+               href="{% url 'auditlog:audit_log_detail' greenhouse.id entry.id %}"
+               onclick="event.stopPropagation()">
+              جزئیات ←
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<div class="pagination">
+  {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}&user_id={{ filter_user_id }}&action={{ filter_action }}&entity_type={{ filter_entity_type }}&from={{ filter_from }}&to={{ filter_to }}">← Prev</a>
+  {% endif %}
+
+  {% for num in page_obj.paginator.page_range %}
+    {% if page_obj.number == num %}
+      <span class="current">{{ num }}</span>
+    {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+      <a href="?page={{ num }}&user_id={{ filter_user_id }}&action={{ filter_action }}&entity_type={{ filter_entity_type }}&from={{ filter_from }}&to={{ filter_to }}">{{ num }}</a>
+    {% endif %}
+  {% endfor %}
+
+  {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}&user_id={{ filter_user_id }}&action={{ filter_action }}&entity_type={{ filter_entity_type }}&from={{ filter_from }}&to={{ filter_to }}">Next →</a>
+  {% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="card empty-log">
+  <div class="empty-icon">📋</div>
+  <p>فعالیتی پیدا نشد{% if filter_action or filter_user_id or filter_entity_type %} for the selected filters{% endif %}.</p>
+</div>
+{% endif %}
+{% endblock %}

@@ -39,9 +39,15 @@ def _parse_dates(request, default_days=30):
 @login_required
 def reports_index(request, greenhouse_id):
     greenhouse = _get_greenhouse(request, greenhouse_id)
+    membership = get_object_or_404(
+        GreenhouseMembership,
+        user=request.user,
+        greenhouse=greenhouse,
+    )
 
     return render(request, 'reports/index.html', {
         'greenhouse': greenhouse,
+        'membership': membership,
         'breadcrumbs': [
             {'label': 'Greenhouses', 'url': '/greenhouse_app/greenhouses/'},
             {'label': greenhouse.name, 'url': f'/greenhouse_app/greenhouses/{greenhouse.id}/'},

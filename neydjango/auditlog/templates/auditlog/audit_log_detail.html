@@ -1,0 +1,196 @@
+{% extends "greenhouse_app/base.html" %}
+{% load jalali_utils humanize %}
+
+{% block title %}Log Entry #{{ entry.id }} — {{ greenhouse.name }}{% endblock %}
+
+{% block sidebar_greenhouse_links %}
+<div class="sidebar-divider"></div>
+<span class="sidebar-label">{{ greenhouse.name|truncatechars:22 }}</span>
+<a href="{% url 'greenhouse_app:greenhouse_detail' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+  </svg>
+  نمای کلی
+</a>
+<a href="{% url 'operations:operation_list' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+    <rect x="9" y="3" width="6" height="4" rx="1"/>
+  </svg>
+  عملیات
+</a>
+<a href="{% url 'inventory:inventory_list' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
+    <path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/>
+  </svg>
+  انبار و موجودی
+</a>
+<a href="{% url 'financials:dashboard' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <line x1="12" y1="1" x2="12" y2="23"/>
+    <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+  </svg>
+  مالی و سود/زیان
+</a>
+<a href="{% url 'diagnosis:diagnosis_list' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="11" cy="11" r="8"/>
+    <path d="M21 21l-4.35-4.35M11 8v6M8 11h6"/>
+  </svg>
+  تشخیص بیماری
+</a>
+<a href="{% url 'reports:index' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+    <polyline points="14 2 14 8 20 8"/>
+    <line x1="16" y1="13" x2="8" y2="13"/>
+    <line x1="16" y1="17" x2="8" y2="17"/>
+  </svg>
+  گزارش‌ها
+</a>
+<a href="{% url 'greenhouse_app:member_list' greenhouse.id %}" class="sidebar-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="9" cy="7" r="4"/>
+    <path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/>
+  </svg>
+  اعضا
+</a>
+{% endblock %}
+
+{% block content %}
+
+<a href="{% url 'auditlog:audit_log_list' greenhouse.id %}" class="back-link">
+  ← Back to Activity Log
+</a>
+
+<!-- Meta cards -->
+<div class="meta-card">
+  <div class="meta-item">
+    <div class="meta-label">چه زمانی</div>
+    <div class="meta-value">{{ entry.timestamp|to_jalali }}</div>
+    <div class="meta-sub">{{ entry.timestamp|time:"H:i:s" }}</div>
+  </div>
+
+  <div class="meta-item">
+    <div class="meta-label">چه کسی</div>
+    <div class="meta-value">{{ entry.username_snapshot|default:"Unknown" }}</div>
+    {% if entry.user %}
+      <div class="meta-sub">User #{{ entry.user.id }}</div>
+    {% endif %}
+  </div>
+
+  <div class="meta-item">
+    <div class="meta-label">فعالیت</div>
+    <div class="meta-value">
+      {% if entry.action == 'create' %}
+        <span class="badge badge-create">ایجاد</span>
+      {% elif entry.action == 'update' %}
+        <span class="badge badge-update">بروزرسانی</span>
+      {% elif entry.action == 'delete' %}
+        <span class="badge badge-delete">حذف</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="meta-item">
+    <div class="meta-label">نوع رکورد</div>
+    <div class="meta-value" style="font-family:monospace;font-size:.9rem;">{{ entry.entity_type }}</div>
+    <div class="meta-sub">ID #{{ entry.entity_id }}</div>
+  </div>
+
+  <div class="meta-item">
+    <div class="meta-label">گلخانه</div>
+    <div class="meta-value">{{ greenhouse.name }}</div>
+  </div>
+
+  <div class="meta-item">
+    <div class="meta-label">لاگ ورودی</div>
+    <div class="meta-value">#{{ entry.id }}</div>
+  </div>
+</div>
+
+<!-- Record label -->
+<div class="record-info">
+  <div class="record-info-title">توضیحات رکورد هنگام انجام عملیات</div>
+  <div class="record-info-label">{{ entry.entity_label|default:"(no description)" }}</div>
+  <div class="record-info-id">{{ entry.entity_type }} #{{ entry.entity_id }}</div>
+</div>
+
+<!-- Diff section -->
+{% if is_update %}
+  <div class="section-heading">چه چیز تغییر کرده است</div>
+  <div class="card" style="padding:0;overflow:hidden;">
+    {% if diff_rows %}
+    <table class="diff-table">
+      <thead>
+        <tr>
+          <th>فیلد</th>
+          <th>قبل</th>
+          <th>بعد</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in diff_rows %}
+        <tr>
+          <td class="field-name">{{ row.field }}</td>
+          <td>
+            {% if row.before is None %}
+              <span class="val-null">null</span>
+            {% else %}
+              <span class="val-before">{{ row.before }}</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if row.after is None %}
+              <span class="val-null">null</span>
+            {% else %}
+              <span class="val-after">{{ row.after }}</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p style="padding:1.5rem;color:var(--text-muted);font-size:.875rem;">No field-level diff available.</p>
+    {% endif %}
+  </div>
+
+{% else %}
+
+  <!-- CREATE or DELETE — show snapshot -->
+  <div class="section-heading">
+    {% if entry.action == 'create' %}مقدار رکورد هنگام ایجاد{% else %}Record values before deletion{% endif %}
+  </div>
+  <div class="card" style="padding:0;overflow:hidden;">
+    {% if diff_rows %}
+    <table class="snapshot-table">
+      <thead>
+        <tr>
+          <th>فیلد</th>
+          <th>مقدار</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in diff_rows %}
+        <tr>
+          <td class="field-col">{{ row.field }}</td>
+          <td>
+            {% if row.value is None %}
+              <span class="val-null">null</span>
+            {% else %}
+              {{ row.value }}
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p style="padding:1.5rem;color:var(--text-muted);font-size:.875rem;">No snapshot data available.</p>
+    {% endif %}
+  </div>
+{% endif %}
+
+{% endblock %}

@@ -29,6 +29,7 @@ urlpatterns = [
     path('',                include('inventory.urls')),
     path('',                include('reports.urls')),
     path('polls/',          include('polls.urls')),
+    path('',                include('auditlog.urls')),
     path('greenhouse_app/', include('greenhouse_app.urls')),
     path('financials/',     include('financials.urls')),
     path('admin/',          admin.site.urls),

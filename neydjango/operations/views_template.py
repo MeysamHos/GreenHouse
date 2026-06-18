@@ -232,7 +232,7 @@ def operation_create(request, greenhouse_id):
 
             messages.success(
                 request,
-                f'{operation.get_operation_type_display()} logged.'
+                f'{operation.get_operation_type_display()} ثبت شد.'
                 + (f' {inventory_item.name} stock updated.' if inventory_item else '')
             )
             return redirect('operations:operation_list', greenhouse_id=greenhouse.id)

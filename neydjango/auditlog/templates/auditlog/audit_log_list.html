@@ -148,7 +148,7 @@
 <div class="stats-strip">
   <span>نمایش <strong>{{ page_obj.paginator.count }}</strong> ورودی</span>
   {% if filter_action or filter_user_id or filter_entity_type or filter_from or filter_to %}
-    <span>— فیلترها فعال هستند</span>
+    <span>— filters active</span>
   {% endif %}
 </div>
 
@@ -192,8 +192,8 @@
           </td>
           <td><span class="entity-chip">{{ entry.entity_type }}</span></td>
           <td>
-            <span title="{{ entry.entity_label }}">
-              {{ entry.entity_label|truncatechars:55 }}
+            <span title="{{ entry.entity_label|jalali_text }}">
+              {{ entry.entity_label|jalali_text|truncatechars:55 }}
             </span>
           </td>
           <td>
@@ -225,7 +225,7 @@
 {% if page_obj.has_other_pages %}
 <div class="pagination">
   {% if page_obj.has_previous %}
-    <a href="?page={{ page_obj.previous_page_number }}&user_id={{ filter_user_id }}&action={{ filter_action }}&entity_type={{ filter_entity_type }}&from={{ filter_from }}&to={{ filter_to }}">← قبلی</a>
+    <a href="?page={{ page_obj.previous_page_number }}&user_id={{ filter_user_id }}&action={{ filter_action }}&entity_type={{ filter_entity_type }}&from={{ filter_from }}&to={{ filter_to }}">← Prev</a>
   {% endif %}
 
   {% for num in page_obj.paginator.page_range %}
@@ -237,7 +237,7 @@
   {% endfor %}
 
   {% if page_obj.has_next %}
-    <a href="?page={{ page_obj.next_page_number }}&user_id={{ filter_user_id }}&action={{ filter_action }}&entity_type={{ filter_entity_type }}&from={{ filter_from }}&to={{ filter_to }}">بعدی →</a>
+    <a href="?page={{ page_obj.next_page_number }}&user_id={{ filter_user_id }}&action={{ filter_action }}&entity_type={{ filter_entity_type }}&from={{ filter_from }}&to={{ filter_to }}">Next →</a>
   {% endif %}
 </div>
 {% endif %}
@@ -245,7 +245,7 @@
 {% else %}
 <div class="card empty-log">
   <div class="empty-icon">📋</div>
-  <p>فعالیتی پیدا نشد{% if filter_action or filter_user_id or filter_entity_type %} با فیلترهای انتخاب‌شده{% endif %}.</p>
+  <p>فعالیتی پیدا نشد{% if filter_action or filter_user_id or filter_entity_type %} for the selected filters{% endif %}.</p>
 </div>
 {% endif %}
 {% endblock %}

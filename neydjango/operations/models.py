@@ -181,10 +181,16 @@ class Operation(models.Model):
         ]
 
     def __str__(self):
+        import jdatetime
+        try:
+            jalali = jdatetime.date.fromgregorian(date=self.performed_at)
+            date_str = jalali.strftime('%Y/%m/%d')
+        except Exception:
+            date_str = str(self.performed_at)
         return (
             f'{self.get_operation_type_display()} '
             f'@ {self.bed} '
-            f'on {self.performed_at}'
+            f'در {date_str}'
         )
 
     @property

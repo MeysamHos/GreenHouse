@@ -36,9 +36,9 @@ from django.utils.translation import gettext_lazy as _
 class AuditLog(models.Model):
 
     class Action(models.TextChoices):
-        CREATE = 'create', _('Created')
-        UPDATE = 'update', _('Updated')
-        DELETE = 'delete', _('Deleted')
+        CREATE = 'create', _('ایجاد شده')
+        UPDATE = 'update', _('به‌روزرسانی شده')
+        DELETE = 'delete', _('حذف شده')
 
     # ── Who ──────────────────────────────────────────────────────────
     user = models.ForeignKey(

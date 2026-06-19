@@ -20,6 +20,25 @@ from .models import AuditLog
 # Covers all tracked models: Operation, Crop, Bed, House, InventoryItem,
 # InventoryTransaction, Sale, Expense, GreenhouseMembership, OperationPhoto
 
+ENTITY_TYPE_LABELS_FA = {
+    'Operation':             'عملیات',
+    'OperationPhoto':        'تصویر عملیات',
+    'InventoryItem':         'آیتم انبار',
+    'InventoryTransaction':  'تراکنش انبار',
+    'Sale':                  'فروش',
+    'Expense':               'هزینه',
+    'Crop':                  'کشت',
+    'Bed':                   'بستر',
+    'House':                 'سالن',
+    'GreenhouseMembership':  'عضویت گلخانه',
+}
+
+
+def _fa_entity_type(entity_type):
+    """Return Persian label for an entity_type (model name), or raw name if unmapped."""
+    return ENTITY_TYPE_LABELS_FA.get(entity_type, entity_type)
+
+
 FIELD_LABELS_FA = {
     # Common
     'id':                   'شناسه',
@@ -106,7 +125,6 @@ FIELD_LABELS_FA = {
     'image':                'تصویر',
     'caption':              'توضیح تصویر',
     'uploaded_at':          'تاریخ آپلود',
-
 }
 
 # Fields whose values are stored as "YYYY-MM-DD" strings in the JSON diff.
@@ -192,6 +210,9 @@ def audit_log_list(request, greenhouse_id):
         .distinct()
         .order_by('entity_type')
     )
+    # (raw_value, persian_label) pairs — raw value still used for filtering,
+    # persian_label shown in the dropdown
+    entity_type_choices = [(et, _fa_entity_type(et)) for et in entity_types]
 
     context = {
         'greenhouse': greenhouse,
@@ -199,6 +220,7 @@ def audit_log_list(request, greenhouse_id):
         'page_obj': page_obj,
         'members': members,
         'entity_types': entity_types,
+        'entity_type_choices': entity_type_choices,
         'action_choices': AuditLog.Action.choices,
         'filter_user_id': user_id,
         'filter_action': action,
@@ -244,6 +266,7 @@ def audit_log_detail(request, greenhouse_id, log_id):
     context = {
         'greenhouse': greenhouse,
         'entry': entry,
+        'entity_type_fa': _fa_entity_type(entry.entity_type),
         'diff_rows': diff_rows,
         'is_update': entry.action == AuditLog.Action.UPDATE,
     }

@@ -21,15 +21,20 @@ DIFF EXTRACTION:
   For UPDATE signals, we compare the current DB state to the new values
   using model._loaded_values (stored on post_init) vs the current field values.
   Fields excluded from diff: auto timestamps, large text blobs, binary data.
+
+READABLE VALUES (added):
+  ForeignKey fields are resolved to the related object's __str__ instead of
+  the raw numeric ID (e.g. "گلخانه میثم / سالن اول / B-01" instead of "2").
+  Fields with Django choices (e.g. Operation.operation_type) are resolved
+  to their display label (e.g. "آبیاری" instead of "irrigation") using
+  get_FOO_display().
 """
 
-import json
 import threading
 from decimal import Decimal
 from datetime import date, datetime
 
 from django.db.models.signals import post_save, post_delete, pre_save
-from django.dispatch import receiver
 
 _thread_locals = threading.local()
 
@@ -70,28 +75,64 @@ def _serialize_value(val):
 
 
 def _model_to_dict(instance, exclude=None):
-    """Return a flat dict of field_name → serialised value for an instance."""
+    """
+    Return a flat dict of field_name → serialised value for an instance.
+
+    For ForeignKey fields: stores the related object's display string
+    (e.g. "گلخانه میثم / سالن اول / B-01") under the FK's column name
+    (e.g. "bed_id"), instead of the raw integer ID. This makes the audit
+    log human-readable without any changes needed in templates.
+
+    For CharFields with `choices` (e.g. operation_type, status): stores
+    the display label via get_FOO_display() instead of the raw stored value.
+    """
     exclude = exclude or set()
     result = {}
     for field in instance._meta.concrete_fields:
-        name = field.attname  # e.g. 'bed_id' for ForeignKeys
-        if name in EXCLUDED_FIELDS or name in exclude:
+        attname = field.attname  # e.g. 'bed_id' for ForeignKeys, 'name' otherwise
+        if attname in EXCLUDED_FIELDS or attname in exclude:
             continue
-        val = getattr(instance, name, None)
-        if name in TRUNCATED_FIELDS and isinstance(val, str) and len(val) > 200:
+
+        # ── ForeignKey: resolve to the related object's __str__ ──────────
+        if field.is_relation and field.many_to_one:
+            raw_id = getattr(instance, attname, None)
+            if raw_id is None:
+                result[attname] = None
+            else:
+                try:
+                    related_obj = getattr(instance, field.name)
+                    result[attname] = str(related_obj) if related_obj else None
+                except Exception:
+                    # Related object may have been deleted — fall back to raw ID
+                    result[attname] = raw_id
+            continue
+
+        # ── Choice field: resolve to the human-readable label ────────────
+        if field.choices:
+            display_method = getattr(instance, f'get_{field.name}_display', None)
+            raw_val = getattr(instance, attname, None)
+            if raw_val in (None, ''):
+                result[attname] = raw_val
+            elif callable(display_method):
+                result[attname] = display_method()
+            else:
+                result[attname] = raw_val
+            continue
+
+        # ── Everything else: serialise normally ───────────────────────────
+        val = getattr(instance, attname, None)
+        if attname in TRUNCATED_FIELDS and isinstance(val, str) and len(val) > 200:
             val = val[:200] + '…'
-        result[name] = _serialize_value(val)
+        result[attname] = _serialize_value(val)
+
     return result
 
 
 def _compute_diff(old_values, new_instance):
     """Compare old dict to current instance fields. Returns changed fields only."""
+    new_values = _model_to_dict(new_instance)
     diff = {}
-    for field in new_instance._meta.concrete_fields:
-        name = field.attname
-        if name in EXCLUDED_FIELDS:
-            continue
-        new_val = _serialize_value(getattr(new_instance, name, None))
+    for name, new_val in new_values.items():
         old_val = old_values.get(name)
         if new_val != old_val:
             diff[name] = {'before': old_val, 'after': new_val}

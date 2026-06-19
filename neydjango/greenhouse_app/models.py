@@ -217,7 +217,7 @@ class Crop(models.Model):
         ordering = ['-planted_at']
 
     def __str__(self):
-        return f"{self.crop_type} ({self.variety}) @ {self.bed} [{self.status}]"
+        return f"{self.crop_type} ({self.variety}) @ {self.bed} [{self.get_status_display()}]"
 
     @property
     def greenhouse(self):

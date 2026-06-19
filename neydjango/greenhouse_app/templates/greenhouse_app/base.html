@@ -922,6 +922,23 @@
     .stagger > *:nth-child(5) { animation-delay: .20s; opacity: 0; }
     .stagger > *:nth-child(6) { animation-delay: .24s; opacity: 0; }
 
+    /* ─── Manual ────────────────────────────────────────────────────*/
+    select,.filter-group select, .filter-group input[type="date"], .filter-group input[type="text"] {
+      /* 1. Keeps the native arrow hidden */
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+
+      /* 2. Adds a clean chevron arrow via an SVG data URI */
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+      background-repeat: no-repeat;
+      
+      /* 3. CONTROL POSITION: 'left 16px' positions it 16px from the left edge */
+      background-position: left 5px center;
+      background-size: 16px;
+
+    }
+
     /* ── Responsive ──────────────────────────────────────────────────── */
     @media (max-width: 768px) {
       .menu-btn   { display: flex; align-items: center; justify-content: center; }

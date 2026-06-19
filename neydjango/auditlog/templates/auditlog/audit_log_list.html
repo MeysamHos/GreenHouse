@@ -99,9 +99,9 @@
       <label for="f-entity">نوع رکورد</label>
       <select name="entity_type" id="f-entity">
         <option value="">تمام نوع‌ها</option>
-        {% for et in entity_types %}
-          <option value="{{ et }}" {% if filter_entity_type == et %}selected{% endif %}>
-            {{ et }}
+        {% for et_raw, et_label in entity_type_choices %}
+          <option value="{{ et_raw }}" {% if filter_entity_type == et_raw %}selected{% endif %}>
+            {{ et_label }}
           </option>
         {% endfor %}
       </select>
@@ -190,7 +190,7 @@
               <span class="badge badge-delete">حذف</span>
             {% endif %}
           </td>
-          <td><span class="entity-chip">{{ entry.entity_type }}</span></td>
+          <td><span class="entity-chip">{{ entry.entity_type|entity_type_fa }}</span></td>
           <td>
             <span title="{{ entry.entity_label|jalali_text }}">
               {{ entry.entity_label|jalali_text|truncatechars:55 }}

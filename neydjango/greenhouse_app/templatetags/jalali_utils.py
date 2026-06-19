@@ -1,33 +1,40 @@
 import re
 import datetime
 from django import template
-from django.utils import timezone
 import jdatetime
 
 register = template.Library()
 
 
+# Same mapping as auditlog/views.py ENTITY_TYPE_LABELS_FA — kept in sync
+# manually since this is a presentation-only concern for templates.
+ENTITY_TYPE_LABELS_FA = {
+    'Operation':             'عملیات',
+    'OperationPhoto':        'تصویر عملیات',
+    'InventoryItem':         'آیتم انبار',
+    'InventoryTransaction':  'تراکنش انبار',
+    'Sale':                  'فروش',
+    'Expense':               'هزینه',
+    'Crop':                  'کشت',
+    'Bed':                   'بستر',
+    'House':                 'سالن',
+    'GreenhouseMembership':  'عضویت گلخانه',
+}
+
+
+@register.filter
+def entity_type_fa(value):
+    """Translate a model class name (e.g. 'Operation') to its Persian label."""
+    return ENTITY_TYPE_LABELS_FA.get(value, value)
+
+
 @register.filter
 def to_jalali(value, fmt=None):
-    """Convert a Gregorian date or datetime object to a Jalali string.
-
-    If `value` is a timezone-aware datetime (e.g. created_at from
-    auto_now_add), it must be converted to the local TIME_ZONE
-    (Asia/Tehran) BEFORE extracting the date — otherwise a UTC
-    datetime after 20:30 still belongs to "today" in Tehran, but
-    naive date-extraction would show it as yesterday.
-    """
+    """Convert a Gregorian date or datetime object to a Jalali string."""
     if not value:
         return ''
     try:
-        # datetime.datetime is a subclass of datetime.date, so check
-        # datetime first.
-        if isinstance(value, datetime.datetime):
-            if timezone.is_aware(value):
-                value = timezone.localtime(value)  # convert to settings.TIME_ZONE
-            jd = jdatetime.date.fromgregorian(date=value.date())
-        else:
-            jd = jdatetime.date.fromgregorian(date=value)
+        jd = jdatetime.date.fromgregorian(date=value)
         return jd.strftime('%Y/%m/%d')
     except Exception:
         return str(value)

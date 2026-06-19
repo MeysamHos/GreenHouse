@@ -1,6 +1,7 @@
 import re
 import datetime
 from django import template
+from django.utils import timezone
 import jdatetime
 
 register = template.Library()
@@ -8,11 +9,25 @@ register = template.Library()
 
 @register.filter
 def to_jalali(value, fmt=None):
-    """Convert a Gregorian date or datetime object to a Jalali string."""
+    """Convert a Gregorian date or datetime object to a Jalali string.
+
+    If `value` is a timezone-aware datetime (e.g. created_at from
+    auto_now_add), it must be converted to the local TIME_ZONE
+    (Asia/Tehran) BEFORE extracting the date — otherwise a UTC
+    datetime after 20:30 still belongs to "today" in Tehran, but
+    naive date-extraction would show it as yesterday.
+    """
     if not value:
         return ''
     try:
-        jd = jdatetime.date.fromgregorian(date=value)
+        # datetime.datetime is a subclass of datetime.date, so check
+        # datetime first.
+        if isinstance(value, datetime.datetime):
+            if timezone.is_aware(value):
+                value = timezone.localtime(value)  # convert to settings.TIME_ZONE
+            jd = jdatetime.date.fromgregorian(date=value.date())
+        else:
+            jd = jdatetime.date.fromgregorian(date=value)
         return jd.strftime('%Y/%m/%d')
     except Exception:
         return str(value)

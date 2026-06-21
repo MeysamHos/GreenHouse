@@ -215,6 +215,7 @@ def pnl_report(request):
         bed__house__greenhouse=gh,
         performed_at__range=(date_from, date_to),
         cost__isnull=False,
+        status=Operation.Status.COMPLETED,
     )
     if crop_id:
         ops_qs = ops_qs.filter(crop_id=crop_id)

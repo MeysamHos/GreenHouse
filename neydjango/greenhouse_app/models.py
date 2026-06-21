@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-
+from django.utils.translation import gettext_lazy as _
 
 class Greenhouse(models.Model):
     """
@@ -168,6 +168,15 @@ class Crop(models.Model):
         on_delete=models.CASCADE,
         related_name='crops'
     )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='created_crops',
+        help_text="کاربری که این دوره کاشت را ایجاد کرده است.",
+        verbose_name="ایجاد شده توسط",
+    )
     crop_type = models.CharField(
         max_length=100,
         help_text="نوع محصول. برای مثال: «Tomato» (گوجه‌فرنگی)، «Cucumber» (خیار)، «گوجه فرنگی»",
@@ -208,6 +217,18 @@ class Crop(models.Model):
         blank=True,
         help_text="تعداد گیاهان در این دوره کاشت",
         verbose_name="تعداد گیاهان"
+    )
+    applied_template = models.ForeignKey(
+        'operations.CropOperationTemplate',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='applied_to_crops',
+        help_text=_(
+            'در صورت اعمال «عملیات پیشنهادی»، قالب استفاده‌شده اینجا ثبت می‌شود. '
+            'برای جلوگیری از اعمال دوباره و نمایش وضعیت استفاده می‌شود.'
+        ),
+        verbose_name=_('قالب اعمال‌شده'),
     )
     notes = models.TextField(blank=True, verbose_name="یادداشت")
     created_at = models.DateTimeField(auto_now_add=True)

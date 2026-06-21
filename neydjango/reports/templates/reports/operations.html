@@ -226,7 +226,11 @@
               {% if op.harvest_weight_kg %}{{ op.harvest_weight_kg|floatformat:1 }}{% else %}—{% endif %}
             </td>
             <td class="text-dim" style="font-size: 11px;">
-              {{ op.performed_by.get_full_name|default:op.performed_by.username|default:"—" }}
+              {% if op.performed_by %}
+                {{ op.performed_by.get_full_name|default:op.performed_by.username }}
+              {% else %}
+                —
+              {% endif %}
             </td>
           </tr>
           {% endfor %}

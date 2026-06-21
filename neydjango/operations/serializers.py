@@ -5,6 +5,7 @@ operations/serializers.py
 from rest_framework import serializers
 from accounts.serializers import UserMinimalSerializer
 from .models import Operation, OperationPhoto
+from .models import CropOperationTemplate, CropOperationTemplateStep
 
 
 class OperationPhotoSerializer(serializers.ModelSerializer):
@@ -31,6 +32,59 @@ class OperationListSerializer(serializers.ModelSerializer):
             'cost', 'harvest_weight_kg',
             'performed_by',
         ]
+
+
+class CropOperationTemplateStepSerializer(serializers.ModelSerializer):
+    operation_type_display = serializers.CharField(
+        source='get_operation_type_display', read_only=True
+    )
+    unit_display = serializers.CharField(
+        source='get_unit_display', read_only=True
+    )
+
+    class Meta:
+        model = CropOperationTemplateStep
+        fields = [
+            'id', 'template', 'operation_type', 'operation_type_display',
+            'day_offset_start', 'repeat_every_days', 'repeat_until_day',
+            'quantity', 'unit', 'unit_display', 'product_name', 'notes',
+        ]
+        read_only_fields = ['id']
+
+
+class CropOperationTemplateSerializer(serializers.ModelSerializer):
+    """Read serializer — includes nested steps, used to preview a template
+    before applying it (e.g. a confirmation view in the frontend)."""
+    steps = CropOperationTemplateStepSerializer(many=True, read_only=True)
+    greenhouse_name = serializers.CharField(
+        source='greenhouse.name', read_only=True, default=None
+    )
+    is_global = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CropOperationTemplate
+        fields = [
+            'id', 'crop_type', 'variety', 'greenhouse', 'greenhouse_name',
+            'is_global', 'name', 'is_active', 'steps',
+            'created_at', 'updated_at',
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+    def get_is_global(self, obj):
+        return obj.greenhouse_id is None
+
+
+# ── Lightweight serializer for the "apply" response ───────────────────────
+
+class AppliedOperationsResultSerializer(serializers.Serializer):
+    """
+    Not tied to a model — shapes the response of the apply-template action:
+    how many operations were created, and a compact list of them.
+    """
+    template_id = serializers.IntegerField()
+    template_name = serializers.CharField()
+    created_count = serializers.IntegerField()
+    operations = OperationListSerializer(many=True, read_only=True)
 
 
 class OperationDetailSerializer(serializers.ModelSerializer):
@@ -93,3 +147,4 @@ class OperationWriteSerializer(serializers.ModelSerializer):
                 {'harvest_weight_kg': 'Harvest weight can only be set for harvesting operations.'}
             )
         return attrs
+

@@ -39,6 +39,28 @@ urlpatterns = [
         views_template.operation_delete,
         name='operation_delete',
     ),
+    path(
+        'greenhouse_app/greenhouses/<int:greenhouse_id>/crops/<int:crop_id>/apply-template/',
+        views_template.crop_apply_template,
+        name='crop_apply_template',
+    ),
+    path(
+        'greenhouse_app/greenhouses/<int:greenhouse_id>/crops/<int:crop_id>/cancel-planned/',
+        views_template.crop_cancel_planned,
+        name='crop_cancel_planned',
+    ),
+    path(
+        'greenhouse_app/greenhouses/<int:greenhouse_id>/operations/<int:operation_id>/skip/',
+        views_template.operation_skip,
+        name='operation_skip',
+    ),
+    path(
+        'greenhouse_app/greenhouses/<int:greenhouse_id>/operations/<int:operation_id>/complete/',
+        views_template.operation_complete,
+        name='operation_complete',
+    ),
+
+
 
     # ── JSON API ──────────────────────────────────────────────────────
     path(
@@ -65,5 +87,30 @@ urlpatterns = [
     'greenhouse_app/greenhouses/<int:greenhouse_id>/inventory-items-json/',
     views_template.inventory_items_by_type_api,
     name='inventory_items_by_type_api',
+    ),
+    path(
+        'api/v1/greenhouses/<int:greenhouse_pk>/crops/<int:crop_pk>/apply-template/',
+        views.CropApplyTemplateView.as_view(),
+        name='api-crop-apply-template',
+    ),
+    path(
+        'api/v1/greenhouses/<int:greenhouse_pk>/crops/<int:crop_pk>/cancel-planned/',
+        views.CropCancelPlannedView.as_view(),
+        name='api-crop-cancel-planned',
+    ),
+    path(
+        'api/v1/operations/<int:operation_pk>/skip/',
+        views.OperationSkipView.as_view(),
+        name='api-operation-skip',
+    ),
+    path(
+        'api/v1/greenhouses/<int:greenhouse_pk>/crop-templates/',
+        views.CropOperationTemplateListView.as_view(),
+        name='api-crop-template-list',
+    ),
+    path(
+        'api/v1/operations/<int:operation_pk>/complete/',
+        views.OperationCompleteView.as_view(),
+        name='api-operation-complete',
     ),
 ]

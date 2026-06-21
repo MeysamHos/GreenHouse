@@ -78,8 +78,21 @@
     </div>
   </div>
   <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+    {% if operation.status == 'planned' and can_write_operations %}
+      <form method="post" action="{% url 'operations:operation_complete' greenhouse.id operation.id %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline" style="border-color: var(--green); color: var(--green);">
+          تکمیل شد
+        </button>
+      </form>
+      <form method="post" action="{% url 'operations:operation_skip' greenhouse.id operation.id %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline">رد کردن این عملیات</button>
+      </form>
+    {% endif %}
+
     <a href="{% url 'operations:operation_edit' greenhouse.id operation.id %}"
-       class="btn btn-outline">ویرایش</a>
+      class="btn btn-outline">ویرایش</a>
     <form method="post"
           action="{% url 'operations:operation_delete' greenhouse.id operation.id %}">
       {% csrf_token %}
@@ -99,23 +112,33 @@
     <div class="card animate-in">
       <div class="card-header">
         <span class="card-title">جزئیات عملیات</span>
-        {% if operation.operation_type == 'irrigation' %}
-          <span class="badge badge-blue">آبیاری</span>
-        {% elif operation.operation_type == 'fertilizing' %}
-          <span class="badge badge-amber">کوددهی</span>
-        {% elif operation.operation_type == 'spraying' %}
-          <span class="badge badge-red">سم‌پاشی</span>
-        {% elif operation.operation_type == 'harvesting' %}
-          <span class="badge badge-green">برداشت</span>
-        {% elif operation.operation_type == 'pruning' %}
-          <span class="badge badge-muted">هرس</span>
-        {% elif operation.operation_type == 'transplant' %}
-          <span class="badge badge-muted">نشاء</span>
-        {% elif operation.operation_type == 'inspection' %}
-          <span class="badge badge-blue">بازدید</span>
-        {% else %}
-          <span class="badge badge-muted">{{ operation.get_operation_type_display }}</span>
-        {% endif %}
+        <div style="display: flex; gap: 6px;">
+          {% if operation.operation_type == 'irrigation' %}
+            <span class="badge badge-blue">آبیاری</span>
+          {% elif operation.operation_type == 'fertilizing' %}
+            <span class="badge badge-amber">کوددهی</span>
+          {% elif operation.operation_type == 'spraying' %}
+            <span class="badge badge-red">سم‌پاشی</span>
+          {% elif operation.operation_type == 'harvesting' %}
+            <span class="badge badge-green">برداشت</span>
+          {% elif operation.operation_type == 'pruning' %}
+            <span class="badge badge-muted">هرس</span>
+          {% elif operation.operation_type == 'transplant' %}
+            <span class="badge badge-muted">نشاء</span>
+          {% elif operation.operation_type == 'inspection' %}
+            <span class="badge badge-blue">بازدید</span>
+          {% else %}
+            <span class="badge badge-muted">{{ operation.get_operation_type_display }}</span>
+          {% endif %}
+
+          {% if operation.status == 'planned' %}
+            <span class="badge badge-amber">برنامه‌ریزی شده</span>
+          {% elif operation.status == 'skipped' %}
+            <span class="badge badge-muted">رد شده</span>
+          {% elif operation.status == 'cancelled' %}
+            <span class="badge badge-red">لغو شده</span>
+          {% endif %}
+        </div>
       </div>
       <div class="card-body">
         <table style="width: 100%;">
@@ -185,13 +208,21 @@
           <tr>
             <td style="padding: 8px 0; color: var(--text-dim); font-size: 12px;">انجام دهنده</td>
             <td style="padding: 8px 0; font-size: 13px;">
-              {{ operation.performed_by.get_full_name|default:operation.performed_by.username|default:"—" }}
+              {% if operation.performed_by %}
+                {{ operation.performed_by.get_full_name|default:operation.performed_by.username }}
+              {% else %}
+                —
+              {% endif %}
             </td>
           </tr>
           <tr>
             <td style="padding: 8px 0; color: var(--text-dim); font-size: 12px;">ثبت کننده</td>
             <td style="padding: 8px 0; font-size: 13px; color: var(--text-muted);">
-              {{ operation.logged_by.get_full_name|default:operation.logged_by.username|default:"—" }}
+              {% if operation.logged_by %}
+                {{ operation.logged_by.get_full_name|default:operation.logged_by.username }}
+              {% else %}
+                —
+              {% endif %}
             </td>
           </tr>
           <tr>

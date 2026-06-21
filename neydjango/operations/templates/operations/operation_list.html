@@ -184,6 +184,7 @@
           <th>ماده / جزئیات</th>
           <th>مقدار</th>
           <th>هزینه</th>
+          <th>وضعیت</th>
           <th>اپراتور</th>
           <th>اقدام</th>
         </tr>
@@ -215,6 +216,7 @@
               <span class="badge badge-muted">{{ op.get_operation_type_display }}</span>
             {% endif %}
           </td>
+          
           <td>
             <a href="{% url 'greenhouse_app:bed_detail' greenhouse.id op.bed.house.id op.bed.id %}"
                style="color: var(--blue); text-decoration: none; font-size: 12px;">
@@ -238,22 +240,51 @@
               <span class="text-amber">{{ op.cost|floatformat:0 }}</span>
             {% else %}—{% endif %}
           </td>
+          <td style="font-size: 10px;">
+            {% if op.status == 'planned' %}
+              <span class="badge badge-amber">برنامه‌ریزی‌شده</span>
+            {% elif op.status == 'completed' %}
+              <span class="badge badge-green">انجام شده</span>
+            {% elif op.status == 'skipped' %}
+              <span class="badge badge-muted">رد شده</span>
+            {% elif op.status == 'cancelled' %}
+              <span class="badge badge-red">لغو شده</span>
+            {% endif %}
+          </td>
           <td style="font-size: 12px;" class="text-muted">
-            {{ op.performed_by.get_full_name|default:op.performed_by.username|default:"—" }}
+            {% if op.performed_by %}
+              {{ op.performed_by.get_full_name|default:op.performed_by.username }}
+            {% else %}
+              —
+            {% endif %}
           </td>
           <td>
-            <div style="display: flex; gap: 4px;">
+            <div style="display: flex; gap: 4px; flex-wrap: wrap;">
               <a href="{% url 'operations:operation_detail' greenhouse.id op.id %}"
-                 class="btn btn-outline btn-sm">مشاهده</a>
+                class="btn btn-outline btn-sm">مشاهده</a>
               <a href="{% url 'operations:operation_edit' greenhouse.id op.id %}"
-                 class="btn btn-outline btn-sm">ویرایش</a>
+                class="btn btn-outline btn-sm">ویرایش</a>
+
+              {% if op.status == 'planned' and can_write_operations %}
+                <form method="post" action="{% url 'operations:operation_complete' greenhouse.id op.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-outline btn-sm" style="border-color: var(--green); color: var(--green);">
+                    تکمیل شد
+                  </button>
+                </form>
+                <form method="post" action="{% url 'operations:operation_skip' greenhouse.id op.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-outline btn-sm">رد کردن</button>
+                </form>
+              {% endif %}
+
               <form method="post" action="{% url 'operations:operation_delete' greenhouse.id op.id %}">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-danger btn-sm"
-                      onclick="return confirm('آیا این عملیات حذف شود؟ این عملیات قابل بازگشت نیست.')">
-                حذف
-              </button>
-            </form>
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm"
+                        onclick="return confirm('آیا این عملیات حذف شود؟ این عملیات قابل بازگشت نیست.')">
+                  حذف
+                </button>
+              </form>
             </div>
           </td>
         </tr>

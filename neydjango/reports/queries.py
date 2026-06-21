@@ -54,10 +54,13 @@ def get_pnl_report(greenhouse, date_from, date_to):
     sales_count = rev['count'] or 0
 
     # Cost: operations
+    # CHUNK 5: added status=COMPLETED — planned/skipped/cancelled operations
+    # must never be counted as real spend.
     cost_ops = Operation.objects.filter(
         bed__house__greenhouse=greenhouse,
         performed_at__range=(date_from, date_to),
         cost__isnull=False,
+        status=Operation.Status.COMPLETED,
     ).aggregate(total=Sum('cost'))['total'] or Decimal('0.00')
 
     # Cost: inventory purchases
@@ -98,11 +101,13 @@ def get_pnl_report(greenhouse, date_from, date_to):
     )
 
     # Operations cost by type
+    # CHUNK 5: added status=COMPLETED — same reasoning as cost_ops above.
     ops_by_type = list(
         Operation.objects.filter(
             bed__house__greenhouse=greenhouse,
             performed_at__range=(date_from, date_to),
             cost__isnull=False,
+            status=Operation.Status.COMPLETED,
         )
         .values('operation_type')
         .annotate(total=Sum('cost'), count=Count('id'))
@@ -148,16 +153,22 @@ def get_crop_report(greenhouse, date_from, date_to, crop_id=None):
     results = []
     for crop in crops_qs:
         # Operation costs for this crop
+        # CHUNK 5: added status=COMPLETED — this is a financial figure,
+        # planned/future operations have no real cost yet.
         op_cost = Operation.objects.filter(
             crop=crop,
             cost__isnull=False,
+            status=Operation.Status.COMPLETED,
         ).aggregate(total=Sum('cost'))['total'] or Decimal('0.00')
 
         # Harvest weight from HARVESTING operations
+        # CHUNK 5: added status=COMPLETED — a planned future harvest has
+        # no real weight yet; only count harvests that actually happened.
         harvest_kg = Operation.objects.filter(
             crop=crop,
             operation_type='harvesting',
             harvest_weight_kg__isnull=False,
+            status=Operation.Status.COMPLETED,
         ).aggregate(total=Sum('harvest_weight_kg'))['total'] or Decimal('0.00')
 
         # Revenue from sales
@@ -166,6 +177,12 @@ def get_crop_report(greenhouse, date_from, date_to, crop_id=None):
         )['total'] or Decimal('0.00')
 
         # Operation count
+        # CHUNK 5: intentionally LEFT UNFILTERED by status — this is an
+        # activity count ("how many operations exist for this crop"),
+        # not a financial figure. Includes planned/skipped/cancelled so
+        # the count reflects the crop's full operational plan, not just
+        # completed work. If you want a "completed only" count elsewhere,
+        # add a separate field rather than changing this one's meaning.
         op_count = Operation.objects.filter(crop=crop).count()
 
         profit = revenue - op_cost
@@ -196,10 +213,20 @@ def get_crop_report(greenhouse, date_from, date_to, crop_id=None):
 
 # ── Report 3: Operations Log ──────────────────────────────────────────────────
 
-def get_operations_report(greenhouse, date_from, date_to, operation_type=None, bed_id=None):
+def get_operations_report(greenhouse, date_from, date_to, operation_type=None,
+                           bed_id=None, status=None):
     """
     Filtered operation log with cost totals by type.
     Mirrors GET /api/v1/operations?from=&to=&type=&bed_id= from the business document.
+
+    CHUNK 5: added optional `status` parameter. The returned `operations`
+    list is UNFILTERED by status unless the caller explicitly passes one —
+    planned/skipped/cancelled rows remain visible in the log by default,
+    since hiding them would prevent reviewing what's upcoming or was
+    skipped/cancelled. However, `total_cost`, `by_type` cost totals, and
+    `harvest_total_kg` ALWAYS filter to status='completed' regardless of
+    the `status` param, since those are financial/yield figures and must
+    never include non-completed operations.
     """
     from operations.models import Operation
 
@@ -212,9 +239,15 @@ def get_operations_report(greenhouse, date_from, date_to, operation_type=None, b
         qs = qs.filter(operation_type=operation_type)
     if bed_id:
         qs = qs.filter(bed_id=bed_id)
+    if status:
+        qs = qs.filter(status=status)
 
-    # Summary aggregates
-    summary = qs.aggregate(
+    # CHUNK 5: cost/financial aggregates computed from a SEPARATE,
+    # always-completed-only queryset — independent of whatever status
+    # filter was applied to `qs` above for display purposes.
+    completed_qs = qs.filter(status=Operation.Status.COMPLETED)
+
+    summary = completed_qs.aggregate(
         total_cost=Sum('cost'),
         total_count=Count('id'),
         avg_cost=Avg('cost'),
@@ -222,13 +255,13 @@ def get_operations_report(greenhouse, date_from, date_to, operation_type=None, b
 
     # Cost breakdown by operation type
     by_type = list(
-        qs.values('operation_type')
+        completed_qs.values('operation_type')
         .annotate(count=Count('id'), total_cost=Sum('cost'))
         .order_by('-total_cost')
     )
 
     # Harvest totals
-    harvest_total = qs.filter(
+    harvest_total = completed_qs.filter(
         operation_type='harvesting',
         harvest_weight_kg__isnull=False,
     ).aggregate(total_kg=Sum('harvest_weight_kg'))['total_kg'] or Decimal('0.00')
@@ -244,6 +277,8 @@ def get_operations_report(greenhouse, date_from, date_to, operation_type=None, b
 
 
 # ── Report 4: Inventory Usage ─────────────────────────────────────────────────
+# No changes needed — this report is entirely about InventoryTransaction,
+# which has no status field and is unrelated to Operation.status.
 
 def get_inventory_report(greenhouse, date_from, date_to, category=None):
     """

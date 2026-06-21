@@ -17,6 +17,7 @@ from django.contrib import messages
 from django.views.decorators.http import require_POST
 from django import forms
 from accounts.models import GreenhouseMembership
+from accounts.permissions import get_role_context
 from .models import Greenhouse, House, Bed, Crop
 from django.contrib.auth.forms import UserCreationForm
 from accounts.models import User
@@ -282,15 +283,19 @@ def house_edit(request, greenhouse_id, house_id):
 @login_required
 def bed_detail(request, greenhouse_id, house_id, bed_id):
     greenhouse = get_object_or_404(Greenhouse, id=greenhouse_id,
-                                   memberships__user=request.user)
+                                    memberships__user=request.user)
     house  = get_object_or_404(House, id=house_id, greenhouse=greenhouse)
     bed    = get_object_or_404(Bed, id=bed_id, house=house)
     crops  = bed.crops.all().order_by('-planted_at')
     active = crops.filter(status='growing').first()
 
+    user_role, can_write_operations = get_role_context(greenhouse, request.user)
+
     return render(request, 'greenhouse_app/bed_detail.html', {
         'greenhouse': greenhouse, 'house': house, 'bed': bed,
         'crops': crops, 'active_crop': active,
+        'user_role': user_role,
+        'can_write_operations': can_write_operations,
     })
 
 

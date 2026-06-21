@@ -111,3 +111,24 @@ class CanWriteOperations(BasePermission):
             return True
         membership = get_membership(request.user, greenhouse_id)
         return membership is not None and membership.role in self.ALLOWED_ROLES
+
+def get_role_context(greenhouse, user):
+    """
+    Returns (user_role, can_write_operations) for this user+greenhouse —
+    for use in template views that need to show/hide UI elements based on
+    role, without duplicating role-set logic that already lives in
+    CanWriteOperations above.
+
+    can_write_operations reuses CanWriteOperations.ALLOWED_ROLES directly,
+    so there is exactly ONE place in the codebase that defines "which
+    roles can write operations" — this function and the DRF permission
+    class both read from the same source, they can never drift apart.
+
+    Returns (None, False) if the user has no membership in this greenhouse.
+    """
+    membership = get_membership(user, greenhouse.id)
+    user_role = membership.role if membership else None
+    can_write_operations = (
+        membership is not None and membership.role in CanWriteOperations.ALLOWED_ROLES
+    )
+    return user_role, can_write_operations
